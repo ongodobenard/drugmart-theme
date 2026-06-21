@@ -753,7 +753,8 @@
     [home_url('/submit-prescription'), 'Submit Prescription',  is_page('submit-prescription')],
     [home_url('/ultra-sound-service'), 'Ultra Sound Services', is_page('ultrasound-services') || is_page('ultra-sound-service')],
     [home_url('/refund'),              'Returns &amp; Policy', is_page('refund')],
-  ];
+    [home_url('/blog'),                'Blog',                 is_page('blog')],
+];
   foreach ($mob_nav_items as [$url, $label, $active]) {
     echo '<a href="' . esc_url($url) . '"' . ($active ? ' class="active"' : '') . '>' . wp_kses_post($label) . '</a>';
   }
@@ -775,8 +776,7 @@
     </span>
     <span class="address-info">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <?php echo function_exists('medicare_address') ? esc_html(medicare_address()) : 'Nairobi, Kenya'; ?> : Mon-Fri: 8am-6pm | Sat: 8:30am-1:00pm | Sun &amp; Holidays: closed.
-    </span>
+      <?php echo function_exists('medicare_address') ? esc_html(medicare_address()) : 'Nairobi, Kenya'; ?> 
   </div>
   <div class="topbar-socials">
     <a href="<?php echo esc_url(get_option('medicare_facebook','#')); ?>" target="_blank" rel="noopener noreferrer" class="t-soc t-soc-fb" aria-label="Facebook">
