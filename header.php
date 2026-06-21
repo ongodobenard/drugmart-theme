@@ -159,13 +159,48 @@
 .topbar {
   background: var(--navy); color: #ccc; font-size: 12px;
   display: flex; justify-content: space-between; align-items: center;
-  padding: 6px var(--page-px); flex-wrap: wrap; gap: 12px;
+  padding: 6px var(--page-px); flex-wrap: nowrap; gap: 16px;
+  overflow: hidden;
 }
-.topbar-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.topbar-left span { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-.topbar-left svg { flex-shrink: 0; color: #ffffff; }
-.topbar-left a { color: inherit; text-decoration: none; }
-.topbar-socials { display: flex; align-items: center; gap: 8px; }
+
+/* ── Scrolling marquee (contact info + promo, right to left) ── */
+.topbar-marquee {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+}
+.topbar-marquee-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: topbar-scroll 26s linear infinite;
+  will-change: transform;
+}
+.topbar-marquee:hover .topbar-marquee-track { animation-play-state: paused; }
+@keyframes topbar-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.topbar-marquee-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 800; color: #fff; white-space: nowrap;
+}
+.topbar-marquee-item svg { flex-shrink: 0; stroke: #ffffff; }
+.topbar-marquee-item a { color: inherit; text-decoration: none; font-weight: 800; }
+.topbar-marquee-sep {
+  margin: 0 26px;
+  opacity: .45;
+  font-weight: 700;
+  color: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .topbar-marquee-track { animation: none; }
+}
+
+.topbar-socials { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .t-soc {
   display: inline-flex; align-items: center; justify-content: center;
@@ -764,19 +799,43 @@
 
 <!-- ==================== TOPBAR ==================== -->
 <div class="topbar">
-  <div class="topbar-left">
-    <span>
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-      <a href="tel:+254796140021">+254 796140021</a>
-    </span>
-    <span class="email-info">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      <?php echo function_exists('medicare_email') ? esc_html(medicare_email()) : 'info@familydrugmart.co.ke'; ?>
-    </span>
-    <span class="address-info">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <?php echo function_exists('medicare_address') ? esc_html(medicare_address()) : 'Nairobi, Kenya'; ?> 
+
+  <div class="topbar-marquee">
+    <div class="topbar-marquee-track">
+      <?php
+      $bg_topbar_items = function() {
+          ?>
+          <span class="topbar-marquee-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            <a href="tel:+254796140021">+254 796140021</a>
+          </span>
+          <span class="topbar-marquee-sep">&#9679;</span>
+
+          <span class="topbar-marquee-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <?php echo function_exists('medicare_email') ? esc_html(medicare_email()) : 'info@familydrugmart.co.ke'; ?>
+          </span>
+          <span class="topbar-marquee-sep">&#9679;</span>
+
+          <span class="topbar-marquee-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <?php echo function_exists('medicare_address') ? esc_html(medicare_address()) : 'Nairobi, Kenya'; ?>
+          </span>
+          <span class="topbar-marquee-sep">&#9679;</span>
+
+          <span class="topbar-marquee-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Hassle-free shopping : Enjoy FREE delivery on orders above KSh 2,500 within Nairobi!
+          </span>
+          <span class="topbar-marquee-sep">&#9679;</span>
+          <?php
+      };
+      $bg_topbar_items();
+      $bg_topbar_items();
+      ?>
+    </div>
   </div>
+
   <div class="topbar-socials">
     <a href="<?php echo esc_url(get_option('medicare_facebook','#')); ?>" target="_blank" rel="noopener noreferrer" class="t-soc t-soc-fb" aria-label="Facebook">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
