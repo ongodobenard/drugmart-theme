@@ -273,7 +273,6 @@
    CART WRAPPER
 ════════════════════════════════════════════════ */
 .hdr-cart-wrap {
-  position: relative;
   display: flex;
   align-items: center;
 }
@@ -291,9 +290,10 @@
   background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 800;
   min-width: 18px; height: 18px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  position: absolute; top: -5px; right: -3px;
+  position: absolute; top: -2px; right: -2px;
   border: 2px solid var(--blue); padding: 0 3px;
 }
+
 .badge-dot.wish-badge { display: none; }
 .badge-dot.wish-badge.has-items { display: flex; }
 
