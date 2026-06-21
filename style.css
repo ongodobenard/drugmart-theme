@@ -386,4 +386,4 @@ footer{background:#0d1f16;color:rgba(255,255,255,.7);padding:56px 5% 26px;}
   .feat-item{flex:0 0 calc(50% - 6px);}
   .foot-grid{grid-template-columns:1fr;}
   .form-row{grid-template-columns:1fr;}
-}
+} /* deploy test */
