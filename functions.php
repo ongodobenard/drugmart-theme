@@ -566,7 +566,7 @@ function carevee_build_and_send_order( $args ) {
     if ( function_exists( 'wc_create_order' ) && ! empty( $wc_items ) ) {
         try {
             $order = wc_create_order( [
-                'status'      => 'pending',
+                'status'      => 'Processing',
                 'customer_id' => get_current_user_id(),
             ] );
 

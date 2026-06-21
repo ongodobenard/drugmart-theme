@@ -391,11 +391,11 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 0796140
       <div class="ab-stat-label">Years of Service</div>
     </div>
     <div>
-      <div class="ab-stat-num" data-target="5" data-suffix="K+">0K+</div>
+      <div class="ab-stat-num" data-target="8" data-suffix="K+">0K+</div>
       <div class="ab-stat-label">Happy Customers</div>
     </div>
     <div>
-      <div class="ab-stat-num" data-target="2" data-suffix="K+">0K+</div>
+      <div class="ab-stat-num" data-target="6" data-suffix="K+">0K+</div>
       <div class="ab-stat-label">Products Available</div>
     </div>
     <div>
