@@ -20,25 +20,25 @@ if ( defined('WP_DEBUG') && WP_DEBUG ) {
     @set_time_limit(300);
 }
 
-// ─── SMTP CONFIGURATION ───────────────────────
-add_action( 'phpmailer_init', function ( $phpmailer ) {
-    $phpmailer->isSMTP();
-    $phpmailer->Host       = 'cs2.rcnoc.com';
-    $phpmailer->SMTPAuth   = true;
-    $phpmailer->Port       = 465;
-    $phpmailer->SMTPSecure = 'ssl';
-    $phpmailer->Username   = 'info@familydrugmartkenya.com'; // FIXED: removed trailing dot
-    $phpmailer->Password   = 'Carevee@2026'; // ⚠ confirm this is still the correct mailbox password
-    $phpmailer->From       = 'info@familydrugmartkenya.com'; // FIXED: removed trailing dot
-    $phpmailer->FromName   = get_bloginfo( 'name' ) . ' Website';
-    $phpmailer->SMTPOptions = [
-        'ssl' => [
-            'verify_peer'       => false,
-            'verify_peer_name'  => false,
-            'allow_self_signed' => true,
-        ],
-    ];
-} );
+// // ─── SMTP CONFIGURATION ───────────────────────
+// add_action( 'phpmailer_init', function ( $phpmailer ) {
+//     $phpmailer->isSMTP();
+//     $phpmailer->Host       = 'cs2.rcnoc.com';
+//     $phpmailer->SMTPAuth   = true;
+//     $phpmailer->Port       = 465;
+//     $phpmailer->SMTPSecure = 'ssl';
+//     $phpmailer->Username   = 'info@familydrugmartkenya.com'; // FIXED: removed trailing dot
+//     $phpmailer->Password   = 'Carevee@2026'; // ⚠ confirm this is still the correct mailbox password
+//     $phpmailer->From       = 'info@familydrugmartkenya.com'; // FIXED: removed trailing dot
+//     $phpmailer->FromName   = get_bloginfo( 'name' ) . ' Website';
+//     $phpmailer->SMTPOptions = [
+//         'ssl' => [
+//             'verify_peer'       => false,
+//             'verify_peer_name'  => false,
+//             'allow_self_signed' => true,
+//         ],
+//     ];
+// } );
 
 // ─── THEME SETUP ──────────────────────────────
 function medicare_setup() {
