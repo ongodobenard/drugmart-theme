@@ -277,16 +277,15 @@
   display: flex;
   align-items: center;
 }
-
 .hdr-cart {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   color: white; position: relative; text-decoration: none;
   padding: 6px 10px; border-radius: 5px;
   transition: background .2s, transform .15s;
 }
 .hdr-cart:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
 .hdr-cart svg { stroke: #ffffff; }
-.cart-total-amt { font-size: 14px; font-weight: 700; color: white; }
+.cart-total-amt { font-size: 14px; font-weight: 700; color: white; line-height: 1; }
 
 .badge-dot {
   background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 800;
