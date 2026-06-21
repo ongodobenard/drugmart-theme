@@ -473,7 +473,6 @@ $bg_trending = new WP_Query([
   .bg-grid { order: 1; }
 }
 @media (max-width: 640px) {
-  html, body { overflow-x: hidden; max-width: 100%; }
   .bg-wrap { margin: 24px auto 40px; padding: 0 16px; width: 100%; }
   .bg-hero { padding: 32px 20px; border-radius: 16px; }
   .bg-hero-desc { font-size: 12.5px; }
