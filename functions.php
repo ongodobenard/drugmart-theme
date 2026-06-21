@@ -14,6 +14,14 @@
  *   "Submit Prescription" button for restricted categories, site-wide
  * - NOTE: carevee_submit_prescription field names (rx_fname, rx_nonce, etc.) must match
  *   whichever prescription form is actually live — confirm this against your live page.
+ * - FIXED: Order status now correctly set to lowercase 'processing' (WooCommerce status
+ *   slugs are case-sensitive; 'Processing' with capital P does not match any registered
+ *   status and was silently failing, leaving orders stuck on the WC default of 'pending').
+ * - NEW: Manual order attribution capture (medicare_apply_order_attribution). Our custom
+ *   AJAX checkout bypasses WooCommerce's native checkout form processing, so the built-in
+ *   Order Attribution feature's auto-injected hidden fields never reach the order. This
+ *   reads Sourcebuster's sbjs_* cookies directly server-side and saves the equivalent
+ *   _wc_order_attribution_* meta so the Origin column populates correctly again.
  */
 
 if ( defined('WP_DEBUG') && WP_DEBUG ) {
@@ -535,6 +543,78 @@ add_action( 'wp_ajax_carevee_submit_prescription',        'carevee_submit_prescr
 add_action( 'wp_ajax_nopriv_carevee_submit_prescription', 'carevee_submit_prescription' );
 
 // ════════════════════════════════════════════════════════════════════════════
+// ─── ORDER ATTRIBUTION (manual cookie read — fallback for custom checkout) ──
+// WooCommerce's native attribution JS injects hidden fields into form.checkout
+// automatically, but our custom checkout form isn't reliably receiving them
+// (order is created server-side via wc_create_order(), bypassing native checkout
+// form processing entirely). Sourcebuster.js — which WooCommerce uses under the
+// hood for attribution — still sets sbjs_* cookies in the visitor's browser
+// regardless, so we read those directly here and save the equivalent
+// _wc_order_attribution_* meta keys WooCommerce Admin's Orders list and Origin
+// column expect.
+// ════════════════════════════════════════════════════════════════════════════
+function medicare_apply_order_attribution( $order ) {
+    if ( ! $order instanceof WC_Order ) return;
+
+    // Sourcebuster stores pipe-delimited key|value pairs, URL-encoded, in cookies
+    // named sbjs_current (latest touch) and sbjs_first (first-ever touch).
+    $current_raw = isset( $_COOKIE['sbjs_current'] ) ? $_COOKIE['sbjs_current'] : '';
+    $first_raw   = isset( $_COOKIE['sbjs_first'] )   ? $_COOKIE['sbjs_first']   : '';
+
+    $parse_sbjs = function ( $raw ) {
+        $out = [];
+        if ( empty( $raw ) ) return $out;
+        $decoded = urldecode( $raw );
+        $pairs   = explode( '||', $decoded );
+        foreach ( $pairs as $pair ) {
+            $kv = explode( '|', $pair, 2 );
+            if ( count( $kv ) === 2 ) {
+                $out[ trim( $kv[0] ) ] = trim( $kv[1] );
+            }
+        }
+        return $out;
+    };
+
+    $current_data = $parse_sbjs( $current_raw );
+    $first_data   = $parse_sbjs( $first_raw );
+
+    $source_type = $current_data['typ'] ?? $first_data['typ'] ?? '';
+    $source      = $current_data['src'] ?? $first_data['src'] ?? '';
+    $medium      = $current_data['mdm'] ?? $first_data['mdm'] ?? '';
+    $campaign    = $current_data['cmp'] ?? $first_data['cmp'] ?? '';
+    $referrer    = $current_data['rf']  ?? $first_data['rf']  ?? '';
+
+    // Normalize source_type to what WooCommerce Admin's Origin column expects
+    if ( empty( $source_type ) ) {
+        if ( ! empty( $campaign ) )     $source_type = 'utm';
+        elseif ( ! empty( $referrer ) ) $source_type = 'referral';
+        else                             $source_type = 'typein'; // direct visit
+    }
+
+    if ( empty( $source ) && $source_type === 'typein' ) {
+        $source = '(direct)';
+    }
+
+    if ( $source_type ) {
+        $order->update_meta_data( '_wc_order_attribution_source_type', sanitize_text_field( $source_type ) );
+    }
+    if ( $source ) {
+        $order->update_meta_data( '_wc_order_attribution_utm_source', sanitize_text_field( $source ) );
+    }
+    if ( $medium ) {
+        $order->update_meta_data( '_wc_order_attribution_utm_medium', sanitize_text_field( $medium ) );
+    }
+    if ( $campaign ) {
+        $order->update_meta_data( '_wc_order_attribution_utm_campaign', sanitize_text_field( $campaign ) );
+    }
+    if ( $referrer ) {
+        $order->update_meta_data( '_wc_order_attribution_referrer', esc_url_raw( $referrer ) );
+    }
+
+    $order->update_meta_data( '_wc_order_attribution_device_type', wp_is_mobile() ? 'Mobile' : 'Desktop' );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // ─── SHARED ORDER HELPER ─────────────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
 function carevee_build_and_send_order( $args ) {
@@ -565,8 +645,12 @@ function carevee_build_and_send_order( $args ) {
 
     if ( function_exists( 'wc_create_order' ) && ! empty( $wc_items ) ) {
         try {
+            // NOTE: WooCommerce order status slugs are lowercase ('processing',
+            // not 'Processing'). Since this store is Cash on Delivery only,
+            // there's no separate payment-pending step to wait for, so orders
+            // go straight to Processing on placement — matching prior behavior.
             $order = wc_create_order( [
-                'status'      => 'Processing',
+                'status'      => 'processing',
                 'customer_id' => get_current_user_id(),
             ] );
 
@@ -595,6 +679,10 @@ function carevee_build_and_send_order( $args ) {
                 'Order placed via Family Drugmart ' . ( $via === 'whatsapp' ? 'WhatsApp button' : 'website checkout' ) . '.',
                 0
             );
+
+            // Capture traffic source/origin since our custom checkout bypasses
+            // WooCommerce's native attribution field injection.
+            medicare_apply_order_attribution( $order );
 
             $order->calculate_totals();
             $order->save();
@@ -626,7 +714,7 @@ function carevee_build_and_send_order( $args ) {
     }
 
     $wc_block = $order_id
-        ? '<tr><td style="padding:12px 32px 0;"><div style="background:#eef1f8;border:1.5px solid #c7d2e8;border-radius:8px;padding:10px 16px;font-size:12px;color:#15306e;">Order #' . $order_id . ' saved to WooCommerce, Status: <strong>Pending Payment</strong></div></td></tr>'
+        ? '<tr><td style="padding:12px 32px 0;"><div style="background:#eef1f8;border:1.5px solid #c7d2e8;border-radius:8px;padding:10px 16px;font-size:12px;color:#15306e;">Order #' . $order_id . ' saved to WooCommerce, Status: <strong>Processing</strong></div></td></tr>'
         : ( $order_error ? '<tr><td style="padding:12px 32px 0;"><div style="background:#fff0f0;border:1.5px solid #f0b8b8;border-radius:8px;padding:10px 16px;font-size:12px;color:#c0392b;">WC order creation failed: ' . esc_html( $order_error ) . '</div></td></tr>' : '' );
 
     $view_btn = $order_id

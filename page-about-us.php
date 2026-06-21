@@ -332,7 +332,7 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 0796140
 @media (max-width: 640px) {
   .ab-wrap { margin: 24px auto 40px; padding: 0 16px; }
   .ab-hero { padding: 20px; border-radius: 16px; }
-  .ab-hero-img-wrap img { height: 190px; }
+  .ab-hero-img-wrap img { height: 230px; object-position: top center; }
   .ab-hero-desc { font-size: 12.5px; }
   .ab-services-grid { grid-template-columns: 1fr; }
   .ab-stats { padding: 24px 18px; }

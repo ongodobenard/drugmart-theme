@@ -371,19 +371,31 @@ if (
     pointer-events: none;
 }
 
-/* ── Hero content — CENTERED ── */
+/* ── Hero content — top group pinned to top, bottom group pinned to bottom,
+   nav arrows stay separate/untouched ── */
 .fd-hero-content {
     position: absolute;
     inset: 0;
     z-index: 5;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     text-align: center;
-    padding: 0 40px;
+    padding: 32px 40px;
     width: 100%;
     max-width: 100%;
+}
+.fd-hero-content-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.fd-hero-content-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
 .fd-hero-tag {
@@ -402,7 +414,7 @@ if (
     font-weight: 900;
     font-size: clamp(28px, 3.6vw, 48px);
     color: #fff; line-height: 1.18;
-    margin: 0 0 16px;
+    margin: 0;
     text-shadow: 0 2px 12px rgba(0,0,0,.55);
     max-width: 780px;
     opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .22s;
@@ -419,7 +431,7 @@ if (
 .fd-hero-desc {
     font-family: var(--fd-font-body); font-size: 15px;
     line-height: 1.75; color: rgba(255,255,255,.95);
-    margin: 0 0 28px; max-width: 560px;
+    margin: 0 0 20px; max-width: 560px;
     text-shadow: 0 1px 8px rgba(0,0,0,.55);
     opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .34s;
 }
@@ -475,7 +487,7 @@ if (
     width: 1px; height: 14px; background: rgba(255,255,255,.30); flex-shrink: 0;
 }
 
-/* ── Carousel nav arrows (circular) ── */
+/* ── Carousel nav arrows (circular) — independent of hero-content ── */
 .fd-hero-nav {
     position: absolute;
     top: 50%;
@@ -514,14 +526,14 @@ if (
 /* ── Hero responsive ── */
 @media (max-width: 1100px) {
     .fd-hero { height: 420px; }
-    .fd-hero-content { padding: 0 28px; }
+    .fd-hero-content { padding: 28px; }
 }
 @media (max-width: 768px) {
     .fd-hero { height: 360px !important; border-radius: 14px; }
     .fd-hero-slide { background-position: center 12% !important; }
-    .fd-hero-content { padding: 0 18px !important; }
+    .fd-hero-content { padding: 20px 18px !important; }
     .fd-hero-tag { font-size: 9px !important; margin-bottom: 12px !important; }
-    .fd-hero-heading { font-size: clamp(22px, 5.5vw, 30px) !important; margin-bottom: 14px !important; }
+    .fd-hero-heading { font-size: clamp(22px, 5.5vw, 30px) !important; }
     .fd-hero-desc { display: none !important; }
     .fd-hero-btn-blue { display: none; }
     .fd-hero-trust-row { display: none !important; }
@@ -799,29 +811,25 @@ ul.woocommerce-error,
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
-                        <span class="fd-hero-tag">Kenya's Trusted Pharmacy</span>
-                        <h1 class="fd-hero-heading" data-main="Expert Advice, " data-highlight="Right When You Need It"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
-                        <p class="fd-hero-desc">Chat live with our qualified pharmacists every day. Trusted guidance on medications, supplements &amp; health questions, all in one place.</p>
-                        <div class="fd-hero-actions">
-                            <a href="<?php echo esc_url($shop_url); ?>" class="fd-hero-btn-primary">
-                                Shop Now
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </a>
-                            <a href="https://wa.me/<?php echo esc_attr( $fd_wa_number ); ?>?text=<?php echo rawurlencode("Hi! I'd like to speak with a pharmacist."); ?>"
-                               class="fd-hero-btn-blue" target="_blank" rel="noopener noreferrer">
-                                Talk to a Pharmacist &rarr;
-                            </a>
+                        <div class="fd-hero-content-top">
+                            <span class="fd-hero-tag">Kenya's Trusted Pharmacy</span>
+                            <h1 class="fd-hero-heading" data-main="Expert Advice, " data-highlight="Right When You Need It"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                        </div>
+                        <div class="fd-hero-content-bottom">
+                            <p class="fd-hero-desc">Chat live with our qualified pharmacists every day. Trusted guidance on medications, supplements &amp; health questions, all in one place.</p>
+                            <div class="fd-hero-actions">
+                                <a href="<?php echo esc_url($shop_url); ?>" class="fd-hero-btn-primary">
+                                    Shop Now
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                                <a href="https://wa.me/<?php echo esc_attr( $fd_wa_number ); ?>?text=<?php echo rawurlencode("Hi! I'd like to speak with a pharmacist."); ?>"
+                                   class="fd-hero-btn-blue" target="_blank" rel="noopener noreferrer">
+                                    Talk to a Pharmacist &rarr;
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="fd-hero-trust-row" aria-hidden="true">
-                        <div class="fd-hero-trust-item"><span class="fd-hero-trust-dot"></span>60,000+ Happy Customers</div>
-                        <div class="fd-hero-trust-sep"></div>
-                        <div class="fd-hero-trust-item"><span class="fd-hero-trust-dot"></span>5,000+ Genuine Products</div>
-                        <div class="fd-hero-trust-sep"></div>
-                        <div class="fd-hero-trust-item"><span class="fd-hero-trust-dot"></span>Licensed by PPB Kenya</div>
-                        <div class="fd-hero-trust-sep"></div>
-                        <div class="fd-hero-trust-item"><span class="fd-hero-trust-dot"></span>7-Day Pharmacist Support</div>
-                    </div>
+                  
                 </div>
 
                 <!-- SLIDE 2 — SKINCARE -->
@@ -830,14 +838,18 @@ ul.woocommerce-error,
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
-                        <span class="fd-hero-tag">Glow Naturally</span>
-                        <h1 class="fd-hero-heading" data-main="Skincare That " data-highlight="Loves You Back"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
-                        <p class="fd-hero-desc">Dermatologist-trusted skincare for every skin type, sourced and stocked with care.</p>
-                        <div class="fd-hero-actions">
-                            <a href="<?php echo esc_url($skincare_url); ?>" class="fd-hero-btn-primary">
-                                Shop Skincare
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </a>
+                        <div class="fd-hero-content-top">
+                            <span class="fd-hero-tag">Glow Naturally</span>
+                            <h1 class="fd-hero-heading" data-main="Skincare That " data-highlight="Loves You Back"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                        </div>
+                        <div class="fd-hero-content-bottom">
+                            <p class="fd-hero-desc">Dermatologist-trusted skincare for every skin type, sourced and stocked with care.</p>
+                            <div class="fd-hero-actions">
+                                <a href="<?php echo esc_url($skincare_url); ?>" class="fd-hero-btn-primary">
+                                    Shop Skincare
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -848,14 +860,18 @@ ul.woocommerce-error,
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
-                        <span class="fd-hero-tag">Gentle Care, Trusted Brands</span>
-                        <h1 class="fd-hero-heading" data-main="Everything Your " data-highlight="Baby Needs"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
-                        <p class="fd-hero-desc">From formula to baby skincare, shop trusted essentials for your little one.</p>
-                        <div class="fd-hero-actions">
-                            <a href="<?php echo esc_url($infant_url); ?>" class="fd-hero-btn-primary">
-                                Shop Baby Care
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </a>
+                        <div class="fd-hero-content-top">
+                            <span class="fd-hero-tag">Gentle Care, Trusted Brands</span>
+                            <h1 class="fd-hero-heading" data-main="Everything Your " data-highlight="Baby Needs"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                        </div>
+                        <div class="fd-hero-content-bottom">
+                            <p class="fd-hero-desc">From formula to baby skincare, shop trusted essentials for your little one.</p>
+                            <div class="fd-hero-actions">
+                                <a href="<?php echo esc_url($infant_url); ?>" class="fd-hero-btn-primary">
+                                    Shop Baby Care
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
