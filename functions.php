@@ -696,7 +696,7 @@ if ( is_email( $email ) ) {
     $headers_sales[] = 'Reply-To: ' . trim( $fname . ' ' . $lname ) . ' <' . $email . '>';
 }
 
-    $sent_sales = wp_mail( [ $notify_email, 'ongodobenard72@gmail.com' ], $subject_sales, $html_sales, $headers_sales );
+    $sent_sales = wp_mail( [ $notify_email, 'gladyswanjimwa@gmail.com' ], $subject_sales, $html_sales, $headers_sales );
 
     $sent_customer = false;
     if ( is_email( $email ) && $via !== 'whatsapp' ) {
