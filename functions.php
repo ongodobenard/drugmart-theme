@@ -138,18 +138,19 @@ function medicare_wa_button() {
     $product_id = $product->get_id();
     $wa_url     = medicare_get_wa_url( $product_id );
     ?>
-    <button
-        type="button"
+    
+        href="<?php echo esc_url( $wa_url ); ?>"
+        target="_blank"
+        rel="noopener noreferrer"
         class="wc-wa-btn carevee-wa-order-btn"
         data-product-id="<?php echo esc_attr( $product_id ); ?>"
         data-wa-url="<?php echo esc_url( $wa_url ); ?>"
-        data-nonce="<?php echo esc_attr( wp_create_nonce( 'carevee_order_nonce' ) ); ?>"
     >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
         Medicine Enquiry
-    </button>
+    </a>
     <?php
 }
 add_action( 'woocommerce_single_product_summary', 'medicare_wa_button', 35 );
@@ -181,26 +182,6 @@ add_action( 'pre_get_posts', function ( $query ) {
     ];
     $query->set( 'meta_query', $existing );
     $query->set( 'post_type', 'product' );
-} );
-
-// ─── CART CLEAR ON REDIRECT (WA orders) ───────
-add_action( 'template_redirect', function () {
-    if ( ! isset( $_GET['carevee_order_sent'] ) || $_GET['carevee_order_sent'] !== '1' ) return;
-    if ( ! function_exists( 'WC' ) || ! WC()->cart ) return;
-
-    WC()->cart->empty_cart();
-    if ( WC()->session ) {
-        WC()->session->set( 'cart', [] );
-        WC()->session->set( 'cart_totals', null );
-    }
-    if ( function_exists( 'wc_clear_notices' ) ) wc_clear_notices();
-
-    $shop_url = function_exists( 'wc_get_page_id' )
-        ? get_permalink( wc_get_page_id( 'shop' ) )
-        : home_url( '/shop' );
-
-    wp_redirect( esc_url_raw( $shop_url ) );
-    exit;
 } );
 
 // ─── AJAX: FILTER PRODUCTS BY CATEGORY ───────
@@ -244,7 +225,6 @@ function medicare_filter_products() {
             $brand_n = ( $brands && ! is_wp_error( $brands ) ) ? $brands[0]->name : '';
 
             $wa_product_url = medicare_get_wa_url( $product_id );
-            $wa_nonce       = wp_create_nonce( 'carevee_order_nonce' );
             $is_rx          = medicare_is_prescription_product( $product_id );
             ?>
             <div class="p-card">
@@ -296,18 +276,19 @@ function medicare_filter_products() {
                       Add to Cart
                     </a>
                   <?php endif; ?>
-                  <button
-                    type="button"
+                  
+                    href="<?php echo esc_url( $wa_product_url ); ?>"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="p-btn-wa carevee-wa-order-btn"
                     data-product-id="<?php echo esc_attr( $product_id ); ?>"
                     data-wa-url="<?php echo esc_url( $wa_product_url ); ?>"
-                    data-nonce="<?php echo esc_attr( $wa_nonce ); ?>"
                   >
                     <span class="p-btn-ico">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </span>
                     Medicine Enquiry
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -322,12 +303,9 @@ add_action( 'wp_ajax_medicare_filter_products',        'medicare_filter_products
 add_action( 'wp_ajax_nopriv_medicare_filter_products', 'medicare_filter_products' );
 
 // ════════════════════════════════════════════════════════════════════════════
-// ─── GLOBAL JS FOR WA ORDER BUTTON ──────────────────────────────────────
+// ─── GLOBAL JS — WA ENQUIRY BUTTON (no cart touch, pure redirect) ─────────
 // ════════════════════════════════════════════════════════════════════════════
 add_action( 'wp_footer', function () {
-    $shop_url = function_exists( 'wc_get_page_id' )
-        ? get_permalink( wc_get_page_id( 'shop' ) )
-        : home_url( '/shop' );
     ?>
     <script>
     (function($){
@@ -336,33 +314,11 @@ add_action( 'wp_footer', function () {
 
         $(document).on('click', '.carevee-wa-order-btn', function(e){
             e.preventDefault();
-            var $btn      = $(this);
-            var productId = $btn.data('product-id');
-            var waUrl     = $btn.data('wa-url');
-            var nonce     = $btn.data('nonce');
-            var qty       = 1;
-
-            var $qtyInput = $('input.qty');
-            if ($qtyInput.length) qty = parseInt($qtyInput.val()) || 1;
-
-            $btn.prop('disabled', true).css('opacity', '0.6');
-
-            $.ajax({
-                url  : (typeof medicareData !== 'undefined' ? medicareData.ajaxUrl : '/wp-admin/admin-ajax.php'),
-                type : 'POST',
-                data : {
-                    action             : 'carevee_wa_order',
-                    carevee_order_nonce: nonce,
-                    product_id         : productId,
-                    qty                : qty,
-                    phone              : '',
-                    customer_name      : 'WhatsApp Client',
-                },
-                complete: function(){
-                    window.open(waUrl, '_blank');
-                    window.location.href = <?php echo wp_json_encode( esc_url_raw( $shop_url ) ); ?>;
-                }
-            });
+            var waUrl = $(this).data('wa-url') || $(this).attr('href');
+            if (waUrl) {
+                window.open(waUrl, '_blank');
+            }
+            // Cart is NEVER touched here — enquiry is WhatsApp only
         });
     })(jQuery);
     </script>
@@ -852,54 +808,6 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
     return wp_mail( $email, $subject, $html, $headers );
 }
 
-// ─── AJAX: WHATSAPP QUICK ORDER ───────────────
-add_action( 'wp_ajax_carevee_wa_order',        'carevee_wa_order_handler' );
-add_action( 'wp_ajax_nopriv_carevee_wa_order', 'carevee_wa_order_handler' );
-
-function carevee_wa_order_handler() {
-    if ( ! isset( $_POST['carevee_order_nonce'] ) ||
-         ! wp_verify_nonce( sanitize_text_field( $_POST['carevee_order_nonce'] ), 'carevee_order_nonce' ) ) {
-        wp_send_json_error( [ 'msg' => 'Security check failed.' ] );
-        return;
-    }
-
-    $product_id = intval( $_POST['product_id'] ?? 0 );
-    $qty        = max( 1, intval( $_POST['qty'] ?? 1 ) );
-
-    if ( ! $product_id || ! function_exists( 'wc_get_product' ) ) {
-        wp_send_json_error( [ 'msg' => 'Invalid product.' ] );
-        return;
-    }
-
-    $product = wc_get_product( $product_id );
-    if ( ! $product ) {
-        wp_send_json_error( [ 'msg' => 'Product not found.' ] );
-        return;
-    }
-
-    $price  = (float) $product->get_price();
-    $sub    = $price * $qty;
-    $result = carevee_build_and_send_order( [
-        'fname'      => 'WhatsApp',
-        'lname'      => 'Client',
-        'country'    => 'KE',
-        'payment'    => 'cod',
-        'via'        => 'whatsapp',
-        'cart_lines' => [ [ 'name' => $product->get_name(), 'qty' => $qty, 'price' => $price, 'sub' => $sub ] ],
-        'wc_items'   => [ [ 'product' => $product, 'qty' => $qty ] ],
-    ] );
-
-    if ( function_exists( 'WC' ) && WC()->cart ) {
-        WC()->cart->empty_cart();
-        if ( WC()->session ) {
-            WC()->session->set( 'cart', [] );
-            WC()->session->set( 'cart_totals', null );
-        }
-    }
-
-    wp_send_json_success( [ 'msg' => 'Order logged.', 'order_id' => $result['order_id'] ] );
-}
-
 // ─── AJAX: CHECKOUT PLACE ORDER ───────────────
 add_action( 'wp_ajax_carevee_send_order_email',        'carevee_send_order_email_handler' );
 add_action( 'wp_ajax_nopriv_carevee_send_order_email', 'carevee_send_order_email_handler' );
@@ -1143,25 +1051,27 @@ function drugmart_safe_price( $price, $product ) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// ─── CART SESSION FIX — Prevents stale cart showing in new sessions ───────
-// Forces WooCommerce to always read a fresh session, never serve a cached
-// cart to a visitor who has no active session cookie of their own.
+// ─── CART SESSION FIX ────────────────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
 
 /**
- * 1. If there is no woocommerce_session cookie at all (brand new visitor /
- *    incognito window), destroy any server-side session object and give them
- *    a clean empty cart immediately — before WC tries to load anything.
+ * Only destroy a session when: no cookie exists AND no active session data
+ * AND we are NOT in an AJAX request (add-to-cart, fragments, etc).
  */
 add_action( 'woocommerce_load_cart_from_session', function () {
+
     if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+        return;
+    }
+
+    // Never touch the session during any AJAX call
+    if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
         return;
     }
 
     $cookie_name = 'woocommerce_session_' . COOKIEHASH;
 
-    // No session cookie = brand new visitor. Wipe any lingering server-side data.
-    if ( empty( $_COOKIE[ $cookie_name ] ) ) {
+    if ( empty( $_COOKIE[ $cookie_name ] ) && ! WC()->session->has_session() ) {
         WC()->session->destroy_session();
         WC()->cart->empty_cart( false );
     }
@@ -1169,23 +1079,10 @@ add_action( 'woocommerce_load_cart_from_session', function () {
 }, 1 );
 
 /**
- * 2. On every AJAX fragment refresh, force WC to re-read the cart from the
- *    current session rather than returning whatever was object-cached.
- */
-add_action( 'woocommerce_cart_loaded_from_session', function () {
-    if ( defined( 'DOING_AJAX' ) && DOING_AJAX && function_exists( 'WC' ) && WC()->cart ) {
-        WC()->cart->get_cart_from_session();
-    }
-} );
-
-/**
- * 3. Prevent ANY page-level caching plugin from caching the cart-fragments
- *    AJAX endpoint. This stops Redis / Varnish / LiteSpeed from serving
- *    one visitor's cart to another.
+ * Prevent caching plugins from caching the cart-fragments AJAX endpoint.
  */
 add_action( 'init', function () {
     if ( isset( $_GET['wc-ajax'] ) && $_GET['wc-ajax'] === 'get_refreshed_fragments' ) {
-        // Tell every major caching layer not to cache this response.
         nocache_headers();
         header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
         header( 'Pragma: no-cache' );
@@ -1194,8 +1091,7 @@ add_action( 'init', function () {
 } );
 
 /**
- * 4. Force wc-cart-fragments script to load on ALL front-end pages so the
- *    cart always reflects the current session on page load.
+ * Force wc-cart-fragments to load on all front-end pages.
  */
 add_action( 'wp_enqueue_scripts', function () {
     if ( ! is_admin() ) {
@@ -1205,8 +1101,6 @@ add_action( 'wp_enqueue_scripts', function () {
 
 // ════════════════════════════════════════════════════════════════════════════
 // ─── WOOCOMMERCE CART FRAGMENTS ───────────────────────────────────────────
-// Registers header cart elements as WC fragments so they auto-update after
-// every add-to-cart action AND on fresh page loads.
 // ════════════════════════════════════════════════════════════════════════════
 add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
 
@@ -1214,7 +1108,6 @@ add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
         return $fragments;
     }
 
-    // Always recalculate so we never serve stale totals.
     WC()->cart->calculate_totals();
 
     $cart_count   = WC()->cart->get_cart_contents_count();
@@ -1223,7 +1116,6 @@ add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
     $cart_url     = wc_get_cart_url();
     $checkout_url = wc_get_checkout_url();
 
-    /* Fragment 1: Badge count bubble */
     ob_start();
     ?>
     <span class="badge-dot fd-frag-cart-badge<?php echo $cart_count < 1 ? ' hidden' : ''; ?>">
@@ -1232,18 +1124,15 @@ add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
     <?php
     $fragments['span.fd-frag-cart-badge'] = ob_get_clean();
 
-    /* Fragment 2: Cart total text */
     ob_start();
     ?>
     <span class="cart-total-amt fd-frag-cart-total"><?php echo $cart_total; ?></span>
     <?php
     $fragments['span.fd-frag-cart-total'] = ob_get_clean();
 
-    /* Fragment 3: Dropdown count label */
     $label = $cart_count . ' item' . ( $cart_count !== 1 ? 's' : '' );
     $fragments['#fdCdropCount'] = '<span class="fd-cdrop-count" id="fdCdropCount">' . esc_html( $label ) . '</span>';
 
-    /* Fragment 4: Full cart dropdown */
     ob_start();
     ?>
     <div class="fd-cart-dropdown" id="fdCartDropdown" role="region" aria-label="Cart preview">
