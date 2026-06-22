@@ -633,7 +633,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
       <div>
         <div class="fc-label">Call Directly</div>
         <div class="fc-value"><?php echo esc_html($phone); ?></div>
-        <div class="fc-sub">Mon–Fri 8am–6pm | Sat 8:30am–1pm</div>
+        <div class="fc-sub">Mon–Fri 8.30am–6pm | Sat 9:00am–1pm</div>
       </div>
     </div>
 
