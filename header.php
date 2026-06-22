@@ -310,6 +310,7 @@
 .hdr-cart-wrap {
   display: flex;
   align-items: center;
+  position: relative;
 }
 .hdr-cart {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
