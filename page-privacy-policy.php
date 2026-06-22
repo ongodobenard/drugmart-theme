@@ -7,7 +7,7 @@ get_header();
 $pp_wa    = '254796140021';
 $pp_phone = '+254 796140021';
 $pp_email = function_exists('medicare_email') ? medicare_email() : 'info@familydrugmartkenya.com';
-$pp_addr  = 'High Point Plaza, along Ruaka-Banana Road';
+$pp_addr  = 'High Point Plaza, along Ruaka-Banana Raini Road.';
 ?>
 
 <style>

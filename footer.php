@@ -5,7 +5,7 @@
 $wa    = '254796140021';
 $phone = '+254 0796140021';
 $email = function_exists('medicare_email') ? medicare_email() : 'info@familydrugmart.co.ke';
-$addr  = 'High Point Plaza, along Ruaka-Banana Road';
+$addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 ?>
 
 <style>

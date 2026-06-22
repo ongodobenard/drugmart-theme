@@ -7,7 +7,7 @@ get_header();
 $ct_wa    = '254796140021';
 $ct_phone = '+254 0796140021';
 $ct_email = function_exists('medicare_email') ? medicare_email() : 'info@familydrugmartkenya.com';
-$ct_addr  = 'High Point Plaza, along Ruaka-Banana Road';
+$ct_addr  = 'High Point Plaza, along Ruaka-Banana Raini Road.';
 ?>
 
 <style>
@@ -367,7 +367,7 @@ $ct_addr  = 'High Point Plaza, along Ruaka-Banana Road';
         </div>
         <div class="ct-info-text">
           <div class="ct-info-label">Working Hours</div>
-          <div class="ct-info-value">Mon – Fri: 8:00 AM – 6:00 PM<br>Sat: 8:30 AM – 1:00 PM<br>Sun &amp; Holidays: Closed</div>
+          <div class="ct-info-value">Mon – Fri: 8:30 AM – 6:00 PM<br>Sat: 9:00 AM – 1:00 PM<br>Sun &amp; Holidays: Closed</div>
         </div>
       </div>
 
@@ -464,8 +464,8 @@ $ct_addr  = 'High Point Plaza, along Ruaka-Banana Road';
     <div class="ct-faq-item">
       <div class="ct-faq-q"><span>Working Hours</span><span class="ct-faq-icon">+</span></div>
       <div class="ct-faq-a">
-        Mon – Fri: 8:00 AM – 6:00 PM<br>
-        Sat: 8:30 AM – 1:00 PM<br>
+        Mon – Fri: 8:30 AM – 6:00 PM<br>
+        Sat: 9:00 AM – 1:00 PM<br>
         Sun &amp; Holidays: Closed
       </div>
     </div>
@@ -473,7 +473,9 @@ $ct_addr  = 'High Point Plaza, along Ruaka-Banana Road';
     <div class="ct-faq-item">
       <div class="ct-faq-q"><span>Delivery</span><span class="ct-faq-icon">+</span></div>
       <div class="ct-faq-a">
-        We deliver within Nairobi same day for orders placed before 3:00 PM. Orders placed between 3–6 PM may still go out same day depending on your location, confirmed via WhatsApp. Orders after 6:00 PM are delivered the next morning. For deliveries outside Nairobi, expect 1–2 business days depending on the route.
+        We offer same-day delivery within Nairobi for orders placed before 3:00 PM. Orders placed between 3:00 PM and 6:00 PM may still qualify for same-day delivery, subject to location confirmation via WhatsApp. Orders after 6:00 PM are delivered the next morning.
+        We deliver outside Nairobi within 1–2 business days. All orders are shipped via a secure cold-chain system to ensure freshness and quality.
+
       </div>
     </div>
   </div>

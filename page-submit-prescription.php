@@ -463,7 +463,8 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
         </div>
       </div>
       <div class="rxp-img-badge">
-        <h3>Fast &amp; Reliable Delivery</h3>
+        <h3>Fast, Reliable &amp; Secure Cold-Chain Delivery.
+</h3>
         <p>Same day Nairobi &nbsp;&middot;&nbsp; Next day countrywide</p>
       </div>
     </div>

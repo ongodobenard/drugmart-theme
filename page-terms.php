@@ -7,7 +7,7 @@ get_header();
 $tc_wa    = '254796140021';
 $tc_phone = '+254 796140021';
 $tc_email = function_exists('medicare_email') ? medicare_email() : 'info@familydrugmartkenya.com';
-$tc_addr  = 'High Point Plaza, along Ruaka-Banana Road';
+$tc_addr  = 'High Point Plaza, along Ruaka-Banana Raini Road.';
 ?>
 
 <style>
