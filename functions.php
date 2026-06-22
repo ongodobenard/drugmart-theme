@@ -1154,7 +1154,6 @@ function drugmart_safe_price( $price, $product ) {
  *    a clean empty cart immediately — before WC tries to load anything.
  */
 add_action( 'woocommerce_load_cart_from_session', function () {
-
     if ( ! function_exists( 'WC' ) || ! WC()->session ) {
         return;
     }
