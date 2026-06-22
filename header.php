@@ -876,7 +876,7 @@
       </div>
       <div>
         <span class="logo-name">Family Drugmart Kenya</span>
-        <span class="logo-sub">ONLINE PHARMACY</span>
+        <span class="logo-sub">ONLINE PHARMACY | HOME-BASED ULTRASOUND SCAN SERVICES</span>
       </div>
     <?php endif; ?>
   </a>
