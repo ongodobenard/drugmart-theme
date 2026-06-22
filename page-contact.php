@@ -474,7 +474,8 @@ $ct_addr  = 'High Point Plaza, along Ruaka-Banana Raini Road.';
       <div class="ct-faq-q"><span>Delivery</span><span class="ct-faq-icon">+</span></div>
       <div class="ct-faq-a">
         We offer same-day delivery within Nairobi for orders placed before 3:00 PM. Orders placed between 3:00 PM and 6:00 PM may still qualify for same-day delivery, subject to location confirmation via WhatsApp. Orders after 6:00 PM are delivered the next morning.
-        We deliver outside Nairobi within 1–2 business days. All orders are shipped via a secure cold-chain system to ensure freshness and quality.
+        We deliver outside Nairobi within 1–2 business days. All orders are shipped via a secure cold-chain system to maintain the required temperature and preserve medicine quality.
+
 
       </div>
     </div>
