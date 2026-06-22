@@ -129,6 +129,10 @@ remove_action( 'woocommerce_sidebar', 'woocommerce_get_sidebar', 10 );
 add_action( 'woocommerce_before_main_content', function () { echo '<div class="wc-outer">'; }, 10 );
 add_action( 'woocommerce_after_main_content',  function () { echo '</div>'; }, 10 );
 
+// ─── DISABLE WC NATIVE EMAILS (custom rich HTML used instead) ─────────────
+add_filter( 'woocommerce_email_enabled_new_order',        '__return_false' );
+add_filter( 'woocommerce_email_enabled_customer_processing_order', '__return_false' );
+
 // ─── WHATSAPP ORDER BUTTON (Single Product Page) ──────────────────────────
 function medicare_wa_button() {
     if ( ! class_exists( 'WooCommerce' ) ) return;
