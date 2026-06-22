@@ -728,7 +728,7 @@
 
   <div class="fd-ld-brand">
     <div class="fd-ld-name">Family <span>Drugmart</span></div>
-    <div class="fd-ld-sub">ONLINE PHARMACY & ULTRASOUND. KENYA</div>
+    <div class="fd-ld-sub">ONLINE PHARMACY & ULTRASOUND . KENYA</div>
   </div>
 
   <div class="fd-ld-bar-wrap">
