@@ -548,10 +548,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     display: flex; flex-direction: column;
 }
 .fd-info-img-wrap {
-    width: 100%; height: 200px; overflow: hidden; flex-shrink: 0;
+    width: 100%; height: 280px; overflow: hidden; flex-shrink: 0;
 }
 .fd-info-img-wrap img {
-    width: 100%; height: 100%; object-fit: cover; object-position: center;
+    width: 100%; height: 100%; object-fit: cover; object-position: 70% center;
     display: block;
 }
 .fd-info-services {
@@ -595,11 +595,11 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .fd-info-inner { grid-template-columns: 1fr; }
     .fd-info-col-left { border-right: none; border-bottom: 1.5px solid rgba(255,255,255,.1); padding: 26px 20px; }
     .fd-info-col-left h3 { font-size: 18px; }
-    .fd-info-img-wrap { height: 180px; }
+    .fd-info-img-wrap { height: 230px; }
     .fd-info-services { padding: 18px 18px 22px; }
 }
 @media (max-width: 480px) {
-    .fd-info-img-wrap { height: 150px; }
+    .fd-info-img-wrap { height: 190px; }
     .fd-info-col-left h3 { font-size: 16px; }
     .fd-scan-list li { font-size: 11px; }
 }
