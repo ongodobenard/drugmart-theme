@@ -701,7 +701,7 @@ function carevee_build_and_send_order( $args ) {
               <tfoot><tr style="background:#f7f8fa;">
                 <td colspan="2" style="padding:12px 14px;font-size:15px;font-weight:900;color:#1b2230;">ORDER TOTAL</td>
                 <td style="padding:12px 14px;text-align:right;font-size:17px;font-weight:900;color:#c47d00;">' . $total_fmt . '</td>
-              </tr></tfoot>
+              </tfoot>
             </table>
           </td></tr>
           ' . ( $notes ? '<tr><td style="padding:20px 32px 0;"><div style="background:#fff8e8;border:1.5px solid #f0d080;border-radius:8px;padding:12px 16px;"><div style="font-size:12px;font-weight:800;color:#b8860b;margin-bottom:5px;text-transform:uppercase;">Customer Notes</div><div style="font-size:13px;color:#6b7280;line-height:1.6;">' . esc_html( $notes ) . '</div></div></td></tr>' : '' ) . '
@@ -1143,23 +1143,80 @@ function drugmart_safe_price( $price, $product ) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// ─── WOOCOMMERCE CART FRAGMENT FIX ───────────────────────────────────────
-// Fixes cart total and badge showing KSh 0.00 on home page.
-// Forces wc-cart-fragments to load on all pages, then registers our custom
-// header elements as WC fragments so they auto-update on every page load.
+// ─── CART SESSION FIX — Prevents stale cart showing in new sessions ───────
+// Forces WooCommerce to always read a fresh session, never serve a cached
+// cart to a visitor who has no active session cookie of their own.
 // ════════════════════════════════════════════════════════════════════════════
 
+/**
+ * 1. If there is no woocommerce_session cookie at all (brand new visitor /
+ *    incognito window), destroy any server-side session object and give them
+ *    a clean empty cart immediately — before WC tries to load anything.
+ */
+add_action( 'woocommerce_load_cart_from_session', function () {
+
+    if ( ! function_exists( 'WC' ) || ! WC()->session ) {
+        return;
+    }
+
+    $cookie_name = 'woocommerce_session_' . COOKIEHASH;
+
+    // No session cookie = brand new visitor. Wipe any lingering server-side data.
+    if ( empty( $_COOKIE[ $cookie_name ] ) ) {
+        WC()->session->destroy_session();
+        WC()->cart->empty_cart( false );
+    }
+
+}, 1 );
+
+/**
+ * 2. On every AJAX fragment refresh, force WC to re-read the cart from the
+ *    current session rather than returning whatever was object-cached.
+ */
+add_action( 'woocommerce_cart_loaded_from_session', function () {
+    if ( defined( 'DOING_AJAX' ) && DOING_AJAX && function_exists( 'WC' ) && WC()->cart ) {
+        WC()->cart->get_cart_from_session();
+    }
+} );
+
+/**
+ * 3. Prevent ANY page-level caching plugin from caching the cart-fragments
+ *    AJAX endpoint. This stops Redis / Varnish / LiteSpeed from serving
+ *    one visitor's cart to another.
+ */
+add_action( 'init', function () {
+    if ( isset( $_GET['wc-ajax'] ) && $_GET['wc-ajax'] === 'get_refreshed_fragments' ) {
+        // Tell every major caching layer not to cache this response.
+        nocache_headers();
+        header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
+        header( 'Pragma: no-cache' );
+        header( 'Expires: Thu, 01 Jan 1970 00:00:00 GMT' );
+    }
+} );
+
+/**
+ * 4. Force wc-cart-fragments script to load on ALL front-end pages so the
+ *    cart always reflects the current session on page load.
+ */
 add_action( 'wp_enqueue_scripts', function () {
     if ( ! is_admin() ) {
         wp_enqueue_script( 'wc-cart-fragments' );
     }
 }, 5 );
 
+// ════════════════════════════════════════════════════════════════════════════
+// ─── WOOCOMMERCE CART FRAGMENTS ───────────────────────────────────────────
+// Registers header cart elements as WC fragments so they auto-update after
+// every add-to-cart action AND on fresh page loads.
+// ════════════════════════════════════════════════════════════════════════════
 add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
 
     if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
         return $fragments;
     }
+
+    // Always recalculate so we never serve stale totals.
+    WC()->cart->calculate_totals();
 
     $cart_count   = WC()->cart->get_cart_contents_count();
     $cart_total   = WC()->cart->get_cart_total();
