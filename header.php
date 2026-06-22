@@ -1073,24 +1073,24 @@
     onScroll();
   }
 
-  /* ── Cart dropdown — stay open while hovering wrap OR dropdown ── */
-  var cartWrap = document.querySelector('.hdr-cart-wrap');
-  var cartDrop = document.getElementById('fdCartDropdown');
+  /* ── Cart dropdown — delegated, survives WC fragment refresh ── */
   var hideTimer = null;
 
   function showDrop(){
+    var cartDrop = document.getElementById('fdCartDropdown');
     if(hideTimer){ clearTimeout(hideTimer); hideTimer = null; }
     if(cartDrop){
-      cartDrop.style.opacity       = '1';
-      cartDrop.style.visibility    = 'visible';
-      cartDrop.style.transform     = 'translateY(0)';
-      cartDrop.style.pointerEvents = 'all';
+      cartDrop.style.opacity         = '1';
+      cartDrop.style.visibility      = 'visible';
+      cartDrop.style.transform       = 'translateY(0)';
+      cartDrop.style.pointerEvents   = 'all';
       cartDrop.style.transitionDelay = '0s';
     }
   }
 
   function hideDrop(){
     hideTimer = setTimeout(function(){
+      var cartDrop = document.getElementById('fdCartDropdown');
       if(cartDrop){
         cartDrop.style.opacity       = '0';
         cartDrop.style.visibility    = 'hidden';
@@ -1100,16 +1100,19 @@
     }, 300);
   }
 
-  if(cartWrap && cartDrop){
-    cartWrap.addEventListener('mouseenter', showDrop);
-    cartWrap.addEventListener('mouseleave', function(){
-      if(!cartDrop.matches(':hover')) hideDrop();
-    });
-    cartDrop.addEventListener('mouseenter', showDrop);
-    cartDrop.addEventListener('mouseleave', function(){
-      if(!cartWrap.matches(':hover')) hideDrop();
-    });
-  }
+  document.addEventListener('mouseover', function(e){
+    if(e.target.closest('.hdr-cart-wrap') || e.target.closest('#fdCartDropdown')){
+      showDrop();
+    }
+  });
+
+  document.addEventListener('mouseout', function(e){
+    var goingTo = e.relatedTarget;
+    var stillInside = goingTo && goingTo.closest && (goingTo.closest('.hdr-cart-wrap') || goingTo.closest('#fdCartDropdown'));
+    if((e.target.closest('.hdr-cart-wrap') || e.target.closest('#fdCartDropdown')) && !stillInside){
+      hideDrop();
+    }
+  });
 
   /* ── Refresh cart dropdown count after add-to-cart ── */
   document.addEventListener('click', function(e){
