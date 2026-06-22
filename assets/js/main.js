@@ -1,5 +1,19 @@
 /* MediCare Pharmacy — main.js */
 
+// ─── PREVENT DEAD/BROKEN LINK CLICKS (e.g. wishlist icon with no real page) ───
+document.addEventListener('click', function (e) {
+  const link = e.target.closest('a');
+  if (!link) return;
+
+  const href = link.getAttribute('href');
+
+  // Catch empty, "#", or javascript:void(0) links
+  if (!href || href === '#' || href.trim() === '' || href.startsWith('javascript:')) {
+    e.preventDefault();
+    // do nothing — stays on current page
+  }
+});
+
 // ─── HERO SLIDER (exact from prototype) ───────
 let cur = 0;
 const slides = document.querySelectorAll('.hero-slide');
@@ -105,7 +119,7 @@ if (contactForm) {
     })
       .then(r => r.json())
       .then(d => {
-        btn.textContent = d.success ? 'Sent! ✓' : 'Error — try WhatsApp';
+        btn.textContent = d.success ? 'Sent! ✓' : 'Error, try WhatsApp';
         btn.style.background = d.success ? '#1e8a54' : '#e53935';
         if (d.success) contactForm.reset();
         setTimeout(() => { btn.textContent = orig; btn.disabled = false; btn.style.background = ''; }, 3000);

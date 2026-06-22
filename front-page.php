@@ -31,23 +31,17 @@ function fd_cat_url( array $frags ) {
 }
 endif;
 
-$vitamins_url = fd_cat_url(['vitamins-supplements','vitamins','supplements','vitamin']);
-$diabetic_url = fd_cat_url(['diabetic','diabetes','diabetic-care','diabetes-care','diabetic-weight']);
-$infant_url   = fd_cat_url(['infant-baby','infant','baby','baby-formula','infant-formula']);
-$skincare_url = fd_cat_url(['skincare','skin-care','skin','beauty-skincare','beauty']);
-$shop_url     = function_exists('wc_get_page_id')
+$vitamins_url   = fd_cat_url(['vitamins-supplements','vitamins','supplements','vitamin']);
+$diabetic_url   = fd_cat_url(['diabetic','diabetes','diabetic-care','diabetes-care','diabetic-weight']);
+$infant_url     = fd_cat_url(['infant-baby','infant','baby','baby-formula','infant-formula']);
+$skincare_url   = fd_cat_url(['skincare','skin-care','skin','beauty-skincare','beauty']);
+$ultrasound_url = home_url('/ultra-sound-service/');
+$shop_url       = function_exists('wc_get_page_id')
     ? esc_url( get_permalink( wc_get_page_id('shop') ) )
     : home_url('/shop/');
 
 $fd_wa_number = function_exists('medicare_wa') ? medicare_wa() : '254796140021';
 
-/**
- * Builds a WhatsApp enquiry link that now includes the product price.
- *
- * @param string $product_title
- * @param string $product_url
- * @param string $price_text  Pre-formatted price string, e.g. "KES 1,200.00"
- */
 if ( ! function_exists('fd_whatsapp_url') ) :
 function fd_whatsapp_url( $product_title = '', $product_url = '', $price_text = '' ) {
     global $fd_wa_number;
@@ -74,18 +68,16 @@ function fd_render_product_card() {
     $reg        = (float) $product->get_regular_price();
     $sale       = (float) $product->get_sale_price();
     $pct        = ( $on_sale && $reg > 0 ) ? round( (1 - $sale / $reg) * 100 ) : 0;
-    $is_simple   = $product->is_type('simple');
-    $is_rx       = medicare_is_prescription_product( get_the_ID() );
+    $is_simple  = $product->is_type('simple');
+    $is_rx      = medicare_is_prescription_product( get_the_ID() );
     $title_short = mb_strlen($title) > 30 ? mb_substr($title, 0, 30) . '…' : $title;
 
-    /* Current effective price (sale price if on sale, else regular price),
-       formatted plainly for use inside the WhatsApp message text */
     $current_price = (float) $product->get_price();
     $price_text    = 'KES ' . number_format( $current_price, 2 );
 
-    $wa_url     = fd_whatsapp_url( $title, $url, $price_text );
-    $cats       = get_the_terms( get_the_ID(), 'product_cat' );
-    $cat_name   = ( $cats && ! is_wp_error($cats) ) ? esc_html( $cats[0]->name ) : '';
+    $wa_url   = fd_whatsapp_url( $title, $url, $price_text );
+    $cats     = get_the_terms( get_the_ID(), 'product_cat' );
+    $cat_name = ( $cats && ! is_wp_error($cats) ) ? esc_html( $cats[0]->name ) : '';
     ?>
     <div class="fp-prod-card">
         <?php if ( $pct > 0 ) : ?>
@@ -123,7 +115,6 @@ function fd_render_product_card() {
                     Submit Prescription
                 </a>
             <?php elseif ( $is_simple ) : ?>
-                <!-- Silent AJAX-style ATC — reloads in place, shows toast, never navigates to cart -->
                 <button type="button"
                     class="fp-add-btn carevee-atc-btn"
                     data-pid="<?php echo esc_attr( get_the_ID() ); ?>"
@@ -274,9 +265,7 @@ if (
 .tog-arrow { flex-shrink:0; transition:transform .3s; }
 .mobile-sidebar-toggle.open .tog-arrow { transform:rotate(180deg); }
 
-/* ══════════════════════════════════════════════════════
-   HERO — centered text, lighter overlay, 3-slide carousel
-   ══════════════════════════════════════════════════════ */
+/* ══ HERO ══ */
 @keyframes fd-fade-up {
     from { opacity:0; transform:translateY(14px); }
     to   { opacity:1; transform:translateY(0); }
@@ -287,158 +276,77 @@ if (
 }
 
 .fd-hero {
-    position: relative;
-    width: 100%;
-    border-radius: 16px;
-    overflow: hidden;
-    height: 460px;
-    background-color: var(--fd-blue-navy);
+    position: relative; width: 100%; border-radius: 16px;
+    overflow: hidden; height: 460px; background-color: var(--fd-blue-navy);
 }
-
-/* ── Slides ── each slide carries its own background image and content ── */
 .fd-hero-slide {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center 18%;
-    background-repeat: no-repeat;
-    border-radius: 16px;
-    opacity: 0;
-    visibility: hidden;
-    z-index: 0;
+    position: absolute; inset: 0; background-size: cover;
+    background-position: center 18%; background-repeat: no-repeat;
+    border-radius: 16px; opacity: 0; visibility: hidden; z-index: 0;
     transition: opacity 1s ease;
 }
-.fd-hero-slide.active {
-    opacity: 1;
-    visibility: visible;
-    z-index: 1;
-}
-.fd-hero-slide.active .fd-hero-slide-bg {
-    animation: fd-hero-zoom 7s ease-out forwards;
-}
+.fd-hero-slide.active { opacity: 1; visibility: visible; z-index: 1; }
+.fd-hero-slide.active .fd-hero-slide-bg { animation: fd-hero-zoom 7s ease-out forwards; }
 .fd-hero-slide-bg {
-    position: absolute;
-    inset: 0;
-    background-image: inherit;
-    background-size: cover;
-    background-position: inherit;
-    background-repeat: no-repeat;
-    border-radius: 16px;
+    position: absolute; inset: 0; background-image: inherit;
+    background-size: cover; background-position: inherit;
+    background-repeat: no-repeat; border-radius: 16px;
 }
-
-/* LIGHTER overlay — image is clearly visible */
 .fd-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(10, 18, 40, .18);
-    z-index: 1;
-    border-radius: 16px;
+    position: absolute; inset: 0; background: rgba(10,18,40,.18);
+    z-index: 1; border-radius: 16px;
 }
-
-/* Lighter centre-to-edge gradient so image shows through */
 .fd-hero-overlay::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(10, 18, 40, .55) 0%,
-        rgba(10, 18, 40, .30) 40%,
-        rgba(10, 18, 40, .40) 100%
-    );
-    pointer-events: none;
-    border-radius: 16px;
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(10,18,40,.55) 0%, rgba(10,18,40,.30) 40%, rgba(10,18,40,.40) 100%);
+    pointer-events: none; border-radius: 16px;
 }
-
-/* Soft bottom fade so trust strip stays readable */
 .fd-hero-overlay::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 28%;
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
     background: linear-gradient(to top, rgba(10,18,40,.50) 0%, transparent 100%);
     pointer-events: none;
 }
-
-/* Gold top border + small blue bottom accent — ties in the brand's primary blue */
 .fd-hero-frame-border {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    border-radius: 16px;
-    border-top: 4px solid var(--fd-gold);
-    border-bottom: 3px solid var(--fd-blue);
+    position: absolute; inset: 0; z-index: 2; border-radius: 16px;
+    border-top: 4px solid var(--fd-gold); border-bottom: 3px solid var(--fd-blue);
     pointer-events: none;
 }
-
-/* ── Hero content — top group pinned to top, bottom group pinned to bottom,
-   nav arrows stay separate/untouched ── */
 .fd-hero-content {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    padding: 32px 40px;
-    width: 100%;
-    max-width: 100%;
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: center; text-align: center; padding: 32px 40px;
+    width: 100%; max-width: 100%;
 }
-.fd-hero-content-top {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.fd-hero-content-bottom {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
+.fd-hero-content-top { display: flex; flex-direction: column; align-items: center; }
+.fd-hero-content-bottom { display: flex; flex-direction: column; align-items: center; width: 100%; }
 
 .fd-hero-tag {
     display: inline-flex; align-items: center; gap: 8px;
     background: rgba(245,166,35,.18); border: 1px solid rgba(245,166,35,.50);
     color: var(--fd-gold); font-size: 11px; font-weight: 800;
-    padding: 7px 18px; border-radius: 50px;
-    margin-bottom: 18px; font-family: var(--fd-font-body);
-    letter-spacing: 1.3px; text-transform: uppercase;
+    padding: 7px 18px; border-radius: 50px; margin-bottom: 18px;
+    font-family: var(--fd-font-body); letter-spacing: 1.3px; text-transform: uppercase;
     backdrop-filter: blur(6px);
     opacity: 0; animation: fd-fade-up .55s ease forwards; animation-delay: .1s;
 }
-
 .fd-hero-heading {
-    font-family: var(--fd-font-head);
-    font-weight: 900;
-    font-size: clamp(28px, 3.6vw, 48px);
-    color: #fff; line-height: 1.18;
-    margin: 0;
-    text-shadow: 0 2px 12px rgba(0,0,0,.55);
-    max-width: 780px;
+    font-family: var(--fd-font-head); font-weight: 900;
+    font-size: clamp(28px, 3.6vw, 48px); color: #fff; line-height: 1.18; margin: 0;
+    text-shadow: 0 2px 12px rgba(0,0,0,.55); max-width: 780px;
     opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .22s;
 }
 .fd-hero-heading-highlight { color: var(--fd-gold); }
-.fd-hero-cursor {
-    display: inline-block;
-    color: var(--fd-gold);
-    margin-left: 2px;
-    animation: fd-blink 1s steps(1) infinite;
-}
+.fd-hero-cursor { display: inline-block; color: var(--fd-gold); margin-left: 2px; animation: fd-blink 1s steps(1) infinite; }
 @keyframes fd-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
 .fd-hero-desc {
-    font-family: var(--fd-font-body); font-size: 15px;
-    line-height: 1.75; color: rgba(255,255,255,.95);
-    margin: 0 0 20px; max-width: 560px;
+    font-family: var(--fd-font-body); font-size: 15px; line-height: 1.75;
+    color: rgba(255,255,255,.95); margin: 0 0 20px; max-width: 560px;
     text-shadow: 0 1px 8px rgba(0,0,0,.55);
     opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .34s;
 }
-
 .fd-hero-actions {
-    display: flex; gap: 14px; align-items: center;
-    justify-content: center;
+    display: flex; gap: 14px; align-items: center; justify-content: center;
     flex-wrap: wrap;
     opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .46s;
 }
@@ -447,87 +355,44 @@ if (
     background: var(--fd-gold); color: var(--fd-blue-navy);
     font-size: 13.5px; font-weight: 800; padding: 13px 30px; border-radius: 50px;
     text-decoration: none; font-family: var(--fd-font-body);
-    box-shadow: 0 8px 22px rgba(0,0,0,.30);
-    white-space: nowrap; transition: transform .18s, box-shadow .2s;
+    box-shadow: 0 8px 22px rgba(0,0,0,.30); white-space: nowrap;
+    transition: transform .18s, box-shadow .2s;
 }
 .fd-hero-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,.38); }
-
-/* Solid blue button — second hero CTA, uses theme's primary blue */
 .fd-hero-btn-blue {
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--fd-blue); color: #fff;
     font-size: 13.5px; font-weight: 800; padding: 13px 30px; border-radius: 50px;
     text-decoration: none; font-family: var(--fd-font-body);
-    box-shadow: 0 8px 22px rgba(13,33,79,.35);
-    white-space: nowrap; transition: transform .18s, box-shadow .2s, background .2s;
+    box-shadow: 0 8px 22px rgba(13,33,79,.35); white-space: nowrap;
+    transition: transform .18s, box-shadow .2s, background .2s;
 }
 .fd-hero-btn-blue:hover { background: var(--fd-blue-dark); transform: translateY(-2px); box-shadow: 0 12px 28px rgba(13,33,79,.45); }
 
-/* Trust badges — centered at the bottom (pharmacy slide only) */
-.fd-hero-trust-row {
-    position: absolute;
-    bottom: 46px; left: 0; right: 0;
-    z-index: 6;
-    display: flex; gap: 18px; align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 0 30px;
-    opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .6s;
-}
-.fd-hero-trust-item {
-    display: flex; align-items: center; gap: 7px;
-    font-family: var(--fd-font-body); font-size: 11px; font-weight: 700;
-    color: rgba(255,255,255,.90); white-space: nowrap;
-}
-.fd-hero-trust-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--fd-gold); flex-shrink: 0;
-}
-.fd-hero-trust-sep {
-    width: 1px; height: 14px; background: rgba(255,255,255,.30); flex-shrink: 0;
-}
-
-/* ── Carousel nav arrows (circular) — independent of hero-content ── */
 .fd-hero-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 8;
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.16);
-    border: 1.5px solid rgba(255,255,255,.45);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    backdrop-filter: blur(6px);
-    transition: background .2s, transform .2s, border-color .2s;
-    padding: 0;
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 8;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.45);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(6px);
+    transition: background .2s, transform .2s, border-color .2s; padding: 0;
 }
 .fd-hero-nav:hover { background: rgba(255,255,255,.30); border-color: rgba(255,255,255,.7); transform: translateY(-50%) scale(1.08); }
 .fd-hero-nav-prev { left: 16px; }
 .fd-hero-nav-next { right: 16px; }
 
-/* ── Carousel dots ── */
 .fd-hero-dots {
-    position: absolute;
-    bottom: 16px; left: 0; right: 0;
-    z-index: 7;
+    position: absolute; bottom: 16px; left: 0; right: 0; z-index: 7;
     display: flex; gap: 8px; align-items: center; justify-content: center;
 }
 .fd-hero-dot {
     width: 8px; height: 8px; border-radius: 50%;
-    background: rgba(255,255,255,.45);
-    border: none; padding: 0; cursor: pointer;
+    background: rgba(255,255,255,.45); border: none; padding: 0; cursor: pointer;
     transition: background .25s, width .25s, border-radius .25s;
 }
 .fd-hero-dot.active { background: var(--fd-gold); width: 22px; border-radius: 5px; }
 
-/* ── Hero responsive ── */
-@media (max-width: 1100px) {
-    .fd-hero { height: 420px; }
-    .fd-hero-content { padding: 28px; }
-}
+@media (max-width: 1100px) { .fd-hero { height: 420px; } .fd-hero-content { padding: 28px; } }
 @media (max-width: 768px) {
     .fd-hero { height: 360px !important; border-radius: 14px; }
     .fd-hero-slide { background-position: center 12% !important; }
@@ -536,7 +401,6 @@ if (
     .fd-hero-heading { font-size: clamp(22px, 5.5vw, 30px) !important; }
     .fd-hero-desc { display: none !important; }
     .fd-hero-btn-blue { display: none; }
-    .fd-hero-trust-row { display: none !important; }
     .fd-hero-nav { width: 34px; height: 34px; }
     .fd-hero-nav-prev { left: 10px; }
     .fd-hero-nav-next { right: 10px; }
@@ -548,12 +412,9 @@ if (
     .fd-hero-nav { width: 30px; height: 30px; }
     .fd-hero-dots { bottom: 10px; }
 }
-@media (max-width: 360px) {
-    .fd-hero { height: 260px !important; }
-    .fd-hero-heading { font-size: 17px !important; }
-}
+@media (max-width: 360px) { .fd-hero { height: 260px !important; } .fd-hero-heading { font-size: 17px !important; } }
 
-/* ── Promo cards ── */
+/* ══ PROMO CARDS ══ */
 .promo-cards-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; width:100%; }
 .promo-card-h    { border-radius:12px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; min-height:90px; overflow:hidden; gap:10px; }
 .promo-left      { min-width:0; flex:1; }
@@ -577,18 +438,18 @@ if (
 .promo-infant .promo-shop-btn { background:rgba(245,166,35,.20); color:var(--fd-gold); }
 .promo-infant .promo-shop-btn:hover { background:rgba(245,166,35,.32); }
 
-/* ── Section header ── */
+/* ══ SECTION HEADER ══ */
 .fp-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
 .fp-section-title  { font-family:var(--fd-font-head); font-size:16px; font-weight:900; color:var(--fd-text); padding-left:10px; border-left:3px solid var(--fd-gold); }
 .fp-arrows         { display:flex; gap:7px; }
-.fp-arr            { width:30px; height:30px; border-radius:50%; border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color: var(--fd-text); }
-.fp-arr:hover      { border-color:var(--fd-blue); background:#eef1f8; color: var(--fd-blue); }
+.fp-arr            { width:30px; height:30px; border-radius:50%; border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color:var(--fd-text); }
+.fp-arr:hover      { border-color:var(--fd-blue); background:#eef1f8; color:var(--fd-blue); }
 
-/* ── Product grids ── */
+/* ══ PRODUCT GRIDS ══ */
 .fp-prod-grid   { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
 .fp-prod-grid-6 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
 
-/* ── Product card ── */
+/* ══ PRODUCT CARD ══ */
 .fp-prod-card       { position:relative; background:#fff; border:1.5px solid var(--fd-border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .2s,transform .2s; min-width:0; width:100%; }
 .fp-prod-card:hover { box-shadow:0 8px 26px rgba(13,33,79,.10); transform:translateY(-2px); }
 .fp-badge           { position:absolute; top:10px; left:10px; z-index:2; background:var(--fd-gold); color:var(--fd-blue-navy); font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; font-family:var(--fd-font-body); }
@@ -603,108 +464,147 @@ if (
 .fp-reg-price       { font-size:11px; color:#bbb; text-decoration:line-through; }
 .fp-sale-price      { font-size:15px; font-weight:900; color:var(--fd-blue); font-family:var(--fd-font-body); }
 .fp-sale-price ins  { text-decoration:none; }
-.fp-add-btn         { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:auto; background:var(--fd-blue); color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; border: none; cursor: pointer; }
+.fp-add-btn         { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:auto; background:var(--fd-blue); color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; border:none; cursor:pointer; }
 .fp-add-btn:hover   { background:var(--fd-blue-dark); }
 .fp-add-btn.fp-rx-btn { background:#e53935; }
 .fp-add-btn.fp-rx-btn:hover { background:#c62828; }
-.fp-add-btn.atc-loading { pointer-events: none; opacity: .7; }
+.fp-add-btn.atc-loading { pointer-events:none; opacity:.7; }
 .fp-wa-btn          { display:flex; align-items:center; justify-content:center; gap:7px; background:#25d366; color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; }
 .fp-wa-btn:hover    { background:#1ebe5a; color:#fff; }
 .fp-no-products     { color:#888; font-size:13px; grid-column:1/-1; padding:20px 0; text-align:center; }
 
-/* Hide default WooCommerce notices — we use our own toast */
-.woocommerce-notices-wrapper,
-.woocommerce-message,
-.woocommerce-info,
-ul.woocommerce-error,
-.wc-forward { display: none !important; }
+.woocommerce-notices-wrapper, .woocommerce-message, .woocommerce-info,
+ul.woocommerce-error, .wc-forward { display:none !important; }
 
-/* ══════════════════════════════════════════════════════
-   FIXED TOAST NOTIFICATION
-   ══════════════════════════════════════════════════════ */
+/* ══ TOAST ══ */
 #carevee-toast {
-  position: fixed;
-  bottom: 100px;
-  right: 24px;
-  z-index: 999999;
-  min-width: 280px;
-  max-width: 340px;
-  background: var(--fd-blue-navy);
-  color: #fff;
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.3);
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-family: var(--fd-font-body);
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-  transition: opacity .4s cubic-bezier(.34,1.56,.64,1),
-              transform .4s cubic-bezier(.34,1.56,.64,1);
-  pointer-events: none;
+    position:fixed; bottom:100px; right:24px; z-index:999999;
+    min-width:280px; max-width:340px;
+    background:var(--fd-blue-navy); color:#fff; border-radius:14px;
+    padding:14px 16px; box-shadow:0 12px 40px rgba(0,0,0,.3);
+    display:flex; align-items:flex-start; gap:12px;
+    font-family:var(--fd-font-body); opacity:0;
+    transform:translateY(20px) scale(0.95);
+    transition:opacity .4s cubic-bezier(.34,1.56,.64,1), transform .4s cubic-bezier(.34,1.56,.64,1);
+    pointer-events:none;
 }
-#carevee-toast.cv-show {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: all;
+#carevee-toast.cv-show { opacity:1; transform:translateY(0) scale(1); pointer-events:all; }
+.cv-toast-icon-wrap { width:36px; height:36px; border-radius:50%; background:var(--fd-blue); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.cv-toast-body { flex:1; min-width:0; }
+.cv-toast-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--fd-gold); margin-bottom:3px; }
+.cv-toast-name { font-size:.85rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:10px; }
+.cv-toast-actions { display:flex; gap:8px; }
+.cv-toast-btn-cart { display:inline-flex; align-items:center; gap:5px; background:var(--fd-blue); color:#fff; padding:6px 12px; border-radius:8px; font-size:.72rem; font-weight:800; text-decoration:none; transition:background .2s; white-space:nowrap; }
+.cv-toast-btn-cart:hover { background:var(--fd-blue-dark); color:#fff; }
+.cv-toast-btn-close { display:inline-flex; align-items:center; background:rgba(255,255,255,.1); color:rgba(255,255,255,.7); padding:6px 10px; border-radius:8px; border:none; cursor:pointer; font-size:.72rem; font-weight:700; transition:background .2s; font-family:var(--fd-font-body); }
+.cv-toast-btn-close:hover { background:rgba(255,255,255,.2); color:#fff; }
+.cv-toast-progress { position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,.15); border-radius:0 0 14px 14px; overflow:hidden; }
+.cv-toast-progress-bar { height:100%; width:100%; background:var(--fd-blue); transform-origin:left; animation:none; }
+#carevee-toast.cv-show .cv-toast-progress-bar { animation:cvCountdown 5s linear forwards; }
+@keyframes cvCountdown { from { transform:scaleX(1); } to { transform:scaleX(0); } }
+@media(max-width:600px) { #carevee-toast { bottom:80px; right:12px; left:12px; min-width:unset; max-width:unset; } }
+
+/* ══ PHARMACY + ULTRASOUND TWO-COLUMN SECTION ══ */
+.fd-info-section {
+    width: 100%; background: #fff;
+    border-radius: 14px; border: 1.5px solid var(--fd-border);
+    overflow: hidden;
 }
-.cv-toast-icon-wrap {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--fd-blue);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
+.fd-info-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 340px;
 }
-.cv-toast-body { flex: 1; min-width: 0; }
-.cv-toast-title {
-  font-size: .72rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--fd-gold); margin-bottom: 3px;
+.fd-info-col-left {
+    padding: 36px 32px;
+    display: flex; flex-direction: column; justify-content: center;
+    border-right: 1.5px solid var(--fd-border);
+    background: linear-gradient(135deg, var(--fd-blue-darker) 0%, var(--fd-blue-navy) 100%);
 }
-.cv-toast-name {
-  font-size: .85rem; font-weight: 700; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 10px;
+.fd-info-col-left .fd-info-eyebrow {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.4px;
+    text-transform: uppercase; color: var(--fd-gold);
+    margin-bottom: 10px; font-family: var(--fd-font-body);
 }
-.cv-toast-actions { display: flex; gap: 8px; }
-.cv-toast-btn-cart {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: var(--fd-blue); color: #fff;
-  padding: 6px 12px; border-radius: 8px;
-  font-size: .72rem; font-weight: 800;
-  text-decoration: none; transition: background .2s;
-  white-space: nowrap;
+.fd-info-col-left h3 {
+    font-family: var(--fd-font-head); font-size: 22px; font-weight: 900;
+    color: #fff; margin: 0 0 12px; line-height: 1.25;
 }
-.cv-toast-btn-cart:hover { background: var(--fd-blue-dark); color: #fff; }
-.cv-toast-btn-close {
-  display: inline-flex; align-items: center;
-  background: rgba(255,255,255,.1); color: rgba(255,255,255,.7);
-  padding: 6px 10px; border-radius: 8px; border: none; cursor: pointer;
-  font-size: .72rem; font-weight: 700; transition: background .2s;
-  font-family: var(--fd-font-body);
+.fd-info-col-left p {
+    font-size: 13.5px; line-height: 1.75; color: rgba(255,255,255,.82);
+    font-family: var(--fd-font-body); margin: 0 0 14px;
 }
-.cv-toast-btn-close:hover { background: rgba(255,255,255,.2); color: #fff; }
-.cv-toast-progress {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
-  background: rgba(255,255,255,.15); border-radius: 0 0 14px 14px; overflow: hidden;
+.fd-info-ppb {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(245,166,35,.15); border: 1px solid rgba(245,166,35,.40);
+    border-radius: 8px; padding: 9px 14px;
+    font-size: 11.5px; font-weight: 700; color: var(--fd-gold);
+    font-family: var(--fd-font-body); line-height: 1.5;
 }
-.cv-toast-progress-bar {
-  height: 100%; width: 100%;
-  background: var(--fd-blue);
-  transform-origin: left;
-  animation: none;
+.fd-info-ppb svg { flex-shrink: 0; }
+
+.fd-info-col-right {
+    display: flex; flex-direction: column;
 }
-#carevee-toast.cv-show .cv-toast-progress-bar {
-  animation: cvCountdown 5s linear forwards;
+.fd-info-img-wrap {
+    width: 100%; height: 200px; overflow: hidden; flex-shrink: 0;
 }
-@keyframes cvCountdown {
-  from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
+.fd-info-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center;
+    display: block;
 }
-@media(max-width:600px) {
-  #carevee-toast { bottom: 80px; right: 12px; left: 12px; min-width: unset; max-width: unset; }
+.fd-info-services {
+    padding: 22px 24px 26px; flex: 1; display: flex; flex-direction: column;
+}
+.fd-info-services h4 {
+    font-family: var(--fd-font-head); font-size: 15px; font-weight: 900;
+    color: var(--fd-text); margin: 0 0 6px;
+}
+.fd-info-services p {
+    font-size: 12.5px; color: var(--fd-text-light); line-height: 1.65;
+    font-family: var(--fd-font-body); margin: 0 0 14px;
+}
+.fd-scan-list {
+    display: flex; flex-wrap: wrap; gap: 7px;
+    list-style: none; margin: 0 0 18px; padding: 0;
+}
+.fd-scan-list li {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11.5px; font-weight: 700; color: var(--fd-blue);
+    background: #eef1f8; border-radius: 6px; padding: 5px 10px;
+    font-family: var(--fd-font-body);
+}
+.fd-scan-list li::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--fd-gold); flex-shrink: 0;
+}
+.fd-info-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--fd-blue); color: #fff;
+    font-size: 12.5px; font-weight: 800; padding: 11px 22px;
+    border-radius: 50px; text-decoration: none;
+    font-family: var(--fd-font-body);
+    transition: background .2s, transform .18s;
+    align-self: flex-start; margin-top: auto;
+}
+.fd-info-cta:hover { background: var(--fd-blue-dark); transform: translateY(-1px); color: #fff; }
+
+@media (max-width: 768px) {
+    .fd-info-inner { grid-template-columns: 1fr; }
+    .fd-info-col-left { border-right: none; border-bottom: 1.5px solid rgba(255,255,255,.1); padding: 26px 20px; }
+    .fd-info-col-left h3 { font-size: 18px; }
+    .fd-info-img-wrap { height: 180px; }
+    .fd-info-services { padding: 18px 18px 22px; }
+}
+@media (max-width: 480px) {
+    .fd-info-img-wrap { height: 150px; }
+    .fd-info-col-left h3 { font-size: 16px; }
+    .fd-scan-list li { font-size: 11px; }
 }
 
-/* ── Newsletter ── */
+/* ══ NEWSLETTER ══ */
 .fp-newsletter      { background:linear-gradient(135deg,#eef1f8 0%,#dde3f2 50%,#eef1f8 100%); border-radius:14px; padding:44px 28px; text-align:center; }
 .fp-newsletter-wrap { max-width:1380px; width:100%; margin:0 auto; padding:0 20px 20px; }
 .fp-newsletter h2   { font-family:var(--fd-font-head); font-size:24px; font-weight:900; color:var(--fd-text); margin:0 0 7px; }
@@ -716,9 +616,7 @@ ul.woocommerce-error,
 .fp-nl-form button:hover { background:var(--fd-blue-dark); }
 .nl-success { color:var(--fd-blue); font-weight:700; font-size:13px; margin-top:12px; }
 
-/* ══════════════════════════════════════════════════════
-   RESPONSIVE
-   ══════════════════════════════════════════════════════ */
+/* ══ RESPONSIVE ══ */
 @media (max-width:860px) {
     .page-body { flex-direction:column; padding:10px; gap:0; }
     .sidebar-wrapper { width:100% !important; min-width:0 !important; max-width:100% !important; position:static !important; max-height:0; overflow:hidden; transition:max-height .4s ease; margin-bottom:0; border-radius:0; }
@@ -755,7 +653,7 @@ ul.woocommerce-error,
 }
 </style>
 
-<!-- FIXED TOAST HTML -->
+<!-- TOAST -->
 <div id="carevee-toast" role="alert" aria-live="assertive">
   <div class="cv-toast-icon-wrap">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -771,23 +669,15 @@ ul.woocommerce-error,
       <button class="cv-toast-btn-close" id="cv-toast-close" type="button">Dismiss</button>
     </div>
   </div>
-  <div class="cv-toast-progress">
-    <div class="cv-toast-progress-bar" id="cv-toast-bar"></div>
-  </div>
+  <div class="cv-toast-progress"><div class="cv-toast-progress-bar" id="cv-toast-bar"></div></div>
 </div>
 
 <!-- MOBILE SIDEBAR TOGGLE -->
 <div class="mobile-sidebar-toggle-wrap">
     <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         <span class="tog-label">Browse Categories &amp; Brands</span>
-        <svg class="tog-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true">
-            <path d="M6 9l6 6 6-6"/>
-        </svg>
+        <svg class="tog-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
     </button>
 </div>
 
@@ -829,7 +719,6 @@ ul.woocommerce-error,
                             </div>
                         </div>
                     </div>
-                  
                 </div>
 
                 <!-- SLIDE 2 — SKINCARE -->
@@ -876,6 +765,32 @@ ul.woocommerce-error,
                     </div>
                 </div>
 
+                <!-- SLIDE 4 — ULTRASOUND -->
+                <div class="fd-hero-slide" data-slide-index="3" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/ultrasound2.png' ); ?>');">
+                    <div class="fd-hero-slide-bg" aria-hidden="true"></div>
+                    <div class="fd-hero-overlay" aria-hidden="true"></div>
+                    <div class="fd-hero-frame-border" aria-hidden="true"></div>
+                    <div class="fd-hero-content">
+                        <div class="fd-hero-content-top">
+                            <span class="fd-hero-tag">In-Store & Home Visit Scans</span>
+                            <h1 class="fd-hero-heading" data-main="Ultrasound Scans " data-highlight="In-Store & At Home"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                        </div>
+                        <div class="fd-hero-content-bottom">
+                            <p class="fd-hero-desc">Get professional ultrasound scans at our pharmacy or book a certified sonographer to come to you. Fast results, affordable pricing, no referral needed.</p>
+                            <div class="fd-hero-actions">
+                                <a href="<?php echo esc_url($ultrasound_url); ?>" class="fd-hero-btn-primary">
+                                    Book a Scan
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                                <a href="https://wa.me/<?php echo esc_attr( $fd_wa_number ); ?>?text=<?php echo rawurlencode("Hi! I'd like to book an ultrasound scan."); ?>"
+                                   class="fd-hero-btn-blue" target="_blank" rel="noopener noreferrer">
+                                    Enquire on WhatsApp &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- NAV ARROWS -->
                 <button type="button" class="fd-hero-nav fd-hero-nav-prev" id="fdHeroPrev" aria-label="Previous slide">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
@@ -884,11 +799,12 @@ ul.woocommerce-error,
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
 
-                <!-- DOTS -->
+                <!-- DOTS — now 4 -->
                 <div class="fd-hero-dots" id="fdHeroDots">
                     <button type="button" class="fd-hero-dot active" data-go-to="0" aria-label="Go to slide 1"></button>
                     <button type="button" class="fd-hero-dot" data-go-to="1" aria-label="Go to slide 2"></button>
                     <button type="button" class="fd-hero-dot" data-go-to="2" aria-label="Go to slide 3"></button>
+                    <button type="button" class="fd-hero-dot" data-go-to="3" aria-label="Go to slide 4"></button>
                 </div>
 
             </div>
@@ -995,6 +911,50 @@ ul.woocommerce-error,
                 </div>
             </div>
 
+            <!-- ══ PHARMACY INFO + ULTRASOUND SECTION ══ -->
+            <div class="fd-info-section">
+                <div class="fd-info-inner">
+
+                    <!-- LEFT — About the pharmacy -->
+                    <div class="fd-info-col-left">
+                        <div class="fd-info-eyebrow">About Us</div>
+                        <h3>Your Trusted Pharmacy</h3>
+                        <p>Family Drugmart Kenya is your pharmacy committed to making quality healthcare accessible and affordable. We stock a wide range of prescription medicines, OTC products, supplements, and wellness essentials, all under one roof. We also offer home-visit ultrasound services across Nairobi for your convenience.</p>
+                        <div class="fd-info-ppb">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span>Regulated by PPB Kenya: License No. PPB/F/3208</span>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT — Ultrasound image + services -->
+                    <div class="fd-info-col-right">
+                        <div class="fd-info-img-wrap">
+                            <img src="<?php echo esc_url( FD_THEME_URI . '/assets/js/images/ultrasound.png' ); ?>" alt="Ultrasound scanning services at Family Drugmart Kenya" loading="lazy">
+                        </div>
+                        <div class="fd-info-services">
+                            <h4>In-Store & Home Ultrasound Services</h4>
+                            <p>Get diagnostic imaging at our pharmacy, or book our certified sonographer to visit you at home. Accurate, fast results at affordable rates, no referral needed.</p>
+                            <ul class="fd-scan-list">
+                                <li>Thyroid Scan</li>
+                                <li>Obs Scan</li>
+                                <li>Breast Ultrasound</li>
+                                <li>Abdominal Scan</li>
+                                <li>Pelvic Scan</li>
+                                <li>Testicular scan</li>
+                                <li>Scrotal scan</li>
+                                <li>Home Visit Scans</li>
+                                <li>Mobile Ultrasound</li>
+                            </ul>
+                            <a href="<?php echo esc_url($ultrasound_url); ?>" class="fd-info-cta">
+                                Book a Scan
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
             <!-- TRENDING PRODUCTS -->
             <div class="fp-card">
                 <div class="fp-pad">
@@ -1044,6 +1004,7 @@ ul.woocommerce-error,
 <script>
 (function () {
     'use strict';
+
     function initSidebar() {
         var btn = document.getElementById('mobileSidebarToggle');
         var sb  = document.getElementById('sidebarWrapper');
@@ -1066,10 +1027,10 @@ ul.woocommerce-error,
         var total   = slides.length;
         if (!total) return;
 
-        var current      = 0;
-        var autoTimer     = null;
-        var AUTOPLAY_MS   = 6000;
-        var TYPE_SPEED_MS = 35;
+        var current     = 0;
+        var autoTimer   = null;
+        var AUTOPLAY_MS = 6000;
+        var TYPE_SPEED  = 35;
 
         function typeHeading(slideEl) {
             var heading = slideEl.querySelector('.fd-hero-heading');
@@ -1080,11 +1041,9 @@ ul.woocommerce-error,
             var mainSpan = heading.querySelector('.fd-hero-heading-main');
             var hiSpan   = heading.querySelector('.fd-hero-heading-highlight');
             if (!mainSpan || !hiSpan) return;
-
             clearInterval(heading._typeTimer);
             mainSpan.textContent = '';
             hiSpan.textContent   = '';
-
             var i = 0;
             heading._typeTimer = setInterval(function () {
                 i++;
@@ -1096,10 +1055,8 @@ ul.woocommerce-error,
                     mainSpan.textContent = main;
                     hiSpan.textContent   = typed.slice(main.length);
                 }
-                if (i >= full.length) {
-                    clearInterval(heading._typeTimer);
-                }
-            }, TYPE_SPEED_MS);
+                if (i >= full.length) clearInterval(heading._typeTimer);
+            }, TYPE_SPEED);
         }
 
         function goTo(index) {
@@ -1115,14 +1072,8 @@ ul.woocommerce-error,
 
         function next() { goTo(current + 1); }
         function prev() { goTo(current - 1); }
-
-        function startAuto() {
-            stopAuto();
-            autoTimer = setInterval(next, AUTOPLAY_MS);
-        }
-        function stopAuto() {
-            if (autoTimer) clearInterval(autoTimer);
-        }
+        function startAuto() { stopAuto(); autoTimer = setInterval(next, AUTOPLAY_MS); }
+        function stopAuto()  { if (autoTimer) clearInterval(autoTimer); }
 
         if (nextBtn) nextBtn.addEventListener('click', function () { next(); startAuto(); });
         if (prevBtn) prevBtn.addEventListener('click', function () { prev(); startAuto(); });
@@ -1137,10 +1088,7 @@ ul.woocommerce-error,
         startAuto();
     }
 
-    function init() {
-        initSidebar();
-        initHeroCarousel();
-    }
+    function init() { initSidebar(); initHeroCarousel(); }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
@@ -1150,13 +1098,9 @@ ul.woocommerce-error,
 }());
 </script>
 
-<!-- ATC + Scroll-restore + Toast JS -->
 <script>
 (function(){
 
-  /* ══════════════════════════════════════════
-     TOAST
-  ══════════════════════════════════════════ */
   var toast       = document.getElementById('carevee-toast');
   var toastNameEl = document.getElementById('cv-toast-name');
   var toastBar    = document.getElementById('cv-toast-bar');
@@ -1166,11 +1110,7 @@ ul.woocommerce-error,
   function showToast(name) {
     if (!toast) return;
     if (toastNameEl) toastNameEl.textContent = name || '';
-    if (toastBar) {
-      toastBar.style.animation = 'none';
-      void toastBar.offsetWidth;
-      toastBar.style.animation = '';
-    }
+    if (toastBar) { toastBar.style.animation = 'none'; void toastBar.offsetWidth; toastBar.style.animation = ''; }
     toast.classList.add('cv-show');
     if (hideTimer) clearTimeout(hideTimer);
     hideTimer = setTimeout(function(){ toast.classList.remove('cv-show'); }, 5000);
@@ -1183,34 +1123,20 @@ ul.woocommerce-error,
     });
   }
 
-  /* ══════════════════════════════════════════
-     ON PAGE LOAD — restore scroll + show toast
-     if we came back from an add-to-cart reload
-  ══════════════════════════════════════════ */
   var params      = new URLSearchParams(window.location.search);
   var toastName   = params.get('cv_added_name');
   var savedScroll = sessionStorage.getItem('cv_scroll_pos');
 
   if (toastName) {
-    /* Restore scroll immediately — before any paint */
-    if (savedScroll !== null) {
-      var scrollY = parseInt(savedScroll, 10);
-      window.scrollTo(0, scrollY);
-    }
-
-    /* Restore again after full load (browser sometimes overrides) */
+    if (savedScroll !== null) window.scrollTo(0, parseInt(savedScroll, 10));
     window.addEventListener('load', function() {
       if (savedScroll !== null) window.scrollTo(0, parseInt(savedScroll, 10));
       sessionStorage.removeItem('cv_scroll_pos');
     });
-
-    /* Show toast once DOM is ready */
     document.addEventListener('DOMContentLoaded', function() {
       if (savedScroll !== null) window.scrollTo(0, parseInt(savedScroll, 10));
       showToast(decodeURIComponent(toastName));
     });
-
-    /* Clean the URL — remove our params so refresh doesn't re-toast */
     var cleanUrl = new URL(window.location.href);
     cleanUrl.searchParams.delete('cv_added_name');
     cleanUrl.searchParams.delete('added-to-cart');
@@ -1218,35 +1144,20 @@ ul.woocommerce-error,
     window.history.replaceState(null, '', cleanUrl.toString());
   }
 
-  /* ══════════════════════════════════════════
-     ADD TO CART — save scroll → reload
-     WC processes the add natively on reload.
-     Page comes back to exact same Y position.
-     Toast appears. Cart count updates.
-  ══════════════════════════════════════════ */
   document.querySelectorAll('.carevee-atc-btn').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
+      e.preventDefault(); e.stopPropagation();
       var pid  = btn.getAttribute('data-pid');
       var name = btn.getAttribute('data-name');
-
-      /* Save scroll position to sessionStorage before navigating */
       var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
       sessionStorage.setItem('cv_scroll_pos', scrollY);
-
-      /* Loading feedback */
       btn.classList.add('atc-loading');
       var txtEl = btn.querySelector('.fp-atc-txt');
       if (txtEl) txtEl.textContent = 'Adding…';
-
-      /* Build URL: WC ?add-to-cart=X processes the add on load */
       var url = new URL(window.location.href);
       url.searchParams.set('add-to-cart',   pid);
       url.searchParams.set('quantity',      '1');
       url.searchParams.set('cv_added_name', encodeURIComponent(name));
-
       window.location.href = url.toString();
     });
   });

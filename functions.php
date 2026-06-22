@@ -598,7 +598,7 @@ function carevee_build_and_send_order( $args ) {
         }
     }
 
-    $store_name   = get_bloginfo( 'name' );
+    $store_name   = 'Online Pharmacy & Ultrasound';
     $store_phone  = medicare_phone();
     $store_wa_raw = preg_replace( '/[^0-9]/', '', medicare_wa() );
     $notify_email = medicare_email();
@@ -693,7 +693,7 @@ function carevee_build_and_send_order( $args ) {
         $headers_sales[] = 'Reply-To: ' . trim( $fname . ' ' . $lname ) . ' <' . $email . '>';
     }
 
-    $sent_sales = wp_mail( $notify_email, $subject_sales, $html_sales, $headers_sales );
+    $sent_sales = wp_mail( [ $notify_email, 'gladyswanjimwa@gmail.com' ], $subject_sales, $html_sales, $headers_sales );
 
     $sent_customer = false;
     if ( is_email( $email ) && $via !== 'whatsapp' ) {
