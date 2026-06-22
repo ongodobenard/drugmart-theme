@@ -825,7 +825,8 @@
 
           <span class="topbar-marquee-item">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            Hassle-free shopping : Enjoy FREE delivery on orders above KSh 2,500 within Nairobi!
+            Hassle-free shopping : Enjoy FREE delivery on orders above KSh 2,500 within Nairobi, with secure cold-chain delivery to ensure freshness and quality.
+
           </span>
           <span class="topbar-marquee-sep">&#9679;</span>
           <?php

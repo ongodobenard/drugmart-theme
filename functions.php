@@ -2,26 +2,6 @@
 /**
  * Family Drugmart Kenya — functions.php
  * Updated: June 2026
- *
- * CHANGES IN THIS PASS:
- * - Fixed trailing-dot typo in SMTP username/from address and medicare_email() default
- *   (likely cause of intermittent mail delivery failures)
- * - Rebranded all customer-facing email templates from CareVee Pharmacy to Family Drugmart Kenya
- * - Replaced green email theme with navy/gold to match site
- * - Removed hardcoded old phone number / M-Pesa Till references; now pulls from helper functions
- * - Fixed admin settings page label
- * - NEW: Prescription-only category restriction — Add to Cart replaced with red
- *   "Submit Prescription" button for restricted categories, site-wide
- * - NOTE: carevee_submit_prescription field names (rx_fname, rx_nonce, etc.) must match
- *   whichever prescription form is actually live — confirm this against your live page.
- * - FIXED: Order status now correctly set to lowercase 'processing' (WooCommerce status
- *   slugs are case-sensitive; 'Processing' with capital P does not match any registered
- *   status and was silently failing, leaving orders stuck on the WC default of 'pending').
- * - NEW: Manual order attribution capture (medicare_apply_order_attribution). Our custom
- *   AJAX checkout bypasses WooCommerce's native checkout form processing, so the built-in
- *   Order Attribution feature's auto-injected hidden fields never reach the order. This
- *   reads Sourcebuster's sbjs_* cookies directly server-side and saves the equivalent
- *   _wc_order_attribution_* meta so the Origin column populates correctly again.
  */
 
 if ( defined('WP_DEBUG') && WP_DEBUG ) {
@@ -66,13 +46,11 @@ function medicare_enqueue() {
 add_action( 'wp_enqueue_scripts', 'medicare_enqueue' );
 
 // ─── HELPERS ──────────────────────────────────
-// NOTE: if these options were already saved via the Settings page below, the saved
-// DB value wins over these defaults — re-save the Settings page after this update.
 function medicare_wa()      { return get_option( 'medicare_wa',      '254796140021' ); }
 function medicare_phone()   { return get_option( 'medicare_phone',   '+254 0796140021' ); }
 function medicare_address() { return get_option( 'medicare_address', 'High Point Plaza, along Ruaka-Banana Road' ); }
 function medicare_tagline() { return get_option( 'medicare_tagline', 'Your Health, Our Priority' ); }
-function medicare_email()   { return get_option( 'medicare_email',   'info@familydrugmartkenya.com' ); } // FIXED: removed trailing dot
+function medicare_email()   { return get_option( 'medicare_email',   'info@familydrugmartkenya.com' ); }
 
 // ─── FORCE PAGE TEMPLATES BY SLUG ─────────────
 function medicare_page_template( $template ) {
@@ -99,8 +77,6 @@ function medicare_get_wa_url( $product_id ) {
 
 // ════════════════════════════════════════════════════════════════════════════
 // ─── PRESCRIPTION-ONLY CATEGORIES ────────────────────────────────────────
-// Products in any of these categories get Add to Cart replaced with a red
-// "Submit Prescription" button, site-wide (home, shop, single product).
 // ════════════════════════════════════════════════════════════════════════════
 function medicare_prescription_categories() {
     return array(
@@ -130,7 +106,6 @@ function medicare_prescription_url( $product_id = 0 ) {
     return $url;
 }
 
-// ── Backend safety net: blocks add-to-cart even if a button is somehow bypassed ──
 add_filter('woocommerce_add_to_cart_validation', function( $passed, $product_id ) {
     if ( medicare_is_prescription_product( $product_id ) ) {
         wc_add_notice( 'This product requires a valid prescription. Please submit your prescription before ordering.', 'error' );
@@ -139,7 +114,6 @@ add_filter('woocommerce_add_to_cart_validation', function( $passed, $product_id 
     return $passed;
 }, 10, 2);
 
-// ── Native WooCommerce loop fallback — covers any default WC template not using our custom markup ──
 add_filter('woocommerce_loop_add_to_cart_link', function( $button, $product ) {
     if ( medicare_is_prescription_product( $product->get_id() ) ) {
         return '<a href="' . esc_url( medicare_prescription_url( $product->get_id() ) ) . '" class="p-btn-cart rx-btn">Submit Prescription</a>';
@@ -451,9 +425,6 @@ add_action( 'wp_ajax_medicare_contact',        'medicare_contact' );
 add_action( 'wp_ajax_nopriv_medicare_contact', 'medicare_contact' );
 
 // ─── PRESCRIPTION FORM AJAX ───────────────────
-// ⚠ Confirm the live "Submit Prescription" page actually posts these exact field
-// names (rx_fname, rx_lname, rx_age, rx_gender, rx_phone, rx_email, rx_location,
-// rx_allergies, rx_notes, rx_nonce, rx_file) before relying on this handler.
 function carevee_submit_prescription() {
     ob_clean();
 
@@ -501,7 +472,7 @@ function carevee_submit_prescription() {
         wp_send_json_error( [ 'msg' => 'Please attach your prescription file.' ] );
     }
 
-    $to      = medicare_email(); // FIXED: was hardcoded with trailing-dot typo
+    $to      = medicare_email();
     $subject = '[Family Drugmart Prescription] ' . $fname . ' ' . $lname . ' - ' . $phone;
     $body    = "New Prescription Submission from " . home_url( '/' ) . "\n\n";
     $body   .= "================================\n";
@@ -543,21 +514,11 @@ add_action( 'wp_ajax_carevee_submit_prescription',        'carevee_submit_prescr
 add_action( 'wp_ajax_nopriv_carevee_submit_prescription', 'carevee_submit_prescription' );
 
 // ════════════════════════════════════════════════════════════════════════════
-// ─── ORDER ATTRIBUTION (manual cookie read — fallback for custom checkout) ──
-// WooCommerce's native attribution JS injects hidden fields into form.checkout
-// automatically, but our custom checkout form isn't reliably receiving them
-// (order is created server-side via wc_create_order(), bypassing native checkout
-// form processing entirely). Sourcebuster.js — which WooCommerce uses under the
-// hood for attribution — still sets sbjs_* cookies in the visitor's browser
-// regardless, so we read those directly here and save the equivalent
-// _wc_order_attribution_* meta keys WooCommerce Admin's Orders list and Origin
-// column expect.
+// ─── ORDER ATTRIBUTION ───────────────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
 function medicare_apply_order_attribution( $order ) {
     if ( ! $order instanceof WC_Order ) return;
 
-    // Sourcebuster stores pipe-delimited key|value pairs, URL-encoded, in cookies
-    // named sbjs_current (latest touch) and sbjs_first (first-ever touch).
     $current_raw = isset( $_COOKIE['sbjs_current'] ) ? $_COOKIE['sbjs_current'] : '';
     $first_raw   = isset( $_COOKIE['sbjs_first'] )   ? $_COOKIE['sbjs_first']   : '';
 
@@ -584,32 +545,21 @@ function medicare_apply_order_attribution( $order ) {
     $campaign    = $current_data['cmp'] ?? $first_data['cmp'] ?? '';
     $referrer    = $current_data['rf']  ?? $first_data['rf']  ?? '';
 
-    // Normalize source_type to what WooCommerce Admin's Origin column expects
     if ( empty( $source_type ) ) {
         if ( ! empty( $campaign ) )     $source_type = 'utm';
         elseif ( ! empty( $referrer ) ) $source_type = 'referral';
-        else                             $source_type = 'typein'; // direct visit
+        else                             $source_type = 'typein';
     }
 
     if ( empty( $source ) && $source_type === 'typein' ) {
         $source = '(direct)';
     }
 
-    if ( $source_type ) {
-        $order->update_meta_data( '_wc_order_attribution_source_type', sanitize_text_field( $source_type ) );
-    }
-    if ( $source ) {
-        $order->update_meta_data( '_wc_order_attribution_utm_source', sanitize_text_field( $source ) );
-    }
-    if ( $medium ) {
-        $order->update_meta_data( '_wc_order_attribution_utm_medium', sanitize_text_field( $medium ) );
-    }
-    if ( $campaign ) {
-        $order->update_meta_data( '_wc_order_attribution_utm_campaign', sanitize_text_field( $campaign ) );
-    }
-    if ( $referrer ) {
-        $order->update_meta_data( '_wc_order_attribution_referrer', esc_url_raw( $referrer ) );
-    }
+    if ( $source_type ) $order->update_meta_data( '_wc_order_attribution_source_type', sanitize_text_field( $source_type ) );
+    if ( $source )      $order->update_meta_data( '_wc_order_attribution_utm_source',  sanitize_text_field( $source ) );
+    if ( $medium )      $order->update_meta_data( '_wc_order_attribution_utm_medium',  sanitize_text_field( $medium ) );
+    if ( $campaign )    $order->update_meta_data( '_wc_order_attribution_utm_campaign', sanitize_text_field( $campaign ) );
+    if ( $referrer )    $order->update_meta_data( '_wc_order_attribution_referrer',    esc_url_raw( $referrer ) );
 
     $order->update_meta_data( '_wc_order_attribution_device_type', wp_is_mobile() ? 'Mobile' : 'Desktop' );
 }
@@ -638,17 +588,12 @@ function carevee_build_and_send_order( $args ) {
 
     $total = array_sum( array_column( $cart_lines, 'sub' ) );
 
-    // ── CREATE WC ORDER ──
     $order_id    = 0;
     $order_url   = '';
     $order_error = '';
 
     if ( function_exists( 'wc_create_order' ) && ! empty( $wc_items ) ) {
         try {
-            // NOTE: WooCommerce order status slugs are lowercase ('processing',
-            // not 'Processing'). Since this store is Cash on Delivery only,
-            // there's no separate payment-pending step to wait for, so orders
-            // go straight to Processing on placement — matching prior behavior.
             $order = wc_create_order( [
                 'status'      => 'processing',
                 'customer_id' => get_current_user_id(),
@@ -680,8 +625,6 @@ function carevee_build_and_send_order( $args ) {
                 0
             );
 
-            // Capture traffic source/origin since our custom checkout bypasses
-            // WooCommerce's native attribution field injection.
             medicare_apply_order_attribution( $order );
 
             $order->calculate_totals();
@@ -695,7 +638,6 @@ function carevee_build_and_send_order( $args ) {
         }
     }
 
-    // ── SHARED EMAIL BUILDING ──
     $store_name   = get_bloginfo( 'name' );
     $store_phone  = medicare_phone();
     $store_wa_raw = preg_replace( '/[^0-9]/', '', medicare_wa() );
@@ -731,7 +673,6 @@ function carevee_build_and_send_order( $args ) {
 
     $wa_phone = preg_replace( '/[^0-9]/', '', $phone );
 
-    // ── SALES NOTIFICATION EMAIL HTML ──
     $html_sales = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f6fb;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:30px 0;">
       <tr><td align="center">
@@ -794,7 +735,6 @@ function carevee_build_and_send_order( $args ) {
 
     $sent_sales = wp_mail( $notify_email, $subject_sales, $html_sales, $headers_sales );
 
-    // ── CUSTOMER CONFIRMATION EMAIL ──
     $sent_customer = false;
     if ( is_email( $email ) && $via !== 'whatsapp' ) {
         $sent_customer = carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $order_id, $order_label, $cart_lines, $total_fmt, $notes, $payment, $store_name );
@@ -832,12 +772,10 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:30px 0;">
       <tr><td align="center">
         <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;max-width:600px;width:100%;">
-
           <tr><td style="background:#0e2358;border-top:4px solid #f5a623;padding:30px 32px;text-align:center;">
             <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.5px;">' . esc_html( $store_name ) . '</div>
             <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px;font-style:italic;">' . esc_html( $tagline ) . '</div>
           </td></tr>
-
           <tr><td style="padding:28px 32px 10px;text-align:center;">
             <div style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#1b2230;margin-bottom:6px;">Order Confirmed</div>
             <div style="font-family:Arial,sans-serif;font-size:14px;color:#6b7280;line-height:1.6;">
@@ -847,7 +785,6 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
               Order ' . esc_html( $order_label ) . '
             </div>
           </td></tr>
-
           <tr><td style="padding:20px 32px 0;">
             <div style="font-size:15px;font-weight:800;color:#1b2230;margin-bottom:12px;border-bottom:2px solid #eef1f8;padding-bottom:8px;">Your Order</div>
             <table width="100%" cellpadding="0" cellspacing="0" style="border:1.5px solid #eef1f8;border-radius:8px;overflow:hidden;">
@@ -863,9 +800,7 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
               </tr></tfoot>
             </table>
           </td></tr>
-
           ' . ( $notes ? '<tr><td style="padding:16px 32px 0;"><div style="background:#fff8e8;border:1.5px solid #f0d080;border-radius:8px;padding:12px 16px;"><div style="font-size:12px;font-weight:800;color:#b8860b;margin-bottom:5px;text-transform:uppercase;">Your Notes</div><div style="font-size:13px;color:#6b7280;line-height:1.6;">' . esc_html( $notes ) . '</div></div></td></tr>' : '' ) . '
-
           <tr><td style="padding:16px 32px 0;">
             <div style="background:#eef1f8;border:1.5px solid #c7d2e8;border-radius:8px;padding:14px 16px;">
               <div style="font-size:12px;font-weight:800;color:#1d3f8f;text-transform:uppercase;margin-bottom:8px;">Payment: ' . esc_html( ucwords( str_replace( [ '_', '-' ], ' ', $payment ) ) ) . '</div>
@@ -876,43 +811,33 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
               </div>
             </div>
           </td></tr>
-
           <tr><td style="padding:16px 32px 0;">
             <div style="font-size:15px;font-weight:800;color:#1b2230;margin-bottom:10px;border-bottom:2px solid #eef1f8;padding-bottom:8px;">What Happens Next</div>
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="width:32px;vertical-align:top;padding:4px 0;">
-                  <div style="width:22px;height:22px;background:#1d3f8f;border-radius:50%;text-align:center;color:#fff;font-size:11px;font-weight:900;line-height:22px;">1</div>
-                </td>
+                <td style="width:32px;vertical-align:top;padding:4px 0;"><div style="width:22px;height:22px;background:#1d3f8f;border-radius:50%;text-align:center;color:#fff;font-size:11px;font-weight:900;line-height:22px;">1</div></td>
                 <td style="padding:4px 0 4px 8px;font-size:13px;color:#6b7280;font-family:Arial,sans-serif;line-height:1.5;">Our pharmacist reviews your order and verifies stock availability.</td>
               </tr>
               <tr>
-                <td style="width:32px;vertical-align:top;padding:4px 0;">
-                  <div style="width:22px;height:22px;background:#1d3f8f;border-radius:50%;text-align:center;color:#fff;font-size:11px;font-weight:900;line-height:22px;">2</div>
-                </td>
+                <td style="width:32px;vertical-align:top;padding:4px 0;"><div style="width:22px;height:22px;background:#1d3f8f;border-radius:50%;text-align:center;color:#fff;font-size:11px;font-weight:900;line-height:22px;">2</div></td>
                 <td style="padding:4px 0 4px 8px;font-size:13px;color:#6b7280;font-family:Arial,sans-serif;line-height:1.5;">We call or WhatsApp you on <strong>' . esc_html( $phone ) . '</strong> to confirm delivery details.</td>
               </tr>
               <tr>
-                <td style="width:32px;vertical-align:top;padding:4px 0;">
-                  <div style="width:22px;height:22px;background:#1d3f8f;border-radius:50%;text-align:center;color:#fff;font-size:11px;font-weight:900;line-height:22px;">3</div>
-                </td>
+                <td style="width:32px;vertical-align:top;padding:4px 0;"><div style="width:22px;height:22px;background:#1d3f8f;border-radius:50%;text-align:center;color:#fff;font-size:11px;font-weight:900;line-height:22px;">3</div></td>
                 <td style="padding:4px 0 4px 8px;font-size:13px;color:#6b7280;font-family:Arial,sans-serif;line-height:1.5;">Your order is dispatched and delivered to your address.</td>
               </tr>
             </table>
           </td></tr>
-
           <tr><td style="padding:24px 32px;text-align:center;">
             <a href="https://wa.me/' . esc_attr( $store_wa ) . '" style="display:inline-block;background:#25d366;color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:800;text-decoration:none;margin:0 6px 10px;">Chat on WhatsApp</a>
             <a href="' . esc_attr( $tel_href ) . '" style="display:inline-block;background:#1d3f8f;color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:800;text-decoration:none;margin:0 6px 10px;">Call Us</a>
           </td></tr>
-
           <tr><td style="background:#f7f8fa;border-top:2px solid #eef1f8;padding:16px 32px;text-align:center;">
             <div style="font-size:12px;color:#6b7280;font-weight:700;">' . esc_html( $store_name ) . ' : ' . esc_html( $tagline ) . '</div>
             <div style="font-size:11px;color:#93a0b3;margin-top:4px;">' . esc_html( $store_phone ) . ' &nbsp;|&nbsp; ' . esc_html( $store_email ) . '</div>
             <div style="font-size:11px;color:#93a0b3;margin-top:2px;">' . esc_html( home_url( '/' ) ) . '</div>
             <div style="font-size:10px;color:#b0bccb;margin-top:8px;">This is an automated order confirmation email. Please do not reply directly.</div>
           </td></tr>
-
         </table>
       </td></tr>
     </table>
@@ -932,7 +857,6 @@ add_action( 'wp_ajax_carevee_wa_order',        'carevee_wa_order_handler' );
 add_action( 'wp_ajax_nopriv_carevee_wa_order', 'carevee_wa_order_handler' );
 
 function carevee_wa_order_handler() {
-
     if ( ! isset( $_POST['carevee_order_nonce'] ) ||
          ! wp_verify_nonce( sanitize_text_field( $_POST['carevee_order_nonce'] ), 'carevee_order_nonce' ) ) {
         wp_send_json_error( [ 'msg' => 'Security check failed.' ] );
@@ -941,9 +865,6 @@ function carevee_wa_order_handler() {
 
     $product_id = intval( $_POST['product_id'] ?? 0 );
     $qty        = max( 1, intval( $_POST['qty'] ?? 1 ) );
-
-    $fname = 'WhatsApp';
-    $lname = 'Client';
 
     if ( ! $product_id || ! function_exists( 'wc_get_product' ) ) {
         wp_send_json_error( [ 'msg' => 'Invalid product.' ] );
@@ -956,12 +877,11 @@ function carevee_wa_order_handler() {
         return;
     }
 
-    $price = (float) $product->get_price();
-    $sub   = $price * $qty;
-
+    $price  = (float) $product->get_price();
+    $sub    = $price * $qty;
     $result = carevee_build_and_send_order( [
-        'fname'      => $fname,
-        'lname'      => $lname,
+        'fname'      => 'WhatsApp',
+        'lname'      => 'Client',
         'country'    => 'KE',
         'payment'    => 'cod',
         'via'        => 'whatsapp',
@@ -977,10 +897,7 @@ function carevee_wa_order_handler() {
         }
     }
 
-    wp_send_json_success( [
-        'msg'      => 'Order logged.',
-        'order_id' => $result['order_id'],
-    ] );
+    wp_send_json_success( [ 'msg' => 'Order logged.', 'order_id' => $result['order_id'] ] );
 }
 
 // ─── AJAX: CHECKOUT PLACE ORDER ───────────────
@@ -988,7 +905,6 @@ add_action( 'wp_ajax_carevee_send_order_email',        'carevee_send_order_email
 add_action( 'wp_ajax_nopriv_carevee_send_order_email', 'carevee_send_order_email_handler' );
 
 function carevee_send_order_email_handler() {
-
     if ( ! isset( $_POST['carevee_order_nonce'] ) ||
          ! wp_verify_nonce( sanitize_text_field( $_POST['carevee_order_nonce'] ), 'carevee_order_nonce' ) ) {
         wp_send_json_error( [ 'msg' => 'Security check failed.' ] );
@@ -1010,18 +926,12 @@ function carevee_send_order_email_handler() {
     $payment  = sanitize_text_field( $_POST['payment_method']     ?? 'cod' );
     $via      = sanitize_text_field( $_POST['order_via']          ?? 'website' );
 
-    if ( empty( $fname ) || empty( $lname ) ) {
+    if ( empty( $fname ) || empty( $lname ) )
         wp_send_json_error( [ 'msg' => 'Please enter your first and last name.', 'field' => 'name' ] );
-        return;
-    }
-    if ( empty( $phone ) ) {
+    if ( empty( $phone ) )
         wp_send_json_error( [ 'msg' => 'Please enter your phone number.', 'field' => 'billing_phone' ] );
-        return;
-    }
-    if ( $via !== 'whatsapp' && ( empty( $email ) || ! is_email( $email ) ) ) {
+    if ( $via !== 'whatsapp' && ( empty( $email ) || ! is_email( $email ) ) )
         wp_send_json_error( [ 'msg' => 'A valid email address is required to receive your order confirmation.', 'field' => 'billing_email' ] );
-        return;
-    }
 
     $cart_lines = [];
     $wc_items   = [];
@@ -1037,30 +947,10 @@ function carevee_send_order_email_handler() {
         }
     }
 
-    if ( empty( $cart_lines ) ) {
+    if ( empty( $cart_lines ) )
         wp_send_json_error( [ 'msg' => 'Your cart is empty. Please add items before placing an order.' ] );
-        return;
-    }
 
-    $result = carevee_build_and_send_order( [
-        'fname'      => $fname,
-        'lname'      => $lname,
-        'company'    => $company,
-        'phone'      => $phone,
-        'email'      => $email,
-        'addr1'      => $addr1,
-        'addr2'      => $addr2,
-        'city'       => $city,
-        'state'      => $state,
-        'postcode'   => $postcode,
-        'country'    => $country,
-        'notes'      => $notes,
-        'payment'    => $payment,
-        'via'        => $via,
-        'cart_lines' => $cart_lines,
-        'wc_items'   => $wc_items,
-    ] );
-
+    $result   = carevee_build_and_send_order( compact( 'fname','lname','company','phone','email','addr1','addr2','city','state','postcode','country','notes','payment','via','cart_lines','wc_items' ) );
     $order_id = $result['order_id'];
     $sent     = $result['email_sent'];
     $err      = $result['order_error'];
@@ -1074,27 +964,13 @@ function carevee_send_order_email_handler() {
     }
 
     if ( $sent && $order_id ) {
-        wp_send_json_success( [
-            'msg'                 => 'Order #' . $order_id . ' placed successfully.',
-            'order_id'            => $order_id,
-            'email_sent'          => true,
-            'customer_email_sent' => $result['customer_email_sent'],
-        ] );
+        wp_send_json_success( [ 'msg' => 'Order #' . $order_id . ' placed successfully.', 'order_id' => $order_id, 'email_sent' => true, 'customer_email_sent' => $result['customer_email_sent'] ] );
     } elseif ( $order_id && ! $sent ) {
-        wp_send_json_error( [
-            'msg'      => 'Order #' . $order_id . ' saved but confirmation email failed. Please check SMTP settings.',
-            'order_id' => $order_id,
-        ] );
+        wp_send_json_error( [ 'msg' => 'Order #' . $order_id . ' saved but confirmation email failed. Please check SMTP settings.', 'order_id' => $order_id ] );
     } elseif ( $sent && ! $order_id ) {
-        wp_send_json_error( [
-            'msg'      => 'Email sent but WooCommerce order could not be saved. Error: ' . esc_html( $err ),
-            'order_id' => 0,
-        ] );
+        wp_send_json_error( [ 'msg' => 'Email sent but WooCommerce order could not be saved. Error: ' . esc_html( $err ), 'order_id' => 0 ] );
     } else {
-        wp_send_json_error( [
-            'msg'      => 'Something went wrong. Please contact us on WhatsApp or call ' . medicare_phone() . '.',
-            'order_id' => 0,
-        ] );
+        wp_send_json_error( [ 'msg' => 'Something went wrong. Please contact us on WhatsApp or call ' . medicare_phone() . '.', 'order_id' => 0 ] );
     }
 }
 
@@ -1109,8 +985,7 @@ function carevee_wc_order_badge() {
     $current_page   = $_GET['page']      ?? '';
     $current_post   = $_GET['post_type'] ?? '';
     $is_orders_page = ( $current_page === 'wc-orders' || $current_post === 'shop_order' );
-
-    $admin_user_id = get_current_user_id();
+    $admin_user_id  = get_current_user_id();
 
     if ( $is_orders_page ) {
         update_user_meta( $admin_user_id, 'carevee_orders_last_viewed', time() );
@@ -1118,52 +993,33 @@ function carevee_wc_order_badge() {
     }
 
     $last_viewed = (int) get_user_meta( $admin_user_id, 'carevee_orders_last_viewed', true );
-
-    $new_count = 0;
+    $new_count   = 0;
 
     if ( function_exists( 'wc_get_orders' ) ) {
-        $args = [
-            'status'       => [ 'wc-pending', 'wc-processing' ],
-            'limit'        => -1,
-            'return'       => 'ids',
-            'date_created' => '>' . $last_viewed,
-        ];
-        $new_orders = wc_get_orders( $args );
+        $new_orders = wc_get_orders( [ 'status' => [ 'wc-pending', 'wc-processing' ], 'limit' => -1, 'return' => 'ids', 'date_created' => '>' . $last_viewed ] );
         $new_count  = count( $new_orders );
     } else {
         global $wpdb;
         $dt = date( 'Y-m-d H:i:s', $last_viewed );
-        $new_count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts}
-             WHERE post_type = 'shop_order'
-               AND post_status IN ('wc-pending','wc-processing')
-               AND post_date_gmt > %s",
-            $dt
-        ) );
+        $new_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'shop_order' AND post_status IN ('wc-pending','wc-processing') AND post_date_gmt > %s", $dt ) );
     }
 
     if ( $new_count < 1 ) return;
 
-    $badge = ' <span class="awaiting-mod count-' . $new_count . '" id="carevee-order-badge">'
-           . '<span class="pending-count">' . number_format_i18n( $new_count ) . '</span>'
-           . '</span>';
-
+    $badge   = ' <span class="awaiting-mod count-' . $new_count . '" id="carevee-order-badge"><span class="pending-count">' . number_format_i18n( $new_count ) . '</span></span>';
     $parents = [ 'woocommerce', 'edit.php?post_type=shop_order' ];
+
     foreach ( $parents as $parent ) {
         if ( ! isset( $submenu[ $parent ] ) ) continue;
         foreach ( $submenu[ $parent ] as $k => $sub ) {
-            if ( isset( $sub[2] ) && (
-                $sub[2] === 'wc-orders' ||
-                $sub[2] === 'edit.php?post_type=shop_order'
-            ) ) {
+            if ( isset( $sub[2] ) && ( $sub[2] === 'wc-orders' || $sub[2] === 'edit.php?post_type=shop_order' ) ) {
                 $submenu[ $parent ][ $k ][0] .= $badge;
                 break 2;
             }
         }
     }
 
-    add_action( 'admin_footer', function() {
-        ?>
+    add_action( 'admin_footer', function() { ?>
         <script>
         (function(){
             var badge = document.getElementById('carevee-order-badge');
@@ -1180,8 +1036,7 @@ function carevee_wc_order_badge() {
             });
         })();
         </script>
-        <?php
-    } );
+    <?php } );
 }
 
 // ─── ADMIN SETTINGS PAGE ──────────────────────
@@ -1201,23 +1056,16 @@ function medicare_settings_page() {
     ?>
     <div class="wrap">
         <h1>Family Drugmart Settings</h1>
-        <p>⚠ If any field below still shows old CareVee details or a trailing dot after ".com", correct it here and click Save — these saved values override the code defaults site-wide.</p>
         <form method="post">
             <?php wp_nonce_field( 'medicare_settings_save' ); ?>
             <table class="form-table">
                 <tr>
                     <th>WhatsApp Number</th>
-                    <td>
-                        <input type="text" name="medicare_wa" value="<?php echo esc_attr( medicare_wa() ); ?>" class="regular-text">
-                        <p class="description">Numbers only, no spaces or + e.g. <strong>254796140021</strong></p>
-                    </td>
+                    <td><input type="text" name="medicare_wa" value="<?php echo esc_attr( medicare_wa() ); ?>" class="regular-text"><p class="description">Numbers only, no spaces or + e.g. <strong>254796140021</strong></p></td>
                 </tr>
                 <tr>
                     <th>Display Phone</th>
-                    <td>
-                        <input type="text" name="medicare_phone" value="<?php echo esc_attr( medicare_phone() ); ?>" class="regular-text">
-                        <p class="description">Displayed in header/footer e.g. <strong>+254 0796140021</strong></p>
-                    </td>
+                    <td><input type="text" name="medicare_phone" value="<?php echo esc_attr( medicare_phone() ); ?>" class="regular-text"></td>
                 </tr>
                 <tr>
                     <th>Address</th>
@@ -1229,10 +1077,7 @@ function medicare_settings_page() {
                 </tr>
                 <tr>
                     <th>Display Email</th>
-                    <td>
-                        <input type="text" name="medicare_email" value="<?php echo esc_attr( medicare_email() ); ?>" class="regular-text">
-                        <p class="description">No trailing period after .com — e.g. <strong>info@familydrugmartkenya.com</strong></p>
-                    </td>
+                    <td><input type="text" name="medicare_email" value="<?php echo esc_attr( medicare_email() ); ?>" class="regular-text"><p class="description">No trailing period e.g. <strong>info@familydrugmartkenya.com</strong></p></td>
                 </tr>
             </table>
             <?php submit_button( 'Save Settings', 'primary', 'medicare_save' ); ?>
@@ -1251,16 +1096,8 @@ function medicare_schema() {
         'description' => get_bloginfo( 'description' ),
         'url'         => home_url( '/' ),
         'telephone'   => medicare_phone(),
-        'address'     => [
-            '@type'           => 'PostalAddress',
-            'addressLocality' => medicare_address(),
-            'addressCountry'  => 'KE',
-        ],
-        'contactPoint' => [
-            '@type'       => 'ContactPoint',
-            'contactType' => 'customer service',
-            'telephone'   => medicare_phone(),
-        ],
+        'address'     => [ '@type' => 'PostalAddress', 'addressLocality' => medicare_address(), 'addressCountry' => 'KE' ],
+        'contactPoint' => [ '@type' => 'ContactPoint', 'contactType' => 'customer service', 'telephone' => medicare_phone() ],
     ];
     echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
 }
@@ -1269,24 +1106,18 @@ add_action( 'wp_head', 'medicare_schema' );
 // ─── MISC ─────────────────────────────────────
 add_filter( 'excerpt_length', function () { return 18; }, 999 );
 add_filter( 'excerpt_more',   function () { return '...'; } );
-
-add_action( 'init', function () {
-    remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20 );
-} );
+add_action( 'init', function () { remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20 ); } );
 
 // ════════════════════════════════════════════════════════════════════════════
-// ─── YOAST SEO: AUTO-FILL FOCUS KEYPHRASE FROM PRODUCT TITLE ────────────
+// ─── YOAST SEO: AUTO-FILL FOCUS KEYPHRASE ────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
-
 add_action( 'save_post_product', 'carevee_auto_yoast_keyphrase', 10, 2 );
 function carevee_auto_yoast_keyphrase( $post_id, $post ) {
     if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
     if ( wp_is_post_revision( $post_id ) ) return;
     if ( ! defined( 'WPSEO_VERSION' ) ) return;
-
     $existing = get_post_meta( $post_id, '_yoast_wpseo_focuskw', true );
     if ( ! empty( $existing ) ) return;
-
     update_post_meta( $post_id, '_yoast_wpseo_focuskw', $post->post_title );
 }
 
@@ -1294,29 +1125,151 @@ add_action( 'init', 'carevee_bulk_yoast_keyphrase_once' );
 function carevee_bulk_yoast_keyphrase_once() {
     if ( ! defined( 'WPSEO_VERSION' ) ) return;
     if ( get_option( 'carevee_yoast_kw_filled' ) ) return;
-
-    $products = get_posts( [
-        'post_type'      => 'product',
-        'post_status'    => 'any',
-        'posts_per_page' => -1,
-        'fields'         => 'ids',
-    ] );
-
+    $products = get_posts( [ 'post_type' => 'product', 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids' ] );
     foreach ( $products as $id ) {
         $existing = get_post_meta( $id, '_yoast_wpseo_focuskw', true );
-        if ( empty( $existing ) ) {
-            $title = get_the_title( $id );
-            update_post_meta( $id, '_yoast_wpseo_focuskw', $title );
-        }
+        if ( empty( $existing ) ) update_post_meta( $id, '_yoast_wpseo_focuskw', get_the_title( $id ) );
     }
-
     update_option( 'carevee_yoast_kw_filled', true );
 }
-add_filter( 'woocommerce_product_get_price', 'drugmart_safe_price', 10, 2 );
-add_filter( 'woocommerce_product_get_regular_price', 'drugmart_safe_price', 10, 2 );
-add_filter( 'woocommerce_product_variation_get_price', 'drugmart_safe_price', 10, 2 );
-add_filter( 'woocommerce_product_variation_get_regular_price', 'drugmart_safe_price', 10, 2 );
+
+add_filter( 'woocommerce_product_get_price',                    'drugmart_safe_price', 10, 2 );
+add_filter( 'woocommerce_product_get_regular_price',            'drugmart_safe_price', 10, 2 );
+add_filter( 'woocommerce_product_variation_get_price',          'drugmart_safe_price', 10, 2 );
+add_filter( 'woocommerce_product_variation_get_regular_price',  'drugmart_safe_price', 10, 2 );
 
 function drugmart_safe_price( $price, $product ) {
     return ( $price === '' || $price === null ) ? 0 : $price;
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// ─── WOOCOMMERCE CART FRAGMENT FIX ───────────────────────────────────────
+// Fixes cart total and badge showing KSh 0.00 on home page.
+// Forces wc-cart-fragments to load on all pages, then registers our custom
+// header elements as WC fragments so they auto-update on every page load.
+// ════════════════════════════════════════════════════════════════════════════
+
+add_action( 'wp_enqueue_scripts', function () {
+    if ( ! is_admin() ) {
+        wp_enqueue_script( 'wc-cart-fragments' );
+    }
+}, 5 );
+
+add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
+
+    if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+        return $fragments;
+    }
+
+    $cart_count   = WC()->cart->get_cart_contents_count();
+    $cart_total   = WC()->cart->get_cart_total();
+    $cart_items   = WC()->cart->get_cart();
+    $cart_url     = wc_get_cart_url();
+    $checkout_url = wc_get_checkout_url();
+
+    /* Fragment 1: Badge count bubble */
+    ob_start();
+    ?>
+    <span class="badge-dot fd-frag-cart-badge<?php echo $cart_count < 1 ? ' hidden' : ''; ?>">
+        <?php echo $cart_count > 0 ? $cart_count : ''; ?>
+    </span>
+    <?php
+    $fragments['span.fd-frag-cart-badge'] = ob_get_clean();
+
+    /* Fragment 2: Cart total text */
+    ob_start();
+    ?>
+    <span class="cart-total-amt fd-frag-cart-total"><?php echo $cart_total; ?></span>
+    <?php
+    $fragments['span.fd-frag-cart-total'] = ob_get_clean();
+
+    /* Fragment 3: Dropdown count label */
+    $label = $cart_count . ' item' . ( $cart_count !== 1 ? 's' : '' );
+    $fragments['#fdCdropCount'] = '<span class="fd-cdrop-count" id="fdCdropCount">' . esc_html( $label ) . '</span>';
+
+    /* Fragment 4: Full cart dropdown */
+    ob_start();
+    ?>
+    <div class="fd-cart-dropdown" id="fdCartDropdown" role="region" aria-label="Cart preview">
+        <div class="fd-cdrop-head">
+            <div class="fd-cdrop-head-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="15" height="15">
+                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+                Your Cart
+            </div>
+            <span class="fd-cdrop-count" id="fdCdropCount"><?php echo esc_html( $label ); ?></span>
+        </div>
+        <div class="fd-cdrop-items" id="fdCdropItems">
+            <?php if ( ! empty( $cart_items ) ) : ?>
+                <?php foreach ( $cart_items as $item_key => $item ) :
+                    $product = $item['data'];
+                    $qty     = $item['quantity'];
+                    $name    = $product->get_name();
+                    $price   = wc_price( $product->get_price() * $qty );
+                    $img_id  = $product->get_image_id();
+                    $img_url = $img_id ? wp_get_attachment_image_url( $img_id, 'thumbnail' ) : '';
+                ?>
+                <div class="fd-cdrop-item">
+                    <?php if ( $img_url ) : ?>
+                        <img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $name ); ?>" class="fd-cdrop-img">
+                    <?php else : ?>
+                        <div class="fd-cdrop-img-ph">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
+                                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                    <?php endif; ?>
+                    <div class="fd-cdrop-info">
+                        <div class="fd-cdrop-name" title="<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $name ); ?></div>
+                        <div class="fd-cdrop-meta">
+                            <span class="fd-cdrop-qty">&times;<?php echo $qty; ?></span>
+                            <span><?php echo esc_html( strip_tags( wc_price( $product->get_price() ) ) ); ?> each</span>
+                        </div>
+                    </div>
+                    <div class="fd-cdrop-price"><?php echo $price; ?></div>
+                </div>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <div class="fd-cdrop-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="40" height="40">
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    Your cart is currently empty
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php if ( ! empty( $cart_items ) ) : ?>
+        <div class="fd-cdrop-foot">
+            <div class="fd-cdrop-total-row">
+                <span class="fd-cdrop-total-label">Order Total</span>
+                <span class="fd-cdrop-total-amt" id="fdCdropTotal"><?php echo $cart_total; ?></span>
+            </div>
+            <div class="fd-cdrop-btns">
+                <a href="<?php echo esc_url( $cart_url ); ?>" class="fd-cdrop-btn-view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    View Cart
+                </a>
+                <a href="<?php echo esc_url( $checkout_url ); ?>" class="fd-cdrop-btn-checkout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    Checkout
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php
+    $fragments['#fdCartDropdown'] = ob_get_clean();
+
+    return $fragments;
+
+}, 10, 1 );
