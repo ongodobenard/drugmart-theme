@@ -636,7 +636,30 @@ endif;
             'badge_bg'     => '#fff8e8',
             'badge_color'  => '#c47d00',
         ],
-       
+        [
+            'name'   => 'Wanjiru N.',
+            'stars'  => 5,
+            'text'   => 'Booked a home-visit ultrasound scan and the sonographer was professional and on time. Results were ready the same day.',
+            'badge'  => 'Verified Buyer &bull; June 2026',
+            'avatar_bg'    => '#eafaf0',
+            'avatar_head'  => '#1aab74',
+            'avatar_body'  => '#1aab74',
+            'star_color'   => '#f5a623',
+            'badge_bg'     => '#eafaf0',
+            'badge_color'  => '#1a8a5c',
+        ],
+        [
+            'name'   => 'Brian O.',
+            'stars'  => 4,
+            'text'   => 'Submitted my prescription online and got my medication delivered within hours. Smooth process from start to finish.',
+            'badge'  => 'Verified Buyer &bull; April 2026',
+            'avatar_bg'    => '#fef0f0',
+            'avatar_head'  => '#e15858',
+            'avatar_body'  => '#e15858',
+            'star_color'   => '#f5a623',
+            'badge_bg'     => '#fef0f0',
+            'badge_color'  => '#c0392b',
+        ],
     ];
 
     foreach ( $reviews as $r ) :
