@@ -690,7 +690,7 @@ function carevee_build_and_send_order( $args ) {
     $subject_sales = 'New Order ' . $order_label . ' - ' . trim( $fname . ' ' . $lname ) . ' | ' . $store_name;
     $headers_sales = [
     'Content-Type: text/html; charset=UTF-8',
-    'From: Family Drugmart <info@familydrugmartkenya.com>',
+    'From: Family Drugmart Kenya <info@familydrugmartkenya.com>',
 ];
 if ( is_email( $email ) ) {
     $headers_sales[] = 'Reply-To: ' . trim( $fname . ' ' . $lname ) . ' <' . $email . '>';
