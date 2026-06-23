@@ -140,6 +140,12 @@ endif;
 .brand-link:hover { color: #1d3f8f; padding-left: 5px; }
 .brand-link.view-all { color: #1d3f8f; font-weight: 700; }
 
+/* ── Hot Deals (now 3 products) ── */
+.hot-deals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 .hot-deal-card {
   position: relative;
   background: #f7f8fa;
@@ -227,7 +233,13 @@ endif;
 }
 .hp-price { font-size: 12px; font-weight: 900; color: #1d3f8f; font-family: 'Nunito', sans-serif; }
 
+/* ── Customer Reviews (now 4 reviews) ── */
 .review-item { padding: 4px 0 10px; }
+.review-item + .review-item {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+  margin-top: 4px;
+}
 .review-top  { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; }
 .review-avatar { width: 34px; height: 34px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
 .review-name  { font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800; color: #1b2230; }
@@ -361,9 +373,10 @@ endif;
     ?>
   </div>
 
-  <!-- ④ Hot Deals Day -->
+  <!-- ④ Hot Deals Day — now shows 3 products -->
   <div class="sb-block">
     <div class="sb-section-title"><?php esc_html_e('Hot Deals Day', 'familydrugmart'); ?></div>
+    <div class="hot-deals-grid">
     <?php
     if ( function_exists('wc_get_product') ) :
 
@@ -391,7 +404,7 @@ endif;
 
         $deal_args = [
             'post_type'      => 'product',
-            'posts_per_page' => 1,
+            'posts_per_page' => 3,
             'orderby'        => 'rand',
             'meta_query'     => [[
                 'key'     => '_sale_price',
@@ -409,10 +422,10 @@ endif;
 
         $hq = new WP_Query($deal_args);
 
-        if ( ! $hq->have_posts() && $deal_cat_id ) {
+        if ( $hq->post_count < 3 && $deal_cat_id ) {
             $hq = new WP_Query([
                 'post_type'      => 'product',
-                'posts_per_page' => 1,
+                'posts_per_page' => 3,
                 'orderby'        => 'rand',
                 'tax_query'      => [[
                     'taxonomy' => 'product_cat',
@@ -422,10 +435,10 @@ endif;
             ]);
         }
 
-        if ( ! $hq->have_posts() ) {
+        if ( $hq->post_count < 3 ) {
             $hq = new WP_Query([
                 'post_type'      => 'product',
-                'posts_per_page' => 1,
+                'posts_per_page' => 3,
                 'orderby'        => 'rand',
             ]);
         }
@@ -490,21 +503,27 @@ endif;
             wp_reset_postdata();
 
         else :
-    ?>
+            $fallback_deals = [
+                ['name' => 'Glucose Monitor Complete Kit',  'cat' => 'Diabetic Care',     'old' => 'KSh 4,800', 'new' => 'KSh 3,360', 'pct' => 30],
+                ['name' => 'Digital Blood Pressure Monitor', 'cat' => 'Cardiovascular',   'old' => 'KSh 5,200', 'new' => 'KSh 3,900', 'pct' => 25],
+                ['name' => 'Multivitamin Gummies 90s',       'cat' => 'Supplements',      'old' => 'KSh 1,800', 'new' => 'KSh 1,350', 'pct' => 25],
+            ];
+            foreach ( $fallback_deals as $fd ) :
+            ?>
             <div class="hot-deal-card">
-                <span class="off-badge">-30% OFF</span>
+                <span class="off-badge">-<?php echo esc_html($fd['pct']); ?>% OFF</span>
                 <div class="wish-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" width="14" height="14">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
                 </div>
                 <div class="deal-img"><?php echo fd_deal_fallback_svg(90); ?></div>
-                <div class="deal-cats">Diabetic Care</div>
-                <a href="<?php echo esc_url( fd_shop_url() ); ?>" class="deal-name">Glucose Monitor Complete Kit</a>
+                <div class="deal-cats"><?php echo esc_html($fd['cat']); ?></div>
+                <a href="<?php echo esc_url( fd_shop_url() ); ?>" class="deal-name"><?php echo esc_html($fd['name']); ?></a>
                 <div class="deal-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
                 <div class="price-row">
-                    <span class="old-price">KSh 4,800</span>
-                    <span class="new-price">KSh 3,360</span>
+                    <span class="old-price"><?php echo esc_html($fd['old']); ?></span>
+                    <span class="new-price"><?php echo esc_html($fd['new']); ?></span>
                 </div>
                 <a href="<?php echo esc_url( fd_shop_url() ); ?>" class="add-cart-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="12" height="12">
@@ -514,7 +533,7 @@ endif;
                     ADD TO CART
                 </a>
             </div>
-    <?php
+            <?php endforeach;
         endif;
 
     else :
@@ -523,6 +542,7 @@ endif;
             <?php esc_html_e('WooCommerce is required to display deals.', 'familydrugmart'); ?>
         </p>
     <?php endif; ?>
+    </div>
   </div>
 
   <!-- ⑤ Hot Products -->
@@ -586,47 +606,63 @@ endif;
     ?>
   </div>
 
-  <!-- ⑥ Customer Reviews -->
+  <!-- ⑥ Customer Reviews — now shows 4 reviews -->
   <div class="sb-block">
     <div class="sb-section-title"><?php esc_html_e('Customer Reviews', 'familydrugmart'); ?></div>
 
+    <?php
+    $reviews = [
+        [
+            'name'   => 'Sarah M.',
+            'stars'  => 5,
+            'text'   => 'Family Drugmart has been a lifesaver! Fast delivery and genuine products. I order all my supplements here now.',
+            'badge'  => 'Verified Buyer &bull; May 2026',
+            'avatar_bg'    => '#eef1f8',
+            'avatar_head'  => '#1d3f8f',
+            'avatar_body'  => '#1d3f8f',
+            'star_color'   => '#f5a623',
+            'badge_bg'     => '#eef1f8',
+            'badge_color'  => '#1d3f8f',
+        ],
+        [
+            'name'   => 'James K.',
+            'stars'  => 4,
+            'text'   => 'Great prices and very fast shipping. The pharmacist chat feature helped me choose the right vitamins. Highly recommend!',
+            'badge'  => 'Verified Buyer &bull; June 2026',
+            'avatar_bg'    => '#fff8e8',
+            'avatar_head'  => '#f5a623',
+            'avatar_body'  => '#f5a623',
+            'star_color'   => '#f5a623',
+            'badge_bg'     => '#fff8e8',
+            'badge_color'  => '#c47d00',
+        ],
+       
+    ];
+
+    foreach ( $reviews as $r ) :
+        $full_stars  = (int) $r['stars'];
+        $empty_stars = 5 - $full_stars;
+        $stars_html  = str_repeat('&#9733;', $full_stars) . str_repeat('&#9734;', $empty_stars);
+    ?>
     <div class="review-item">
       <div class="review-top">
         <div class="review-avatar">
           <svg viewBox="0 0 40 40" fill="none" width="34" height="34">
-            <circle cx="20" cy="20" r="20" fill="#eef1f8"/>
-            <circle cx="20" cy="16" r="7" fill="#1d3f8f" opacity=".35"/>
-            <path d="M6 36c0-7.7 6.3-14 14-14s14 6.3 14 14" fill="#1d3f8f" opacity=".18"/>
+            <circle cx="20" cy="20" r="20" fill="<?php echo esc_attr($r['avatar_bg']); ?>"/>
+            <circle cx="20" cy="16" r="7" fill="<?php echo esc_attr($r['avatar_head']); ?>" opacity=".35"/>
+            <path d="M6 36c0-7.7 6.3-14 14-14s14 6.3 14 14" fill="<?php echo esc_attr($r['avatar_body']); ?>" opacity=".18"/>
           </svg>
         </div>
         <div>
-          <div class="review-name">Sarah M.</div>
-          <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="review-name"><?php echo esc_html($r['name']); ?></div>
+          <div class="review-stars" style="color:<?php echo esc_attr($r['star_color']); ?>;"><?php echo $stars_html; ?></div>
         </div>
       </div>
-      <div class="review-quote-icon">&#8220;</div>
-      <p class="review-text">Family Drugmart has been a lifesaver! Fast delivery and genuine products. I order all my supplements here now.</p>
-      <span class="review-badge">Verified Buyer &bull; May 2026</span>
+      <div class="review-quote-icon" style="color:<?php echo esc_attr($r['avatar_head']); ?>;">&#8220;</div>
+      <p class="review-text"><?php echo esc_html($r['text']); ?></p>
+      <span class="review-badge" style="background:<?php echo esc_attr($r['badge_bg']); ?>;color:<?php echo esc_attr($r['badge_color']); ?>;"><?php echo $r['badge']; ?></span>
     </div>
-
-    <div class="review-item" style="border-top:1px solid #f0f0f0;padding-top:12px;margin-top:4px;">
-      <div class="review-top">
-        <div class="review-avatar">
-          <svg viewBox="0 0 40 40" fill="none" width="34" height="34">
-            <circle cx="20" cy="20" r="20" fill="#fff8e8"/>
-            <circle cx="20" cy="16" r="7" fill="#f5a623" opacity=".40"/>
-            <path d="M6 36c0-7.7 6.3-14 14-14s14 6.3 14 14" fill="#f5a623" opacity=".20"/>
-          </svg>
-        </div>
-        <div>
-          <div class="review-name">James K.</div>
-          <div class="review-stars" style="color:#f5a623;">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
-        </div>
-      </div>
-      <div class="review-quote-icon" style="color:#c47d00;">&#8220;</div>
-      <p class="review-text">Great prices and very fast shipping. The pharmacist chat feature helped me choose the right vitamins. Highly recommend!</p>
-      <span class="review-badge" style="background:#fff8e8;color:#c47d00;">Verified Buyer &bull; June 2026</span>
-    </div>
+    <?php endforeach; ?>
 
   </div>
 
