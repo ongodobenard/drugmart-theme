@@ -622,15 +622,24 @@ function carevee_build_and_send_order( $args ) {
     $view_btn = $order_id
         ? '<a href="' . esc_url( $order_url ) . '" style="display:inline-block;background:#1d3f8f;color:#fff;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:800;text-decoration:none;">View Order #' . $order_id . ' in WooCommerce</a>'
         : '<a href="' . esc_url( admin_url( 'admin.php?page=wc-orders' ) ) . '" style="display:inline-block;background:#1d3f8f;color:#fff;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:800;text-decoration:none;">View WooCommerce Orders</a>';
+    // Convert raw state/country codes (e.g. KE30, KE) into readable names, and avoid repeating city/county when they're the same (e.g. Nairobi)
+    $wc_states    = class_exists( 'WC_Countries' ) ? WC()->countries->get_states( $country ) : [];
+    $state_name   = ( $state && isset( $wc_states[ $state ] ) ) ? $wc_states[ $state ] : $state;
+    $wc_countries = class_exists( 'WC_Countries' ) ? WC()->countries->get_countries() : [];
+    $country_name = ( $country && isset( $wc_countries[ $country ] ) ) ? $wc_countries[ $country ] : $country;
+
+    $state_clean = str_replace( ' County', '', $state_name );
+    $show_state  = ( strcasecmp( trim( $city ), trim( $state_clean ) ) !== 0 ) ? $state_name : '';
+
+    $address_display = implode( ', ', array_filter( [ $addr1, $addr2, $city, $show_state, $country_name ] ) );
 
     $customer_rows = '
         <tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;width:130px;">Name</td><td style="padding:5px 0;font-size:13px;color:#1b2230;font-weight:700;">' . esc_html( trim( $fname . ' ' . $lname ) ) . '</td></tr>'
         . ( $company ? '<tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;">Company</td><td style="padding:5px 0;font-size:13px;color:#1b2230;">' . esc_html( $company ) . '</td></tr>' : '' )
         . ( $phone   ? '<tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;">Phone</td><td style="padding:5px 0;font-size:13px;color:#1b2230;font-weight:700;"><a href="tel:' . esc_attr( $phone ) . '" style="color:#1d3f8f;">' . esc_html( $phone ) . '</a></td></tr>' : '' )
         . ( is_email( $email ) ? '<tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;">Email</td><td style="padding:5px 0;font-size:13px;color:#1b2230;"><a href="mailto:' . esc_attr( $email ) . '" style="color:#1d3f8f;">' . esc_html( $email ) . '</a></td></tr>' : '' )
-        . '<tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;">Address</td><td style="padding:5px 0;font-size:13px;color:#1b2230;">' . esc_html( implode( ', ', array_filter( [ $addr1, $addr2, $city, $state, $postcode, $country ] ) ) ) . '</td></tr>'
+        . '<tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;">Address</td><td style="padding:5px 0;font-size:13px;color:#1b2230;">' . esc_html( $address_display ) . '</td></tr>'
         . '<tr><td style="padding:5px 0;font-size:13px;color:#93a0b3;font-weight:700;">Payment</td><td style="padding:5px 0;font-size:13px;color:#1b2230;">' . esc_html( ucwords( str_replace( [ '_', '-' ], ' ', $payment ) ) ) . '</td></tr>';
-
     $wa_phone = preg_replace( '/[^0-9]/', '', $phone );
 
     $html_sales = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f6fb;">
@@ -1056,6 +1065,161 @@ add_filter( 'woocommerce_product_variation_get_regular_price',  'drugmart_safe_p
 function drugmart_safe_price( $price, $product ) {
     return ( $price === '' || $price === null ) ? 0 : $price;
 }
+ // ─── SHIPPING RATES ───────────────────────────────────────────────────────
+add_filter( 'woocommerce_package_rates', function( $rates, $package ) {
+
+    if ( ! function_exists( 'WC' ) || ! WC()->cart ) return $rates;
+
+    $cart_subtotal = WC()->cart->get_subtotal();
+    $state         = strtolower( trim( $package['destination']['state'] ?? '' ) );
+
+    // Nairobi County's WooCommerce state code is "KE30" (sometimes passed as just "30")
+    $is_nairobi = in_array( $state, [ 'ke30', '30', 'nairobi', 'nbi' ], true );
+
+    foreach ( $rates as $rate_key => $rate ) {
+        if ( strpos( $rate->method_id, 'flat_rate' ) === false ) continue;
+
+        if ( $is_nairobi ) {
+            if ( $cart_subtotal >= 2500 ) {
+                $rates[ $rate_key ]->cost  = 0;
+                $rates[ $rate_key ]->label = 'FREE Delivery — Nairobi';
+            } else {
+                $rates[ $rate_key ]->cost  = 300;
+                $rates[ $rate_key ]->label = 'Delivery — Nairobi (KES 300)';
+            }
+        } else {
+            $rates[ $rate_key ]->cost  = 0;
+            $rates[ $rate_key ]->label = 'Delivery — Contact us on WhatsApp +254 796 140 021 for your county rate';
+        }
+
+        $rates[ $rate_key ]->taxes = [];
+    }
+
+    return $rates;
+
+}, 20, 2 );
+// ─── FORCE SHIPPING UPDATE ON COUNTY CHANGE ───────────────────────────────
+// Server-side: update customer session when billing state posted
+add_action( 'wp_ajax_fd_update_shipping_state',        'fd_update_shipping_state_handler' );
+add_action( 'wp_ajax_nopriv_fd_update_shipping_state', 'fd_update_shipping_state_handler' );
+
+function fd_update_shipping_state_handler() {
+    if ( ! function_exists('WC') || ! WC()->customer ) {
+        wp_send_json_error();
+        return;
+    }
+    $state   = sanitize_text_field( $_POST['state']   ?? '' );
+    $country = sanitize_text_field( $_POST['country'] ?? 'KE' );
+
+    WC()->customer->set_billing_state( $state );
+    WC()->customer->set_billing_country( $country );
+    WC()->customer->set_shipping_state( $state );
+    WC()->customer->set_shipping_country( $country );
+    WC()->customer->save();
+
+    // Recalculate shipping
+    WC()->cart->calculate_shipping();
+    WC()->cart->calculate_totals();
+
+    $packages = WC()->shipping()->get_packages();
+    $rates    = [];
+
+    foreach ( $packages as $package ) {
+        foreach ( $package['rates'] as $rate ) {
+            $rates[] = [
+                'id'    => $rate->get_id(),
+                'label' => $rate->get_label(),
+                'cost'  => wc_price( $rate->get_cost() ),
+            ];
+        }
+    }
+
+    wp_send_json_success( [ 'rates' => $rates ] );
+}
+
+// Client-side: trigger on county change
+add_action( 'wp_footer', function () {
+    ?>
+    <script>
+    (function($){
+        var stateEl = document.getElementById('billing_state');
+        if ( ! stateEl ) return;
+
+        var ajaxUrl = '<?php echo esc_js( admin_url("admin-ajax.php") ); ?>';
+        var $shipCell = null;
+
+        function findShipCell(){
+            if ( $shipCell && $shipCell.length ) return $shipCell;
+            // Find the shipment row in the order review table
+            $shipCell = jQuery('.woocommerce-checkout-review-order-table .shipping td, .woocommerce-checkout-review-order-table td.shipping-total');
+            if ( ! $shipCell.length ) {
+                // Fallback: find any td containing shipping text
+                jQuery('.woocommerce-checkout-review-order-table td').each(function(){
+                    if ( jQuery(this).text().indexOf('Enter your address') > -1 ||
+                         jQuery(this).text().indexOf('shipping') > -1 ) {
+                        $shipCell = jQuery(this);
+                        return false;
+                    }
+                });
+            }
+            return $shipCell;
+        }
+
+        function triggerShippingUpdate(){
+            var state     = stateEl.value;
+            var countryEl = document.getElementById('billing_country');
+            var country   = countryEl ? countryEl.value : 'KE';
+
+            if ( ! state ) return;
+
+            // Show loading
+            var $cell = findShipCell();
+            if ( $cell && $cell.length ) {
+                $cell.html('<em style="color:#6b7280;font-size:.78rem;">Calculating...</em>');
+            }
+
+            $.ajax({
+                url  : ajaxUrl,
+                type : 'POST',
+                data : {
+                    action  : 'fd_update_shipping_state',
+                    state   : state,
+                    country : country
+                },
+                success: function( res ) {
+                    if ( res && res.success && res.data && res.data.rates ) {
+                        var rates = res.data.rates;
+                        if ( rates.length ) {
+                            var html = '';
+                            rates.forEach(function(r){
+                                html += '<strong>' + r.label + '</strong>: ' + r.cost + '<br>';
+                            });
+                            var $c = findShipCell();
+                            if ( $c && $c.length ) $c.html( html );
+                        } else {
+                            var $c = findShipCell();
+                            if ( $c && $c.length ) $c.html('<span style="color:#e53935;font-size:.78rem;">No shipping available for this county</span>');
+                        }
+                    }
+                    // Also trigger WC native update
+                    jQuery( document.body ).trigger('update_checkout');
+                }
+            });
+        }
+
+        stateEl.addEventListener('change', triggerShippingUpdate);
+
+        // Fire on page load if county pre-selected
+        jQuery(document).ready(function(){
+            if ( stateEl.value ) {
+                setTimeout( triggerShippingUpdate, 1000 );
+            }
+        });
+
+    })(jQuery);
+    </script>
+    <?php
+}, 25 );
 
 // ════════════════════════════════════════════════════════════════════════════
 // ─── CART SESSION FIX ────────────────────────────────────────────────────
