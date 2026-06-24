@@ -1082,14 +1082,14 @@ add_filter( 'woocommerce_package_rates', function( $rates, $package ) {
         if ( $is_nairobi ) {
             if ( $cart_subtotal >= 2500 ) {
                 $rates[ $rate_key ]->cost  = 0;
-                $rates[ $rate_key ]->label = 'FREE Delivery — Nairobi';
+                $rates[ $rate_key ]->label = 'FREE Delivery : Nairobi';
             } else {
                 $rates[ $rate_key ]->cost  = 300;
-                $rates[ $rate_key ]->label = 'Delivery — Nairobi (KES 300)';
+                $rates[ $rate_key ]->label = 'Delivery : Nairobi (KES 300)';
             }
         } else {
             $rates[ $rate_key ]->cost  = 0;
-            $rates[ $rate_key ]->label = 'Delivery — Contact us on WhatsApp +254 796 140 021 for your county rate';
+            $rates[ $rate_key ]->label = 'Delivery : Contact us on WhatsApp +254 796 140 021 for your county rate';
         }
 
         $rates[ $rate_key ]->taxes = [];
