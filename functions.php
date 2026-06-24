@@ -322,7 +322,6 @@ add_action( 'wp_footer', function () {
             if (waUrl) {
                 window.open(waUrl, '_blank');
             }
-            // Cart is NEVER touched here — enquiry is WhatsApp only
         });
     })(jQuery);
     </script>
@@ -529,24 +528,26 @@ function medicare_apply_order_attribution( $order ) {
 // ════════════════════════════════════════════════════════════════════════════
 function carevee_build_and_send_order( $args ) {
 
-    $fname      = $args['fname']      ?? '';
-    $lname      = $args['lname']      ?? '';
-    $company    = $args['company']    ?? '';
-    $phone      = $args['phone']      ?? '';
-    $email      = $args['email']      ?? '';
-    $addr1      = $args['addr1']      ?? '';
-    $addr2      = $args['addr2']      ?? '';
-    $city       = $args['city']       ?? '';
-    $state      = $args['state']      ?? '';
-    $postcode   = $args['postcode']   ?? '';
-    $country    = $args['country']    ?: 'KE';
-    $notes      = $args['notes']      ?? '';
-    $payment    = $args['payment']    ?: 'cod';
-    $via        = $args['via']        ?: 'website';
-    $cart_lines = $args['cart_lines'] ?? [];
-    $wc_items   = $args['wc_items']   ?? [];
+    $fname          = $args['fname']          ?? '';
+    $lname          = $args['lname']          ?? '';
+    $company        = $args['company']        ?? '';
+    $phone          = $args['phone']          ?? '';
+    $email          = $args['email']          ?? '';
+    $addr1          = $args['addr1']          ?? '';
+    $addr2          = $args['addr2']          ?? '';
+    $city           = $args['city']           ?? '';
+    $state          = $args['state']          ?? '';
+    $postcode       = $args['postcode']       ?? '';
+    $country        = $args['country']        ?: 'KE';
+    $notes          = $args['notes']          ?? '';
+    $payment        = $args['payment']        ?: 'cod';
+    $via            = $args['via']            ?: 'website';
+    $cart_lines     = $args['cart_lines']     ?? [];
+    $wc_items       = $args['wc_items']       ?? [];
+    $shipping_total = (float) ( $args['shipping_total'] ?? 0 );
 
-    $total = array_sum( array_column( $cart_lines, 'sub' ) );
+    $subtotal = array_sum( array_column( $cart_lines, 'sub' ) );
+    $total    = $subtotal + $shipping_total;
 
     $order_id    = 0;
     $order_url   = '';
@@ -615,6 +616,20 @@ function carevee_build_and_send_order( $args ) {
         </tr>';
     }
 
+    // Shipping row for email tables
+    $shipping_row_html = '';
+    if ( $shipping_total > 0 ) {
+        $shipping_row_html = '<tr>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;font-family:Arial,sans-serif;font-size:13px;color:#6b7280;" colspan="2">Delivery</td>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;text-align:right;font-family:Arial,sans-serif;font-size:13px;color:#6b7280;">KES ' . number_format( $shipping_total, 2 ) . '</td>
+        </tr>';
+    } else {
+        $shipping_row_html = '<tr>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;font-family:Arial,sans-serif;font-size:13px;color:#25d366;" colspan="2">Delivery</td>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;text-align:right;font-family:Arial,sans-serif;font-size:13px;color:#25d366;font-weight:700;">FREE</td>
+        </tr>';
+    }
+
     $wc_block = $order_id
         ? '<tr><td style="padding:12px 32px 0;"><div style="background:#eef1f8;border:1.5px solid #c7d2e8;border-radius:8px;padding:10px 16px;font-size:12px;color:#15306e;">Order #' . $order_id . ' saved to WooCommerce, Status: <strong>Processing</strong></div></td></tr>'
         : ( $order_error ? '<tr><td style="padding:12px 32px 0;"><div style="background:#fff0f0;border:1.5px solid #f0b8b8;border-radius:8px;padding:10px 16px;font-size:12px;color:#c0392b;">WC order creation failed: ' . esc_html( $order_error ) . '</div></td></tr>' : '' );
@@ -622,7 +637,7 @@ function carevee_build_and_send_order( $args ) {
     $view_btn = $order_id
         ? '<a href="' . esc_url( $order_url ) . '" style="display:inline-block;background:#1d3f8f;color:#fff;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:800;text-decoration:none;">View Order #' . $order_id . ' in WooCommerce</a>'
         : '<a href="' . esc_url( admin_url( 'admin.php?page=wc-orders' ) ) . '" style="display:inline-block;background:#1d3f8f;color:#fff;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:800;text-decoration:none;">View WooCommerce Orders</a>';
-    // Convert raw state/country codes (e.g. KE30, KE) into readable names, and avoid repeating city/county when they're the same (e.g. Nairobi)
+
     $wc_states    = class_exists( 'WC_Countries' ) ? WC()->countries->get_states( $country ) : [];
     $state_name   = ( $state && isset( $wc_states[ $state ] ) ) ? $wc_states[ $state ] : $state;
     $wc_countries = class_exists( 'WC_Countries' ) ? WC()->countries->get_countries() : [];
@@ -667,9 +682,12 @@ function carevee_build_and_send_order( $args ) {
                 <th style="padding:9px 14px;text-align:right;font-size:11px;font-weight:800;color:#93a0b3;text-transform:uppercase;">Total</th>
               </tr></thead>
               <tbody>' . $items_html . '</tbody>
-              <tfoot><tr style="background:#f7f8fa;">
-                <td colspan="2" style="padding:12px 14px;font-size:15px;font-weight:900;color:#1b2230;">ORDER TOTAL</td>
-                <td style="padding:12px 14px;text-align:right;font-size:17px;font-weight:900;color:#c47d00;">' . $total_fmt . '</td>
+              <tfoot>
+                ' . $shipping_row_html . '
+                <tr style="background:#f7f8fa;">
+                  <td colspan="2" style="padding:12px 14px;font-size:15px;font-weight:900;color:#1b2230;">ORDER TOTAL</td>
+                  <td style="padding:12px 14px;text-align:right;font-size:17px;font-weight:900;color:#c47d00;">' . $total_fmt . '</td>
+                </tr>
               </tfoot>
             </table>
           </td></tr>
@@ -698,18 +716,18 @@ function carevee_build_and_send_order( $args ) {
 
     $subject_sales = 'New Order ' . $order_label . ' - ' . trim( $fname . ' ' . $lname ) . ' | ' . $store_name;
     $headers_sales = [
-    'Content-Type: text/html; charset=UTF-8',
-    'From: Family Drugmart Kenya <info@familydrugmartkenya.com>',
-];
-if ( is_email( $email ) ) {
-    $headers_sales[] = 'Reply-To: ' . trim( $fname . ' ' . $lname ) . ' <' . $email . '>';
-}
+        'Content-Type: text/html; charset=UTF-8',
+        'From: Family Drugmart Kenya <info@familydrugmartkenya.com>',
+    ];
+    if ( is_email( $email ) ) {
+        $headers_sales[] = 'Reply-To: ' . trim( $fname . ' ' . $lname ) . ' <' . $email . '>';
+    }
 
     $sent_sales = wp_mail( [ $notify_email, 'gladyswanjimwa@gmail.com' ], $subject_sales, $html_sales, $headers_sales );
 
     $sent_customer = false;
     if ( is_email( $email ) && $via !== 'whatsapp' ) {
-        $sent_customer = carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $order_id, $order_label, $cart_lines, $total_fmt, $notes, $payment, $store_name );
+        $sent_customer = carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $order_id, $order_label, $cart_lines, $shipping_total, $total_fmt, $notes, $payment, $store_name );
     }
 
     return [
@@ -723,7 +741,9 @@ if ( is_email( $email ) ) {
 // ════════════════════════════════════════════════════════════════════════════
 // ─── CUSTOMER CONFIRMATION EMAIL ─────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
-function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $order_id, $order_label, $cart_lines, $total_fmt, $notes, $payment, $store_name ) {
+function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $order_id, $order_label, $cart_lines, $shipping_total, $total_fmt, $notes, $payment, $store_name ) {
+
+    $shipping_total = (float) $shipping_total;
 
     $items_html = '';
     foreach ( $cart_lines as $item ) {
@@ -731,6 +751,20 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
             <td style="padding:10px 14px;border-bottom:1px solid #e9edf5;font-family:Arial,sans-serif;font-size:14px;color:#1b2230;">' . esc_html( $item['name'] ) . '</td>
             <td style="padding:10px 14px;border-bottom:1px solid #e9edf5;text-align:center;font-family:Arial,sans-serif;font-size:14px;color:#6b7280;">' . intval( $item['qty'] ) . '</td>
             <td style="padding:10px 14px;border-bottom:1px solid #e9edf5;text-align:right;font-family:Arial,sans-serif;font-size:14px;color:#c47d00;font-weight:700;">KES ' . number_format( $item['sub'], 2 ) . '</td>
+        </tr>';
+    }
+
+    // Shipping row for customer email
+    $shipping_row_html = '';
+    if ( $shipping_total > 0 ) {
+        $shipping_row_html = '<tr>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;font-family:Arial,sans-serif;font-size:13px;color:#6b7280;" colspan="2">Delivery</td>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;text-align:right;font-family:Arial,sans-serif;font-size:13px;color:#6b7280;">KES ' . number_format( $shipping_total, 2 ) . '</td>
+        </tr>';
+    } else {
+        $shipping_row_html = '<tr>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;font-family:Arial,sans-serif;font-size:13px;color:#25d366;" colspan="2">Delivery</td>
+            <td style="padding:8px 14px;border-bottom:1px solid #e9edf5;text-align:right;font-family:Arial,sans-serif;font-size:13px;color:#25d366;font-weight:700;">FREE</td>
         </tr>';
     }
 
@@ -766,10 +800,13 @@ function carevee_send_customer_confirmation( $email, $fname, $lname, $phone, $or
                 <th style="padding:9px 14px;text-align:right;font-size:11px;font-weight:800;color:#93a0b3;text-transform:uppercase;">Total</th>
               </tr></thead>
               <tbody>' . $items_html . '</tbody>
-              <tfoot><tr style="background:#f7f8fa;">
-                <td colspan="2" style="padding:12px 14px;font-size:15px;font-weight:900;color:#1b2230;">ORDER TOTAL</td>
-                <td style="padding:12px 14px;text-align:right;font-size:17px;font-weight:900;color:#c47d00;">' . $total_fmt . '</td>
-              </tr></tfoot>
+              <tfoot>
+                ' . $shipping_row_html . '
+                <tr style="background:#f7f8fa;">
+                  <td colspan="2" style="padding:12px 14px;font-size:15px;font-weight:900;color:#1b2230;">ORDER TOTAL</td>
+                  <td style="padding:12px 14px;text-align:right;font-size:17px;font-weight:900;color:#c47d00;">' . $total_fmt . '</td>
+                </tr>
+              </tfoot>
             </table>
           </td></tr>
           ' . ( $notes ? '<tr><td style="padding:16px 32px 0;"><div style="background:#fff8e8;border:1.5px solid #f0d080;border-radius:8px;padding:12px 16px;"><div style="font-size:12px;font-weight:800;color:#b8860b;margin-bottom:5px;text-transform:uppercase;">Your Notes</div><div style="font-size:13px;color:#6b7280;line-height:1.6;">' . esc_html( $notes ) . '</div></div></td></tr>' : '' ) . '
@@ -857,11 +894,22 @@ function carevee_send_order_email_handler() {
     if ( $via !== 'whatsapp' && ( empty( $email ) || ! is_email( $email ) ) )
         wp_send_json_error( [ 'msg' => 'A valid email address is required to receive your order confirmation.', 'field' => 'billing_email' ] );
 
-    $cart_lines = [];
-    $wc_items   = [];
+    $cart_lines     = [];
+    $wc_items       = [];
+    $shipping_total = 0;
 
-   $shipping_total = 0;
     if ( function_exists( 'WC' ) && WC()->cart && ! WC()->cart->is_empty() ) {
+        // Recalculate to make sure shipping is up to date for the chosen county
+        if ( $state ) {
+            WC()->customer->set_billing_state( $state );
+            WC()->customer->set_billing_country( $country );
+            WC()->customer->set_shipping_state( $state );
+            WC()->customer->set_shipping_country( $country );
+            WC()->customer->save();
+        }
+        WC()->cart->calculate_shipping();
+        WC()->cart->calculate_totals();
+
         foreach ( WC()->cart->get_cart() as $ci ) {
             $p     = $ci['data'];
             $q     = $ci['quantity'];
@@ -870,13 +918,14 @@ function carevee_send_order_email_handler() {
             $cart_lines[] = [ 'name' => $p->get_name(), 'qty' => $q, 'price' => $price, 'sub' => $sub ];
             $wc_items[]   = [ 'product' => $p, 'qty' => $q ];
         }
+
         $shipping_total = (float) WC()->cart->get_shipping_total();
     }
 
     if ( empty( $cart_lines ) )
         wp_send_json_error( [ 'msg' => 'Your cart is empty. Please add items before placing an order.' ] );
 
-    $result   = carevee_build_and_send_order( compact( 'fname','lname','company','phone','email','addr1','addr2','city','state','postcode','country','notes','payment','via','cart_lines','wc_items' ) );
+    $result   = carevee_build_and_send_order( compact( 'fname','lname','company','phone','email','addr1','addr2','city','state','postcode','country','notes','payment','via','cart_lines','wc_items','shipping_total' ) );
     $order_id = $result['order_id'];
     $sent     = $result['email_sent'];
     $err      = $result['order_error'];
@@ -1067,7 +1116,8 @@ add_filter( 'woocommerce_product_variation_get_regular_price',  'drugmart_safe_p
 function drugmart_safe_price( $price, $product ) {
     return ( $price === '' || $price === null ) ? 0 : $price;
 }
- // ─── SHIPPING RATES ───────────────────────────────────────────────────────
+
+// ─── SHIPPING RATES ───────────────────────────────────────────────────────
 add_filter( 'woocommerce_package_rates', function( $rates, $package ) {
 
     if ( ! function_exists( 'WC' ) || ! WC()->cart ) return $rates;
@@ -1075,7 +1125,6 @@ add_filter( 'woocommerce_package_rates', function( $rates, $package ) {
     $cart_subtotal = WC()->cart->get_subtotal();
     $state         = strtolower( trim( $package['destination']['state'] ?? '' ) );
 
-    // Nairobi County's WooCommerce state code is "KE30" (sometimes passed as just "30")
     $is_nairobi = in_array( $state, [ 'ke30', '30', 'nairobi', 'nbi' ], true );
 
     foreach ( $rates as $rate_key => $rate ) {
@@ -1100,16 +1149,16 @@ add_filter( 'woocommerce_package_rates', function( $rates, $package ) {
     return $rates;
 
 }, 20, 2 );
+
 // ─── HIDE "KSh 0.00" FOR WHATSAPP-QUOTE COUNTIES ──────────────────────────
 add_filter( 'woocommerce_cart_shipping_method_full_label', function( $label, $method ) {
     if ( strpos( $method->get_label(), 'Contact us on WhatsApp' ) !== false ) {
-        // Strip the auto-appended price, keep only the label text
         return $method->get_label();
     }
     return $label;
 }, 10, 2 );
+
 // ─── FORCE SHIPPING UPDATE ON COUNTY CHANGE ───────────────────────────────
-// Server-side: update customer session when billing state posted
 add_action( 'wp_ajax_fd_update_shipping_state',        'fd_update_shipping_state_handler' );
 add_action( 'wp_ajax_nopriv_fd_update_shipping_state', 'fd_update_shipping_state_handler' );
 
@@ -1127,7 +1176,6 @@ function fd_update_shipping_state_handler() {
     WC()->customer->set_shipping_country( $country );
     WC()->customer->save();
 
-    // Recalculate shipping
     WC()->cart->calculate_shipping();
     WC()->cart->calculate_totals();
 
@@ -1147,7 +1195,6 @@ function fd_update_shipping_state_handler() {
     wp_send_json_success( [ 'rates' => $rates ] );
 }
 
-// Client-side: trigger on county change
 add_action( 'wp_footer', function () {
     ?>
     <script>
@@ -1160,10 +1207,8 @@ add_action( 'wp_footer', function () {
 
         function findShipCell(){
             if ( $shipCell && $shipCell.length ) return $shipCell;
-            // Find the shipment row in the order review table
             $shipCell = jQuery('.woocommerce-checkout-review-order-table .shipping td, .woocommerce-checkout-review-order-table td.shipping-total');
             if ( ! $shipCell.length ) {
-                // Fallback: find any td containing shipping text
                 jQuery('.woocommerce-checkout-review-order-table td').each(function(){
                     if ( jQuery(this).text().indexOf('Enter your address') > -1 ||
                          jQuery(this).text().indexOf('shipping') > -1 ) {
@@ -1182,7 +1227,6 @@ add_action( 'wp_footer', function () {
 
             if ( ! state ) return;
 
-            // Show loading
             var $cell = findShipCell();
             if ( $cell && $cell.length ) {
                 $cell.html('<em style="color:#6b7280;font-size:.78rem;">Calculating...</em>');
@@ -1211,7 +1255,6 @@ add_action( 'wp_footer', function () {
                             if ( $c && $c.length ) $c.html('<span style="color:#e53935;font-size:.78rem;">No shipping available for this county</span>');
                         }
                     }
-                    // Also trigger WC native update
                     jQuery( document.body ).trigger('update_checkout');
                 }
             });
@@ -1219,7 +1262,6 @@ add_action( 'wp_footer', function () {
 
         stateEl.addEventListener('change', triggerShippingUpdate);
 
-        // Fire on page load if county pre-selected
         jQuery(document).ready(function(){
             if ( stateEl.value ) {
                 setTimeout( triggerShippingUpdate, 1000 );
@@ -1234,18 +1276,12 @@ add_action( 'wp_footer', function () {
 // ════════════════════════════════════════════════════════════════════════════
 // ─── CART SESSION FIX ────────────────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Only destroy a session when: no cookie exists AND no active session data
- * AND we are NOT in an AJAX request (add-to-cart, fragments, etc).
- */
 add_action( 'woocommerce_load_cart_from_session', function () {
 
     if ( ! function_exists( 'WC' ) || ! WC()->session ) {
         return;
     }
 
-    // Never touch the session during any AJAX call
     if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
         return;
     }
@@ -1259,9 +1295,6 @@ add_action( 'woocommerce_load_cart_from_session', function () {
 
 }, 1 );
 
-/**
- * Prevent caching plugins from caching the cart-fragments AJAX endpoint.
- */
 add_action( 'init', function () {
     if ( isset( $_GET['wc-ajax'] ) && $_GET['wc-ajax'] === 'get_refreshed_fragments' ) {
         nocache_headers();
@@ -1271,9 +1304,6 @@ add_action( 'init', function () {
     }
 } );
 
-/**
- * Force wc-cart-fragments to load on all front-end pages.
- */
 add_action( 'wp_enqueue_scripts', function () {
     if ( ! is_admin() ) {
         wp_enqueue_script( 'wc-cart-fragments' );
