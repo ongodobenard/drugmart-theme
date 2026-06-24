@@ -1098,6 +1098,14 @@ add_filter( 'woocommerce_package_rates', function( $rates, $package ) {
     return $rates;
 
 }, 20, 2 );
+// ─── HIDE "KSh 0.00" FOR WHATSAPP-QUOTE COUNTIES ──────────────────────────
+add_filter( 'woocommerce_cart_shipping_method_full_label', function( $label, $method ) {
+    if ( strpos( $method->get_label(), 'Contact us on WhatsApp' ) !== false ) {
+        // Strip the auto-appended price, keep only the label text
+        return $method->get_label();
+    }
+    return $label;
+}, 10, 2 );
 // ─── FORCE SHIPPING UPDATE ON COUNTY CHANGE ───────────────────────────────
 // Server-side: update customer session when billing state posted
 add_action( 'wp_ajax_fd_update_shipping_state',        'fd_update_shipping_state_handler' );
