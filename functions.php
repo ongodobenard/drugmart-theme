@@ -580,6 +580,16 @@ function carevee_build_and_send_order( $args ) {
                 $order->add_product( $item['product'], $item['qty'] );
             }
 
+            // ── FIX: add shipping line so calculate_totals() includes it ──
+            if ( $shipping_total > 0 ) {
+                $shipping_item = new WC_Order_Item_Shipping();
+                $shipping_item->set_method_title( 'Delivery' );
+                $shipping_item->set_method_id( 'flat_rate' );
+                $shipping_item->set_total( $shipping_total );
+                $order->add_item( $shipping_item );
+            }
+            // ── END FIX ───────────────────────────────────────────────────
+
             if ( $notes ) $order->add_order_note( 'Customer note: ' . $notes, 1 );
             $order->add_order_note(
                 'Order placed via Family Drugmart ' . ( $via === 'whatsapp' ? 'WhatsApp button' : 'website checkout' ) . '.',
