@@ -5,7 +5,7 @@
 get_header();
 
 $ab_wa    = function_exists('medicare_wa')    ? medicare_wa()    : '254796140021';
-$ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 0796140021';
+$ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 796140021';
 ?>
 
 <style>

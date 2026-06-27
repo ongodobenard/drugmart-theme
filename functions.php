@@ -47,7 +47,7 @@ add_action( 'wp_enqueue_scripts', 'medicare_enqueue' );
 
 // ─── HELPERS ──────────────────────────────────
 function medicare_wa()      { return get_option( 'medicare_wa',      '254796140021' ); }
-function medicare_phone()   { return get_option( 'medicare_phone',   '+254 0796140021' ); }
+function medicare_phone()   { return get_option( 'medicare_phone',   '+254 796140021' ); }
 function medicare_address() { return get_option( 'medicare_address', 'High Point Plaza, along Ruaka-Banana Road' ); }
 function medicare_tagline() { return get_option( 'medicare_tagline', 'Your Health, Our Priority' ); }
 function medicare_email()   { return get_option( 'medicare_email',   'info@familydrugmartkenya.com' ); }

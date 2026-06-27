@@ -4,7 +4,7 @@
  */
 get_header();
 
-$rxp_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 0796140021';
+$rxp_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 796140021';
 $rxp_wa    = function_exists('medicare_wa')    ? medicare_wa()    : '254796140021';
 $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/shop');
 ?>
