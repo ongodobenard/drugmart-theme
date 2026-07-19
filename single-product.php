@@ -36,6 +36,21 @@ while (have_posts()): the_post();
   $max_qty   = $product->get_max_purchase_quantity();
   $max_qty   = ($max_qty < 1) ? 9999 : $max_qty;
 
+  /* Ultrasound Services is a booked service, not a stocked product —
+     hide the stock badge, replace Add to Cart with a plain "Book Now"
+     link to the booking form, and relabel the WhatsApp button — all
+     only for products in this category. */
+  $is_service_cat = false;
+  if ($cats && !is_wp_error($cats)) {
+    foreach ($cats as $__c) {
+      if (stripos($__c->slug, 'ultrasound') !== false || stripos($__c->name, 'ultrasound') !== false) {
+        $is_service_cat = true;
+        break;
+      }
+    }
+  }
+  $book_now_url = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmmUYqh1T7i3uqrSCkHNiMIDg/viewform?pli=1';
+
   /* Related products with pagination */
   $related_per_page = 4;
   $related_page     = isset($_GET['rel_page']) ? max(1, intval($_GET['rel_page'])) : 1;
@@ -118,6 +133,9 @@ while (have_posts()): the_post();
 .sp-rx-btn { background: #e53935; }
 .sp-rx-btn:hover { background: #c62828; }
 
+/* Book Now (Ultrasound Services) — plain text link, no icon, reuses .sp-atc-btn sizing */
+.sp-book-btn { }
+
 /* Variable product WC form */
 .sp-actions .cart { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .sp-actions .quantity { flex-shrink: 0; }
@@ -197,6 +215,7 @@ while (have_posts()): the_post();
 .sp-related-grid .p-btn-cart.p-btn-rx { background: #e53935; color: #fff; border-color: #e53935 !important; }
 .sp-related-grid .p-btn-cart.p-btn-rx:hover { background: #c62828; border-color: #c62828 !important; color: #fff; }
 .sp-related-grid .p-btn-cart.p-btn-rx .p-btn-ico { background: rgba(255,255,255,.22); color: #fff; }
+.sp-related-grid .p-btn-cart.p-btn-book { justify-content: center; }
 .sp-related-grid .p-btn-wa { background: var(--fd-wa); color: #fff; box-shadow: 0 2px 8px rgba(37,211,102,.25); }
 .sp-related-grid .p-btn-wa .p-btn-ico { background: rgba(255,255,255,.2); color: #fff; }
 .sp-rel-pagination { display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: 28px; flex-wrap: wrap; }
@@ -352,6 +371,7 @@ while (have_posts()): the_post();
           <?php echo esc_html($cat_n); ?>
         </div>
         <?php endif; ?>
+        <?php if (!$is_service_cat): ?>
         <div class="sp-meta-badge sp-meta-stock <?php echo $stock==='instock'?'instock':'outofstock'; ?>">
           <?php if ($stock==='instock'): ?>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>In Stock
@@ -359,6 +379,7 @@ while (have_posts()): the_post();
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Out of Stock
           <?php endif; ?>
         </div>
+        <?php endif; ?>
         <?php if ($sku): ?>
         <div class="sp-meta-badge sp-meta-sku">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
@@ -369,8 +390,8 @@ while (have_posts()): the_post();
 
       <div class="sp-actions">
 
-        <?php if ($is_simple && !$is_rx): ?>
-        <!-- QTY STEPPER — hidden for prescription-only products -->
+        <?php if ($is_simple && !$is_rx && !$is_service_cat): ?>
+        <!-- QTY STEPPER — hidden for prescription-only and Ultrasound Services products -->
         <div class="sp-qty-row">
           <span class="sp-qty-label">Qty:</span>
           <div class="sp-qty-wrap">
@@ -389,6 +410,11 @@ while (have_posts()): the_post();
         <a href="<?php echo esc_url($rx_url); ?>" class="sp-atc-btn sp-rx-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Submit Prescription
+        </a>
+        <?php elseif ($is_service_cat): ?>
+        <!-- ULTRASOUND SERVICES — plain text link to booking form, no icon -->
+        <a href="<?php echo esc_url($book_now_url); ?>" class="sp-atc-btn sp-book-btn" target="_blank" rel="noopener noreferrer">
+          Book Now
         </a>
         <?php elseif ($is_simple): ?>
         <!-- Silent ATC button -->
@@ -417,7 +443,7 @@ while (have_posts()): the_post();
            data-price="<?php echo esc_attr($price_c); ?>"
            data-url="<?php echo esc_attr(get_permalink()); ?>">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Medicine Enquiry
+          <?php echo $is_service_cat ? 'Service Enquiry' : 'Medicine Enquiry'; ?>
         </a>
 
       </div>
@@ -462,6 +488,17 @@ while (have_posts()): the_post();
         $rbrand_n = ($rbrands&&!is_wp_error($rbrands))?$rbrands[0]->name:'';
         $rwa_msg  = urlencode("Hello! I'd like to order: *".$rp->get_name()."* : KES {$rpc}. ".get_permalink($rid));
         $rname_s  = mb_strlen($rp->get_name())>30?mb_substr($rp->get_name(),0,30).'…':$rp->get_name();
+        /* Same "Book Now" / "Service Enquiry" treatment for related-product cards
+           in the Ultrasound Services category */
+        $ris_service_cat = false;
+        if ($rcats && !is_wp_error($rcats)) {
+          foreach ($rcats as $__rc) {
+            if (stripos($__rc->slug, 'ultrasound') !== false || stripos($__rc->name, 'ultrasound') !== false) {
+              $ris_service_cat = true;
+              break;
+            }
+          }
+        }
       ?>
       <div class="p-card">
         <a href="<?php echo get_permalink($rid); ?>" class="p-img-link">
@@ -490,6 +527,10 @@ while (have_posts()): the_post();
               <span class="p-btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
               Submit Prescription
             </a>
+            <?php elseif ($ris_service_cat): ?>
+            <a href="<?php echo esc_url($book_now_url); ?>" class="p-btn-cart p-btn-book" target="_blank" rel="noopener">
+              Book Now
+            </a>
             <?php elseif ($rsimp): ?>
             <button type="button" class="p-btn-cart carevee-rel-atc"
               data-pid="<?php echo esc_attr($rid); ?>"
@@ -506,7 +547,7 @@ while (have_posts()): the_post();
             <?php endif; ?>
             <a href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo $rwa_msg; ?>" class="p-btn-wa" target="_blank" rel="noopener noreferrer">
               <span class="p-btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>
-              Medicine Enquiry
+              <?php echo $ris_service_cat ? 'Service Enquiry' : 'Medicine Enquiry'; ?>
             </a>
           </div>
         </div>
