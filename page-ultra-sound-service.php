@@ -210,6 +210,28 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
 }
 .usp-scan-desc { font-size: 11.5px; color: var(--usp-text-light); line-height: 1.5; }
 
+/* SCAN CARD BOOK NOW BUTTON */
+.usp-scan-book {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 10.5px;
+  font-weight: 800;
+  font-family: var(--usp-font-body);
+  color: var(--usp-blue);
+  background: rgba(29,63,143,.08);
+  border: 1px solid rgba(29,63,143,.20);
+  border-radius: 50px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .18s, color .18s, transform .18s;
+}
+.usp-scan-book:hover {
+  background: var(--usp-blue);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 /* BOOKING STRIP */
 .usp-booking {
   margin-top: 44px; background: var(--usp-bg-soft);
@@ -261,6 +283,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
   .usp-scan-card { padding: 14px; }
   .usp-scan-name { font-size: 12.5px; }
   .usp-scan-desc { font-size: 11px; }
+  .usp-scan-book { font-size: 10px; padding: 4px 10px; }
   .usp-booking { flex-direction: column; align-items: stretch; text-align: center; padding: 20px 16px; }
   .usp-booking .usp-btn { width: 100%; justify-content: center; }
 }
@@ -401,6 +424,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Thyroid Scan</div>
           <div class="usp-scan-desc">Evaluate thyroid gland for nodules or abnormalities.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -409,6 +433,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Obs Scan</div>
           <div class="usp-scan-desc">Pregnancy monitoring and fetal health assessment.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -417,6 +442,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Breast Ultrasound</div>
           <div class="usp-scan-desc">Detection of lumps, cysts or breast tissue changes.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -425,6 +451,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Abdominal Scan</div>
           <div class="usp-scan-desc">Liver, kidneys, gallbladder and organ review.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -433,6 +460,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Pelvic Scan</div>
           <div class="usp-scan-desc">Uterus, ovaries and pelvic organ assessment.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -441,6 +469,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Scrotal Scan</div>
           <div class="usp-scan-desc">Assessment of scrotal contents and surrounding tissue.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -449,6 +478,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Testicular Scan</div>
           <div class="usp-scan-desc">Detailed testicular imaging for pain or swelling.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -457,6 +487,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">KUBP</div>
           <div class="usp-scan-desc">Kidney, ureter, bladder and prostate evaluation.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -465,6 +496,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Echocardiography</div>
           <div class="usp-scan-desc">Heart structure and function ultrasound imaging.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -473,6 +505,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Doppler Scan</div>
           <div class="usp-scan-desc">Blood flow assessment in vessels and organs.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -481,6 +514,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Regional Scan</div>
           <div class="usp-scan-desc">Skin, muscle and soft tissue targeted imaging.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
@@ -489,6 +523,7 @@ $us_form = 'https://docs.google.com/forms/d/e/1FAIpQLSex9caqdh6Gjjiibm-mMZlGXUmm
         <div>
           <div class="usp-scan-name">Home Visit Scan</div>
           <div class="usp-scan-desc">All scan types available at your home across Nairobi.</div>
+          <a href="<?php echo esc_url($us_form); ?>" class="usp-scan-book" target="_blank" rel="noopener">Book Now</a>
         </div>
       </div>
 
