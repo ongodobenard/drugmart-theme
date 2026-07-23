@@ -27,6 +27,7 @@ while (have_posts()): the_post();
   $cat_n     = $cats ? $cats[0]->name : '';
   $sku       = $product->get_sku();
   $stock     = $product->get_stock_status();
+  $in_stock  = ($stock === 'instock');
   $is_simple = $product->is_type('simple');
   $is_rx     = function_exists('medicare_is_prescription_product') ? medicare_is_prescription_product($pid) : false;
   $rx_url    = function_exists('medicare_prescription_url') ? medicare_prescription_url($pid) : home_url('/submit-prescription/?product_id=' . $pid);
@@ -128,6 +129,7 @@ while (have_posts()): the_post();
 .sp-atc-btn.atc-loading .atc-spinner { display: block; }
 .sp-atc-btn.atc-loading .atc-icon    { display: none; }
 @keyframes spinBtn { to { transform: rotate(360deg); } }
+.sp-atc-btn.atc-outofstock { background: #c7cbd1 !important; color: #6b7280 !important; opacity: .7; cursor: not-allowed !important; pointer-events: none; box-shadow: none !important; }
 
 /* Prescription-only button — red, full width, same sizing/shape as other action buttons */
 .sp-rx-btn { background: #e53935; }
@@ -418,12 +420,13 @@ while (have_posts()): the_post();
         </a>
         <?php elseif ($is_simple): ?>
         <!-- Silent ATC button -->
-        <button type="button" class="sp-atc-btn" id="sp-main-atc"
+        <button type="button" class="sp-atc-btn<?php echo $in_stock ? '' : ' atc-outofstock'; ?>" id="sp-main-atc"
           data-pid="<?php echo esc_attr($pid); ?>"
           data-nonce="<?php echo esc_attr($wc_ajax_nonce); ?>"
           data-name="<?php echo esc_attr(mb_strlen($name)>30?mb_substr($name,0,30).'…':$name); ?>"
           data-price="<?php echo esc_attr($price_c); ?>"
-          data-fullname="<?php echo esc_attr($name); ?>">
+          data-fullname="<?php echo esc_attr($name); ?>"
+          <?php echo $in_stock ? '' : 'disabled aria-disabled="true"'; ?>>
           <span class="atc-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.97 1.61h9.72a2 2 0 001.97-1.67L23 6H6"/></svg>
           </span>

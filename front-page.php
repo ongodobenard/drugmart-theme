@@ -70,6 +70,7 @@ function fd_render_product_card() {
     $pct        = ( $on_sale && $reg > 0 ) ? round( (1 - $sale / $reg) * 100 ) : 0;
     $is_simple  = $product->is_type('simple');
     $is_rx      = medicare_is_prescription_product( get_the_ID() );
+    $in_stock   = $product->is_in_stock();
     $title_short = mb_strlen($title) > 30 ? mb_substr($title, 0, 30) . '…' : $title;
 
     $current_price = (float) $product->get_price();
@@ -116,9 +117,10 @@ function fd_render_product_card() {
                 </a>
             <?php elseif ( $is_simple ) : ?>
                 <button type="button"
-                    class="fp-add-btn carevee-atc-btn"
+                    class="fp-add-btn carevee-atc-btn<?php echo $in_stock ? '' : ' atc-outofstock'; ?>"
                     data-pid="<?php echo esc_attr( get_the_ID() ); ?>"
-                    data-name="<?php echo esc_attr( $title_short ); ?>">
+                    data-name="<?php echo esc_attr( $title_short ); ?>"
+                    <?php echo $in_stock ? '' : 'disabled aria-disabled="true"'; ?>>
                     <svg class="fp-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
@@ -469,6 +471,7 @@ if (
 .fp-add-btn.fp-rx-btn { background:#e53935; }
 .fp-add-btn.fp-rx-btn:hover { background:#c62828; }
 .fp-add-btn.atc-loading { pointer-events:none; opacity:.7; }
+.fp-add-btn.atc-outofstock { pointer-events:none; opacity:.5; cursor:not-allowed !important; background:#c7cbd1 !important; color:#6b7280 !important; }
 .fp-wa-btn          { display:flex; align-items:center; justify-content:center; gap:7px; background:#25d366; color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; }
 .fp-wa-btn:hover    { background:#1ebe5a; color:#fff; }
 .fp-no-products     { color:#888; font-size:13px; grid-column:1/-1; padding:20px 0; text-align:center; }

@@ -259,6 +259,20 @@ if ($carevee_toast_pid) {
   background: rgba(255,255,255,.3);
 }
 
+/* Out of stock — greyed out, disabled */
+.p-btn-cart.atc-outofstock {
+  opacity: .5;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  background: #e9ecef !important;
+  color: #9aa1ac !important;
+  border-color: #e9ecef !important;
+}
+.p-btn-cart.atc-outofstock .p-btn-ico {
+  background: #c7cbd1 !important;
+  color: #fff !important;
+}
+
 /* Sort */
 .woocommerce-ordering { margin: 0; }
 .woocommerce-ordering select,select.orderby {
@@ -559,6 +573,7 @@ ul.woocommerce-error,
             $brand_n   = ($brands && !is_wp_error($brands)) ? $brands[0]->name : '';
             $is_simple = $product->is_type('simple');
             $is_rx     = function_exists('medicare_is_prescription_product') ? medicare_is_prescription_product( $pid ) : false;
+            $in_stock  = $product->is_in_stock();
             /* Ultrasound Services is a booked service, not a stocked product — swap the
                Add to Cart button for a plain "Book Now" link to the booking form, and
                relabel the WhatsApp button, only for products in this category. */
@@ -623,9 +638,10 @@ ul.woocommerce-error,
                 <?php elseif ($is_simple): ?>
                   <!-- Silent AJAX ATC — no navigation, no scroll -->
                   <button type="button"
-                    class="p-btn-cart carevee-atc-btn"
+                    class="p-btn-cart carevee-atc-btn<?php echo $in_stock ? '' : ' atc-outofstock'; ?>"
                     data-pid="<?php echo esc_attr($pid); ?>"
-                    data-name="<?php echo esc_attr($pname_short); ?>">
+                    data-name="<?php echo esc_attr($pname_short); ?>"
+                    <?php echo $in_stock ? '' : 'disabled aria-disabled="true"'; ?>>
                     <span class="p-btn-ico">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.97 1.61h9.72a2 2 0 001.97-1.67L23 6H6"/></svg>
                     </span>
