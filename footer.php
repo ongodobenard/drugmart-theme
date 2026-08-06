@@ -20,7 +20,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 }
 
 /* ============================================================
-   ABOUT US + ULTRASOUND SECTION (now sits on top, above contact bar)
+   ABOUT US + ULTRASOUND SECTION — compact, fixed height
    ============================================================ */
 .footer-about-section {
   background: #0a1228;
@@ -32,71 +32,73 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  align-items: stretch;
-  gap: 0;
+  align-items: center;
+  height: 220px;
 }
 
 .footer-about-text {
-  padding: 30px 48px;
+  padding: 16px 48px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow: hidden;
 }
 
 .footer-about-eyebrow {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-family: var(--font-body);
 }
 
 .footer-about-text h3 {
   font-family: var(--font-head);
-  font-size: 19px;
+  font-size: 15.5px;
   font-weight: 900;
   color: #fff;
-  margin: 0 0 10px;
-  line-height: 1.28;
+  margin: 0 0 6px;
+  line-height: 1.25;
 }
 
 .footer-about-text p {
-  font-size: 12.5px;
-  line-height: 1.7;
-  color: rgba(255,255,255,.60);
+  font-size: 11px;
+  line-height: 1.55;
+  color: rgba(255,255,255,.58);
   font-family: var(--font-body);
-  margin: 0 0 10px;
-  max-width: 500px;
+  margin: 0 0 6px;
+  max-width: 520px;
 }
 
 .footer-scan-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   list-style: none;
-  margin: 4px 0 14px;
+  margin: 4px 0 6px;
   padding: 0;
-  max-width: 520px;
+  max-width: 540px;
 }
 .footer-scan-list li {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
+  gap: 4px;
+  font-size: 9px;
   font-weight: 700;
-  color: rgba(255,255,255,.72);
+  color: rgba(255,255,255,.70);
   background: rgba(255,255,255,.05);
   border: 1px solid rgba(255,255,255,.08);
-  border-radius: 6px;
-  padding: 4px 9px;
+  border-radius: 5px;
+  padding: 3px 7px;
   font-family: var(--font-body);
   white-space: nowrap;
 }
 .footer-scan-list li::before {
   content: '';
-  width: 5px; height: 5px;
+  width: 4px; height: 4px;
   border-radius: 50%;
   background: var(--gold);
   flex-shrink: 0;
@@ -105,25 +107,25 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .footer-about-license {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
   border: 1px solid rgba(245,166,35,.30);
-  border-radius: 8px;
-  padding: 8px 14px;
+  border-radius: 7px;
+  padding: 5px 10px;
   font-family: var(--font-body);
+  width: fit-content;
 }
-.footer-about-license svg { flex-shrink: 0; color: var(--gold); }
+.footer-about-license svg { flex-shrink: 0; color: var(--gold); width: 13px; height: 13px; }
 .footer-about-license span {
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 700;
-  color: rgba(255,255,255,.75);
-  line-height: 1.4;
+  color: rgba(255,255,255,.72);
+  line-height: 1.3;
 }
 .footer-about-license strong { color: var(--gold); }
 
 .footer-about-img-wrap {
   width: 100%;
   height: 100%;
-  min-height: 220px;
   overflow: hidden;
 }
 .footer-about-img-wrap img {
@@ -246,7 +248,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   background: #0a1228;
   border-top: 1px solid rgba(255,255,255,.06);
   padding: 52px 48px 0;
-  margin-top: 44px;
+  margin-top: 44px; /* keeps the whitespace between contact bar and main footer */
 }
 
 .footer-inner {
@@ -581,9 +583,9 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 @media (max-width: 860px) {
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .footer-contact-col { display: none; }
-  .footer-about-inner { grid-template-columns: 1fr; }
-  .footer-about-img-wrap { min-height: 200px; }
-  .footer-about-text { padding: 26px 32px; }
+  .footer-about-inner { grid-template-columns: 1fr; height: auto; }
+  .footer-about-img-wrap { height: 150px; }
+  .footer-about-text { padding: 16px 32px; height: auto; }
 }
 
 /* ============================================================
@@ -591,24 +593,26 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
    ============================================================ */
 @media (max-width: 640px) {
 
-  /* ── About Us + Ultrasound: text first, image below ── */
+  /* ── About Us + Ultrasound: text first, small image below ── */
   .footer-about-inner {
     display: flex;
     flex-direction: column;
+    height: auto;
   }
   .footer-about-text {
     order: 1;
-    padding: 24px 20px 18px;
+    padding: 18px 20px 14px;
+    height: auto;
   }
   .footer-about-img-wrap {
     order: 2;
-    min-height: 170px;
+    height: 130px;
   }
-  .footer-about-text h3 { font-size: 17px; }
-  .footer-about-text p  { font-size: 12.5px; }
-  .footer-scan-list li  { font-size: 10px; padding: 4px 8px; }
-  .footer-about-license { padding: 8px 12px; }
-  .footer-about-license span { font-size: 10.5px; }
+  .footer-about-text h3 { font-size: 14.5px; }
+  .footer-about-text p  { font-size: 11px; }
+  .footer-scan-list li  { font-size: 9px; padding: 3px 7px; }
+  .footer-about-license { padding: 5px 9px; }
+  .footer-about-license span { font-size: 9px; }
 
   /* ── Contact bar ── */
   .footer-contact-bar {
@@ -734,21 +738,23 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     max-width: calc(50% - 5px);
   }
   .footer-contact-bar { padding: 24px 16px; }
-  .footer-about-text  { padding: 20px 16px 16px; }
+  .footer-about-text  { padding: 16px 16px 12px; }
+  .footer-about-img-wrap { height: 110px; }
   .site-footer-main   { padding: 28px 16px 0; }
   .footer-bottom-bar  { padding: 14px 16px; }
   .payment-bar        { padding: 18px 16px; }
 }
 </style>
 
-<!-- ==================== ABOUT US + ULTRASOUND (now on top) ==================== -->
+<!-- ==================== ABOUT US + ULTRASOUND ==================== -->
 <div class="footer-about-section">
   <div class="footer-about-inner">
 
     <div class="footer-about-text">
       <div class="footer-about-eyebrow">About Us</div>
       <h3>Your Trusted Pharmacy and Mobile Diagnostics Partner</h3>
-      <p>Family Drugmart Kenya is a fully licensed retail pharmacy committed to making quality healthcare accessible and affordable. We offer authentic prescription medicines, over-the-counter products, supplements, and wellness essentials all in one convenient place. We also provide professional home-visit ultrasound scans across Nairobi, performed at your doorstep by qualified specialists.</p>
+      <p>Family Drugmart Kenya is a fully licensed retail pharmacy committed to making quality healthcare accessible and affordable. We offer authentic prescription medicines, over-the-counter products, supplements, and wellness essentials all in one convenient place.</p>
+      <p>For added convenience, we also provide professional home-visit ultrasound scan services across Nairobi and its environs, performed at your doorstep by qualified specialists.</p>
 
       <ul class="footer-scan-list">
         <li>Thyroid Scan</li>
@@ -763,7 +769,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
       </ul>
 
       <div class="footer-about-license">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <span>Pharmacy and Poisons Board (PPB) Kenya License No: <strong>PPB/F/3208</strong></span>
       </div>
     </div>
