@@ -507,106 +507,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 @keyframes cvCountdown { from { transform:scaleX(1); } to { transform:scaleX(0); } }
 @media(max-width:600px) { #carevee-toast { bottom:80px; right:12px; left:12px; min-width:unset; max-width:unset; } }
 
-/* ══ PHARMACY + ULTRASOUND TWO-COLUMN SECTION ══ */
-.fd-info-section {
-    width: 100%; background: #fff;
-    border-radius: 14px; border: 1.5px solid var(--fd-border);
-    overflow: hidden;
-}
-.fd-info-inner {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    min-height: 340px;
-}
-.fd-info-col-left {
-    padding: 36px 32px;
-    display: flex; flex-direction: column; justify-content: center;
-    border-right: 1.5px solid var(--fd-border);
-    background: linear-gradient(135deg, var(--fd-blue-darker) 0%, var(--fd-blue-navy) 100%);
-}
-.fd-info-col-left .fd-info-eyebrow {
-    font-size: 10px; font-weight: 800; letter-spacing: 1.4px;
-    text-transform: uppercase; color: var(--fd-gold);
-    margin-bottom: 10px; font-family: var(--fd-font-body);
-}
-.fd-info-col-left h3 {
-    font-family: var(--fd-font-head); font-size: 22px; font-weight: 900;
-    color: #fff; margin: 0 0 12px; line-height: 1.25;
-}
-.fd-info-col-left p {
-    font-size: 13.5px; line-height: 1.75; color: rgba(255,255,255,.82);
-    font-family: var(--fd-font-body); margin: 0 0 14px;
-}
-.fd-info-ppb {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(245,166,35,.15); border: 1px solid rgba(245,166,35,.40);
-    border-radius: 8px; padding: 9px 14px;
-    font-size: 11.5px; font-weight: 700; color: var(--fd-gold);
-    font-family: var(--fd-font-body); line-height: 1.5;
-}
-.fd-info-ppb svg { flex-shrink: 0; }
-
-.fd-info-col-right {
-    display: flex; flex-direction: column;
-}
-.fd-info-img-wrap {
-    width: 100%; height: 280px; overflow: hidden; flex-shrink: 0;
-}
-.fd-info-img-wrap img {
-    width: 100%; height: 100%; object-fit: cover; object-position: 70% center;
-    display: block;
-}
-.fd-info-services {
-    padding: 22px 24px 26px; flex: 1; display: flex; flex-direction: column;
-}
-.fd-info-services h4 {
-    font-family: var(--fd-font-head); font-size: 15px; font-weight: 900;
-    color: var(--fd-text); margin: 0 0 6px;
-}
-.fd-info-services p {
-    font-size: 12.5px; color: var(--fd-text-light); line-height: 1.65;
-    font-family: var(--fd-font-body); margin: 0 0 14px;
-}
-.fd-scan-list {
-    display: flex; flex-wrap: wrap; gap: 7px;
-    list-style: none; margin: 0 0 18px; padding: 0;
-}
-.fd-scan-list li {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 11.5px; font-weight: 700; color: var(--fd-blue);
-    background: #eef1f8; border-radius: 6px; padding: 5px 10px;
-    font-family: var(--fd-font-body);
-}
-.fd-scan-list li::before {
-    content: '';
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--fd-gold); flex-shrink: 0;
-}
-.fd-info-cta {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--fd-blue); color: #fff;
-    font-size: 12.5px; font-weight: 800; padding: 11px 22px;
-    border-radius: 50px; text-decoration: none;
-    font-family: var(--fd-font-body);
-    transition: background .2s, transform .18s;
-    align-self: flex-start; margin-top: auto;
-}
-.fd-info-cta:hover { background: var(--fd-blue-dark); transform: translateY(-1px); color: #fff; }
-
-@media (max-width: 768px) {
-    .fd-info-inner { grid-template-columns: 1fr; }
-    .fd-info-col-left { border-right: none; border-bottom: 1.5px solid rgba(255,255,255,.1); padding: 26px 20px; }
-    .fd-info-col-left h3 { font-size: 18px; }
-    .fd-info-img-wrap { height: 230px; }
-    .fd-info-services { padding: 18px 18px 22px; }
-}
-@media (max-width: 480px) {
-    .fd-info-img-wrap { height: 190px; }
-    .fd-info-col-left h3 { font-size: 16px; }
-    .fd-scan-list li { font-size: 11px; }
-}
-
 /* ══ NEWSLETTER ══ */
 .fp-newsletter      { background:linear-gradient(135deg,#eef1f8 0%,#dde3f2 50%,#eef1f8 100%); border-radius:14px; padding:44px 28px; text-align:center; }
 .fp-newsletter-wrap { max-width:1380px; width:100%; margin:0 auto; padding:0 20px 20px; }
@@ -841,7 +741,11 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             </div>
         </div>
 
-        <?php if ( function_exists('wc_get_page_id') ) : ?>
+        <?php if ( function_exists('wc_get_page_id') ) :
+
+            // Pre-fetch sale IDs once so row 1 and row 2 don't repeat products
+            $fd_sale_ids = function_exists('wc_get_product_ids_on_sale') ? wc_get_product_ids_on_sale() : [];
+        ?>
 
             <!-- HEALTH PRODUCTS -->
             <div class="fp-card">
@@ -867,7 +771,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- SALE PRODUCTS -->
+            <!-- SALE PRODUCTS — ROW 1 -->
             <div class="fp-card gray">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -879,19 +783,17 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     </div>
                     <div class="fp-prod-grid-6">
                         <?php
-                        $sale_ids = function_exists('wc_get_product_ids_on_sale') ? wc_get_product_ids_on_sale() : [];
-                        if ( ! empty($sale_ids) ) :
+                        if ( ! empty($fd_sale_ids) ) :
+                            $row1_ids = array_slice($fd_sale_ids, 0, 6);
                             $q2 = new WP_Query([
                                 'post_type'      => 'product',
                                 'post_status'    => 'publish',
                                 'posts_per_page' => 6,
-                                'post__in'       => $sale_ids,
-                                'orderby'        => 'date',
-                                'order'          => 'DESC',
+                                'post__in'       => $row1_ids,
+                                'orderby'        => 'post__in',
                             ]);
                             if ( $q2->have_posts() ) :
-                                $count = 0;
-                                while ( $q2->have_posts() && $count < 6 ) : $q2->the_post(); $count++; fd_render_product_card(); endwhile;
+                                while ( $q2->have_posts() ) : $q2->the_post(); fd_render_product_card(); endwhile;
                                 wp_reset_postdata();
                             else :
                                 $q2b = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'DESC']);
@@ -914,47 +816,49 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- ══ PHARMACY INFO + ULTRASOUND SECTION ══ -->
-            <div class="fd-info-section">
-                <div class="fd-info-inner">
-
-                    <!-- LEFT — About the pharmacy -->
-                    <div class="fd-info-col-left">
-                        <div class="fd-info-eyebrow">About Us</div>
-                        <h3>Your Trusted Pharmacy</h3>
-                        <p>Family Drugmart Kenya is your pharmacy committed to making quality healthcare accessible and affordable. We stock a wide range of prescription medicines, OTC products, supplements, and wellness essentials, all under one roof. We also offer home-visit ultrasound services across Nairobi for your convenience.</p>
-                        <div class="fd-info-ppb">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            <span>Regulated by PPB Kenya: License No. PPB/F/3208</span>
+            <!-- SALE PRODUCTS — ROW 2 (fills the space where the info section used to be) -->
+            <div class="fp-card">
+                <div class="fp-pad">
+                    <div class="fp-section-header">
+                        <div class="fp-section-title">More Sale Products</div>
+                        <div class="fp-arrows">
+                            <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+                            <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
                         </div>
                     </div>
-
-                    <!-- RIGHT — Ultrasound image + services -->
-                    <div class="fd-info-col-right">
-                        <div class="fd-info-img-wrap">
-                            <img src="<?php echo esc_url( FD_THEME_URI . '/assets/js/images/ultrasound.png' ); ?>" alt="Ultrasound scanning services at Family Drugmart Kenya" loading="lazy">
-                        </div>
-                        <div class="fd-info-services">
-                            <h4>In-Store & Home Ultrasound Services</h4>
-                            <p>Get diagnostic imaging at our pharmacy, or book our certified sonographer to visit you at home. Accurate, fast results at affordable rates, no referral needed.</p>
-                            <ul class="fd-scan-list">
-                                <li>Thyroid Scan</li>
-                                <li>Obs Scan</li>
-                                <li>Breast Ultrasound</li>
-                                <li>Abdominal Scan</li>
-                                <li>Pelvic Scan</li>
-                                <li>Testicular scan</li>
-                                <li>Scrotal scan</li>
-                                <li>Home Visit Scans</li>
-                                <li>Mobile Ultrasound</li>
-                            </ul>
-                            <a href="<?php echo esc_url($ultrasound_url); ?>" class="fd-info-cta">
-                                Book a Scan
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </a>
-                        </div>
+                    <div class="fp-prod-grid-6">
+                        <?php
+                        if ( ! empty($fd_sale_ids) && count($fd_sale_ids) > 6 ) :
+                            $row2_ids = array_slice($fd_sale_ids, 6, 6);
+                            $q2c = new WP_Query([
+                                'post_type'      => 'product',
+                                'post_status'    => 'publish',
+                                'posts_per_page' => 6,
+                                'post__in'       => $row2_ids,
+                                'orderby'        => 'post__in',
+                            ]);
+                            if ( $q2c->have_posts() ) :
+                                while ( $q2c->have_posts() ) : $q2c->the_post(); fd_render_product_card(); endwhile;
+                                wp_reset_postdata();
+                            else :
+                                $q2d = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'ASC']);
+                                if ( $q2d->have_posts() ) :
+                                    while ( $q2d->have_posts() ) : $q2d->the_post(); fd_render_product_card(); endwhile;
+                                    wp_reset_postdata();
+                                endif;
+                            endif;
+                        else :
+                            // Not enough sale items for a distinct second row — fall back to next newest products
+                            $q2d = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'ASC']);
+                            if ( $q2d->have_posts() ) :
+                                while ( $q2d->have_posts() ) : $q2d->the_post(); fd_render_product_card(); endwhile;
+                                wp_reset_postdata();
+                            else :
+                                echo '<p class="fp-no-products">No products found.</p>';
+                            endif;
+                        endif;
+                        ?>
                     </div>
-
                 </div>
             </div>
 
