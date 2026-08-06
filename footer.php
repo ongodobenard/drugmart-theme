@@ -20,6 +20,121 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 }
 
 /* ============================================================
+   ABOUT US + ULTRASOUND SECTION (now sits on top, above contact bar)
+   ============================================================ */
+.footer-about-section {
+  background: #0a1228;
+  width: 100%;
+}
+
+.footer-about-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: stretch;
+  gap: 0;
+}
+
+.footer-about-text {
+  padding: 30px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.footer-about-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+}
+
+.footer-about-text h3 {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.28;
+}
+
+.footer-about-text p {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: rgba(255,255,255,.60);
+  font-family: var(--font-body);
+  margin: 0 0 10px;
+  max-width: 500px;
+}
+
+.footer-scan-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 4px 0 14px;
+  padding: 0;
+  max-width: 520px;
+}
+.footer-scan-list li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,.72);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+}
+.footer-scan-list li::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+.footer-about-license {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(245,166,35,.30);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: var(--font-body);
+}
+.footer-about-license svg { flex-shrink: 0; color: var(--gold); }
+.footer-about-license span {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,.75);
+  line-height: 1.4;
+}
+.footer-about-license strong { color: var(--gold); }
+
+.footer-about-img-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  overflow: hidden;
+}
+.footer-about-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% center;
+  display: block;
+}
+
+/* ============================================================
    CONTACT BAR
    ============================================================ */
 .footer-contact-bar {
@@ -125,98 +240,13 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .app-btn:hover svg { color: #0a1228; }
 
 /* ============================================================
-   ABOUT US + ULTRASOUND SECTION
-   (sits directly under the contact bar — no gap between them)
-   ============================================================ */
-.footer-about-section {
-  background: #0a1228;
-  width: 100%;
-}
-
-.footer-about-inner {
-  max-width: 1300px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  align-items: stretch;
-}
-
-.footer-about-text {
-  padding: 44px 48px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.footer-about-eyebrow {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 12px;
-  font-family: var(--font-body);
-}
-
-.footer-about-text h3 {
-  font-family: var(--font-head);
-  font-size: 22px;
-  font-weight: 900;
-  color: #fff;
-  margin: 0 0 14px;
-  line-height: 1.3;
-}
-
-.footer-about-text p {
-  font-size: 13.5px;
-  line-height: 1.8;
-  color: rgba(255,255,255,.62);
-  font-family: var(--font-body);
-  margin: 0 0 14px;
-  max-width: 480px;
-}
-
-.footer-about-license {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(245,166,35,.30);
-  border-radius: 8px;
-  padding: 11px 16px;
-  margin-top: 8px;
-  font-family: var(--font-body);
-}
-.footer-about-license svg { flex-shrink: 0; color: var(--gold); }
-.footer-about-license span {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255,255,255,.75);
-  line-height: 1.5;
-}
-.footer-about-license strong { color: var(--gold); }
-
-.footer-about-img-wrap {
-  width: 100%;
-  height: 100%;
-  min-height: 320px;
-  overflow: hidden;
-}
-.footer-about-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 65% center;
-  display: block;
-}
-
-/* ============================================================
    MAIN FOOTER
    ============================================================ */
 .site-footer-main {
   background: #0a1228;
   border-top: 1px solid rgba(255,255,255,.06);
   padding: 52px 48px 0;
-  margin-top: 44px; /* the breathing space, separate from the about section above */
+  margin-top: 44px;
 }
 
 .footer-inner {
@@ -552,14 +582,33 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .footer-contact-col { display: none; }
   .footer-about-inner { grid-template-columns: 1fr; }
-  .footer-about-img-wrap { min-height: 240px; order: -1; }
-  .footer-about-text { padding: 32px 32px; }
+  .footer-about-img-wrap { min-height: 200px; }
+  .footer-about-text { padding: 26px 32px; }
 }
 
 /* ============================================================
    RESPONSIVE — MOBILE (≤ 640px)
    ============================================================ */
 @media (max-width: 640px) {
+
+  /* ── About Us + Ultrasound: text first, image below ── */
+  .footer-about-inner {
+    display: flex;
+    flex-direction: column;
+  }
+  .footer-about-text {
+    order: 1;
+    padding: 24px 20px 18px;
+  }
+  .footer-about-img-wrap {
+    order: 2;
+    min-height: 170px;
+  }
+  .footer-about-text h3 { font-size: 17px; }
+  .footer-about-text p  { font-size: 12.5px; }
+  .footer-scan-list li  { font-size: 10px; padding: 4px 8px; }
+  .footer-about-license { padding: 8px 12px; }
+  .footer-about-license span { font-size: 10.5px; }
 
   /* ── Contact bar ── */
   .footer-contact-bar {
@@ -610,14 +659,6 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     min-width: 0;
     justify-content: center;
   }
-
-  /* ── About Us + Ultrasound ── */
-  .footer-about-img-wrap { min-height: 190px; }
-  .footer-about-text { padding: 26px 20px; }
-  .footer-about-text h3 { font-size: 18px; }
-  .footer-about-text p { font-size: 13px; }
-  .footer-about-license { padding: 10px 12px; }
-  .footer-about-license span { font-size: 11px; }
 
   /* ── Main footer ── */
   .site-footer-main {
@@ -693,12 +734,50 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     max-width: calc(50% - 5px);
   }
   .footer-contact-bar { padding: 24px 16px; }
-  .footer-about-text  { padding: 22px 16px; }
+  .footer-about-text  { padding: 20px 16px 16px; }
   .site-footer-main   { padding: 28px 16px 0; }
   .footer-bottom-bar  { padding: 14px 16px; }
   .payment-bar        { padding: 18px 16px; }
 }
 </style>
+
+<!-- ==================== ABOUT US + ULTRASOUND (now on top) ==================== -->
+<div class="footer-about-section">
+  <div class="footer-about-inner">
+
+    <div class="footer-about-text">
+      <div class="footer-about-eyebrow">About Us</div>
+      <h3>Your Trusted Pharmacy and Mobile Diagnostics Partner</h3>
+      <p>Family Drugmart Kenya is a fully licensed retail pharmacy committed to making quality healthcare accessible and affordable. We offer authentic prescription medicines, over-the-counter products, supplements, and wellness essentials all in one convenient place. We also provide professional home-visit ultrasound scans across Nairobi, performed at your doorstep by qualified specialists.</p>
+
+      <ul class="footer-scan-list">
+        <li>Thyroid Scan</li>
+        <li>Obs Scan</li>
+        <li>Breast Ultrasound</li>
+        <li>Abdominal Scan</li>
+        <li>Pelvic Scan</li>
+        <li>Testicular Scan</li>
+        <li>Scrotal Scan</li>
+        <li>Home Visit Scans</li>
+        <li>Mobile Ultrasound</li>
+      </ul>
+
+      <div class="footer-about-license">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Pharmacy and Poisons Board (PPB) Kenya License No: <strong>PPB/F/3208</strong></span>
+      </div>
+    </div>
+
+    <div class="footer-about-img-wrap">
+      <img
+        src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/ultrasound.png'); ?>"
+        alt="Ultrasound scanning services at Family Drugmart Kenya"
+        loading="lazy" decoding="async"
+      />
+    </div>
+
+  </div>
+</div>
 
 <!-- ==================== CONTACT BAR ==================== -->
 <div class="footer-contact-bar">
@@ -748,32 +827,6 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
           App Store
         </a>
       </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ==================== ABOUT US + ULTRASOUND ==================== -->
-<div class="footer-about-section">
-  <div class="footer-about-inner">
-
-    <div class="footer-about-text">
-      <div class="footer-about-eyebrow">About Us</div>
-      <h3>Your Trusted Pharmacy and Mobile Diagnostics Partner</h3>
-      <p>Family Drugmart Kenya is a fully licensed retail pharmacy committed to making quality healthcare accessible and affordable. We offer authentic prescription medicines, over-the-counter products, supplements, and wellness essentials all in one convenient place.</p>
-      <p>For added convenience, we also provide professional home-visit ultrasound scan services across Nairobi and its environs, performed at your doorstep by qualified specialists.</p>
-      <div class="footer-about-license">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Pharmacy and Poisons Board (PPB) Kenya License No: <strong><?php echo esc_html('PPB/F/3208'); ?></strong></span>
-      </div>
-    </div>
-
-    <div class="footer-about-img-wrap">
-      <img
-        src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/ultrasound.png'); ?>"
-        alt="Ultrasound scanning services at Family Drugmart Kenya"
-        loading="lazy" decoding="async"
-      />
     </div>
 
   </div>
