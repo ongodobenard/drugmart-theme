@@ -32,12 +32,12 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  align-items: center;
-  min-height: 300px;
+  align-items: stretch;
+  min-height: 235px;
 }
 
 .footer-about-text {
-  padding: 32px 48px;
+  padding: 22px 48px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -126,7 +126,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .footer-about-img-wrap {
   width: 100%;
   height: 100%;
-  min-height: 300px;
+  min-height: 235px;
   overflow: hidden;
 }
 .footer-about-img-wrap img {
@@ -248,8 +248,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .site-footer-main {
   background: #0a1228;
   border-top: 1px solid rgba(255,255,255,.06);
-  padding: 52px 48px 0;
-  margin-top: 44px; /* keeps the whitespace between contact bar and main footer */
+  padding: 40px 48px 0;
 }
 
 .footer-inner {
@@ -668,8 +667,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 
   /* ── Main footer ── */
   .site-footer-main {
-    padding: 36px 20px 0;
-    margin-top: 32px;
+    padding: 28px 20px 0;
   }
   .footer-inner {
     grid-template-columns: 1fr;
