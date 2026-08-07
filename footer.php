@@ -15,6 +15,8 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   --blue-darker: #0e2358;
   --blue-navy:   #0a1228;
   --gold:        #f5a623;
+  --teal:        #00B4D8;
+  --teal-bright: #00E5FF;
   --font-head:   'Nunito', sans-serif;
   --font-body:   'Lato', sans-serif;
 }
@@ -51,7 +53,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   font-weight: 800;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--teal-bright);
   margin-bottom: 8px;
   font-family: var(--font-body);
 }
@@ -60,7 +62,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   font-family: var(--font-head);
   font-size: 17px;
   font-weight: 900;
-  color: #fff;
+  color: var(--teal-bright);
   margin: 0 0 10px;
   line-height: 1.3;
 }
@@ -89,9 +91,9 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   gap: 5px;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,.70);
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
+  color: #fff;
+  background: rgba(0,180,216,.15);
+  border: 1px solid var(--teal);
   border-radius: 6px;
   padding: 5px 10px;
   font-family: var(--font-body);
@@ -101,7 +103,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   content: '';
   width: 4px; height: 4px;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--teal-bright);
   flex-shrink: 0;
 }
 
@@ -109,20 +111,20 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(245,166,35,.30);
+  border: 1px solid rgba(0,180,216,.30);
   border-radius: 8px;
   padding: 8px 14px;
   font-family: var(--font-body);
   width: fit-content;
 }
-.footer-about-license svg { flex-shrink: 0; color: var(--gold); width: 14px; height: 14px; }
+.footer-about-license svg { flex-shrink: 0; color: var(--teal-bright); width: 14px; height: 14px; }
 .footer-about-license span {
   font-size: 11px;
   font-weight: 700;
   color: rgba(255,255,255,.72);
   line-height: 1.4;
 }
-.footer-about-license strong { color: var(--gold); }
+.footer-about-license strong { color: var(--teal-bright); }
 
 .footer-about-img-wrap {
   width: 100%;
