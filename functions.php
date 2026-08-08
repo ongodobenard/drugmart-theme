@@ -391,15 +391,21 @@ function carevee_submit_prescription() {
         wp_send_json_error( [ 'msg' => 'Security check failed. Please refresh and try again.' ] );
     }
 
-    $fname     = sanitize_text_field( $_POST['rx_fname']     ?? '' );
-    $lname     = sanitize_text_field( $_POST['rx_lname']     ?? '' );
-    $age       = sanitize_text_field( $_POST['rx_age']       ?? '' );
-    $gender    = sanitize_text_field( $_POST['rx_gender']    ?? '' );
-    $phone     = sanitize_text_field( $_POST['rx_phone']     ?? '' );
-    $email     = sanitize_email( $_POST['rx_email']          ?? '' );
-    $location  = sanitize_text_field( $_POST['rx_location']  ?? '' );
-    $allergies = sanitize_text_field( $_POST['rx_allergies'] ?? '' );
-    $notes     = sanitize_textarea_field( $_POST['rx_notes'] ?? '' );
+    $fname         = sanitize_text_field( $_POST['rx_fname']         ?? '' );
+    $lname         = sanitize_text_field( $_POST['rx_lname']         ?? '' );
+    $age           = sanitize_text_field( $_POST['rx_age']           ?? '' );
+    $gender        = sanitize_text_field( $_POST['rx_gender']        ?? '' );
+    $phone         = sanitize_text_field( $_POST['rx_phone']         ?? '' );
+    $email         = sanitize_email( $_POST['rx_email']              ?? '' );
+    $location      = sanitize_text_field( $_POST['rx_location']      ?? '' );
+    $allergies     = sanitize_text_field( $_POST['rx_allergies']     ?? '' );
+    $notes         = sanitize_textarea_field( $_POST['rx_notes']     ?? '' );
+
+    // ── Health information (all optional) ──
+    $pregnant      = sanitize_text_field( $_POST['rx_pregnant']      ?? '' );
+    $breastfeeding = sanitize_text_field( $_POST['rx_breastfeeding'] ?? '' );
+    $renal         = sanitize_text_field( $_POST['rx_renal']         ?? '' );
+    $liver         = sanitize_text_field( $_POST['rx_liver']         ?? '' );
 
     if ( empty( $fname ) )    wp_send_json_error( [ 'msg' => 'First name is required.' ] );
     if ( empty( $lname ) )    wp_send_json_error( [ 'msg' => 'Last name is required.' ] );
@@ -444,6 +450,14 @@ function carevee_submit_prescription() {
     $body   .= "Email:            " . ( $email ?: 'Not provided' ) . "\n";
     $body   .= "Delivery Address: " . $location . "\n";
     $body   .= "Allergies:        " . ( $allergies ?: 'None mentioned' ) . "\n";
+    $body   .= "================================\n";
+    $body   .= "HEALTH INFORMATION\n";
+    $body   .= "================================\n";
+    $body   .= "Pregnant:         " . ( $pregnant      ?: 'Not stated' ) . "\n";
+    $body   .= "Breastfeeding:    " . ( $breastfeeding ?: 'Not stated' ) . "\n";
+    $body   .= "Renal Function:   " . ( $renal         ?: 'Not stated' ) . "\n";
+    $body   .= "Liver Function:   " . ( $liver         ?: 'Not stated' ) . "\n";
+    $body   .= "================================\n";
     $body   .= "Notes:            " . ( $notes ?: 'None' ) . "\n";
     $body   .= "================================\n";
     $body   .= "Prescription file is attached.\n";

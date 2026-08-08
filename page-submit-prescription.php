@@ -248,6 +248,22 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   padding-bottom: 8px;
   border-bottom: 1.5px solid #edf0f5;
 }
+.rxp-form-section-label.rxp-optional-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.rxp-form-section-label .rxp-optional-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-transform: none;
+  color: var(--rxp-text-light);
+  border: 1px solid #e0e4ec;
+  border-radius: 50px;
+  padding: 2px 10px;
+}
 
 .fg { position: relative; margin-bottom: 14px; min-width: 0; }
 .fg label {
@@ -308,6 +324,30 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   cursor: pointer;
 }
 .rxp-gender-opt input { width: 16px; height: 16px; accent-color: var(--rxp-blue); cursor: pointer; }
+
+/* ── HEALTH INFO CHOICE GROUPS ── */
+.rxp-choice-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 10px 13px;
+  border: 1.5px solid #e0e4ec;
+  border-radius: 8px;
+  background: #fff;
+}
+.rxp-choice-opt {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; font-weight: 700; color: var(--rxp-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.rxp-choice-opt input { width: 15px; height: 15px; accent-color: var(--rxp-blue); cursor: pointer; }
+
+.rxp-health-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 12px 16px;
+}
 
 .rxp-file-box {
   border: 1.5px dashed #c7d2e8;
@@ -405,6 +445,8 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   .rxp-form-card { padding: 20px; }
   .form-row { grid-template-columns: minmax(0,1fr); }
   .rxp-how-grid { grid-template-columns: 1fr 1fr; }
+  .rxp-health-grid { grid-template-columns: minmax(0,1fr); }
+  .rxp-choice-wrap { gap: 8px 12px; }
 }
 </style>
 
@@ -531,6 +573,54 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
           <label>Any food/drug allergies <span class="opt">(optional)</span></label>
           <input type="text" name="rx_allergies" id="rx_allergies" placeholder="e.g. Penicillin, Peanuts">
         </div>
+
+        <!-- HEALTH INFORMATION (OPTIONAL) -->
+        <div class="rxp-form-section-label rxp-optional-label">
+          <span>Health Information</span>
+          <span class="rxp-optional-tag">Optional</span>
+        </div>
+
+        <div class="rxp-health-grid">
+          <div class="fg">
+            <label>Pregnant</label>
+            <div class="rxp-choice-wrap">
+              <label class="rxp-choice-opt"><input type="radio" name="rx_pregnant" value="1st Trimester"> 1st Trimester</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_pregnant" value="2nd Trimester"> 2nd Trimester</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_pregnant" value="3rd Trimester"> 3rd Trimester</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_pregnant" value="No"> No</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_pregnant" value="N/A"> N/A</label>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Breastfeeding</label>
+            <div class="rxp-choice-wrap">
+              <label class="rxp-choice-opt"><input type="radio" name="rx_breastfeeding" value="Yes"> Yes</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_breastfeeding" value="No"> No</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_breastfeeding" value="N/A"> N/A</label>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Renal (Kidney) Function</label>
+            <div class="rxp-choice-wrap">
+              <label class="rxp-choice-opt"><input type="radio" name="rx_renal" value="Normal"> Normal</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_renal" value="Problem"> Problem</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_renal" value="N/A"> N/A</label>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Liver Function</label>
+            <div class="rxp-choice-wrap">
+              <label class="rxp-choice-opt"><input type="radio" name="rx_liver" value="Normal"> Normal</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_liver" value="Problem"> Problem</label>
+              <label class="rxp-choice-opt"><input type="radio" name="rx_liver" value="N/A"> N/A</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="rxp-form-section-label">Prescription File</div>
 
         <div class="fg" id="fg_file">
           <label>Upload Prescription <span class="req">*</span></label>
