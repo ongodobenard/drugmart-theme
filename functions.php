@@ -114,8 +114,15 @@ add_filter('woocommerce_add_to_cart_validation', function( $passed, $product_id 
     return $passed;
 }, 10, 2);
 
+// ── UPDATED: Rx add-to-cart loop link now checks stock and returns a
+//    disabled/greyed span (reuses .atc-outofstock, styled per-page) when
+//    the product is out of stock, instead of always showing the active
+//    "Submit Prescription" link. ──
 add_filter('woocommerce_loop_add_to_cart_link', function( $button, $product ) {
     if ( medicare_is_prescription_product( $product->get_id() ) ) {
+        if ( ! $product->is_in_stock() ) {
+            return '<span class="p-btn-cart rx-btn atc-outofstock" aria-disabled="true">Out of Stock</span>';
+        }
         return '<a href="' . esc_url( medicare_prescription_url( $product->get_id() ) ) . '" class="p-btn-cart rx-btn">Submit Prescription</a>';
     }
     return $button;
@@ -230,6 +237,7 @@ function medicare_filter_products() {
 
             $wa_product_url = medicare_get_wa_url( $product_id );
             $is_rx          = medicare_is_prescription_product( $product_id );
+            $in_stock       = $product->is_in_stock(); // ── ADDED: needed for Rx out-of-stock check below ──
             ?>
             <div class="p-card">
               <a href="<?php the_permalink(); ?>" class="p-img-link">
@@ -258,19 +266,32 @@ function medicare_filter_products() {
                 <?php endif; ?>
                 <div class="p-name"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div>
                 <div class="p-price-wrap">
-                  <?php if ( $sale && $price_reg ) : ?>
-                    <div class="p-price-old">KES <?php echo number_format( $price_reg, 2 ); ?></div>
+                  <?php if ( $is_rx && ! $in_stock ) : ?>
+                    <div class="p-price-unavailable" style="font-size:.78rem;font-weight:700;color:#6b7280;opacity:.6;">Unavailable</div>
+                  <?php else : ?>
+                    <?php if ( $sale && $price_reg ) : ?>
+                      <div class="p-price-old">KES <?php echo number_format( $price_reg, 2 ); ?></div>
+                    <?php endif; ?>
+                    <div class="p-price-cur">KES <?php echo $price_cur; ?></div>
                   <?php endif; ?>
-                  <div class="p-price-cur">KES <?php echo $price_cur; ?></div>
                 </div>
                 <div class="p-btns">
                   <?php if ( $is_rx ) : ?>
+                    <?php if ( $in_stock ) : ?>
                     <a href="<?php echo esc_url( medicare_prescription_url( $product_id ) ); ?>" class="p-btn-cart p-btn-rx">
                       <span class="p-btn-ico p-btn-rx-ico">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                       </span>
                       Submit Prescription
                     </a>
+                    <?php else : ?>
+                    <span class="p-btn-cart p-btn-rx atc-outofstock" aria-disabled="true">
+                      <span class="p-btn-ico p-btn-rx-ico">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                      </span>
+                      Out of Stock
+                    </span>
+                    <?php endif; ?>
                   <?php else : ?>
                     <a href="<?php echo esc_url( $cart_url ); ?>" class="p-btn-cart"
                        <?php if ( $product->is_type( 'simple' ) ) : ?>data-product_id="<?php echo $product_id; ?>" data-product_sku="<?php echo esc_attr( $product->get_sku() ); ?>" rel="nofollow"<?php endif; ?>>

@@ -216,6 +216,7 @@ if ($carevee_toast_pid) {
 .p-price-wrap { display: flex; align-items: center; gap: 8px; margin: 5px 0 10px; flex-wrap: wrap; }
 .p-price-old  { font-size: .72rem; text-decoration: line-through; opacity: .45; font-family: var(--fd-font-body); }
 .p-price-cur  { font-size: clamp(.88rem,1.5vw,1rem); font-weight: 900; color: var(--fd-blue); font-family: var(--fd-font-body); }
+.p-price-unavailable { font-size: .78rem; font-weight: 700; color: var(--fd-text-light); opacity: .6; font-family: var(--fd-font-body); }
 
 /* ── BUTTONS — text/icon group is now centered (justify-content: center)
    instead of left-aligned. "Submit Prescription" stays on one line via
@@ -259,7 +260,7 @@ if ($carevee_toast_pid) {
   background: rgba(255,255,255,.3);
 }
 
-/* Out of stock — greyed out, disabled */
+/* Out of stock — greyed out, disabled (used for simple ATC AND Rx-out-of-stock) */
 .p-btn-cart.atc-outofstock {
   opacity: .5;
   cursor: not-allowed !important;
@@ -619,17 +620,30 @@ ul.woocommerce-error,
               <?php endif; ?>
               <div class="p-name"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div>
               <div class="p-price-wrap">
-                <?php if ($sale && $pr): ?><div class="p-price-old">KES <?php echo number_format($pr,2); ?></div><?php endif; ?>
-                <div class="p-price-cur">KES <?php echo number_format($pc,2); ?></div>
+                <?php if ($is_rx && !$in_stock): ?>
+                  <div class="p-price-unavailable">Unavailable</div>
+                <?php else: ?>
+                  <?php if ($sale && $pr): ?><div class="p-price-old">KES <?php echo number_format($pr,2); ?></div><?php endif; ?>
+                  <div class="p-price-cur">KES <?php echo number_format($pc,2); ?></div>
+                <?php endif; ?>
               </div>
               <div class="p-btns">
                 <?php if ($is_rx): ?>
+                  <?php if ($in_stock): ?>
                   <a href="<?php echo esc_url( function_exists('medicare_prescription_url') ? medicare_prescription_url( $pid ) : home_url('/submit-prescription/?product_id='.$pid) ); ?>" class="p-btn-cart p-btn-rx">
                     <span class="p-btn-ico p-btn-rx-ico">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     </span>
                     <span>Submit Prescription</span>
                   </a>
+                  <?php else: ?>
+                  <span class="p-btn-cart p-btn-rx atc-outofstock" aria-disabled="true">
+                    <span class="p-btn-ico p-btn-rx-ico">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </span>
+                    <span>Out of Stock</span>
+                  </span>
+                  <?php endif; ?>
                 <?php elseif ($is_service_cat): ?>
                   <!-- Ultrasound Services — plain text link to the booking form, no icon -->
                   <a href="<?php echo esc_url($book_now_url); ?>" class="p-btn-cart p-btn-book" target="_blank" rel="noopener">

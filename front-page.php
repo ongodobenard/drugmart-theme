@@ -101,7 +101,9 @@ function fd_render_product_card() {
             <?php endif; ?>
             <a href="<?php echo esc_url($url); ?>" class="fp-prod-name"><?php echo esc_html($title); ?></a>
             <div class="fp-price-row">
-                <?php if ( $on_sale && $reg ) : ?>
+                <?php if ( $is_rx && ! $in_stock ) : ?>
+                    <span class="fp-price-unavailable">Unavailable</span>
+                <?php elseif ( $on_sale && $reg ) : ?>
                     <span class="fp-reg-price"><?php echo wc_price($reg); ?></span>
                     <span class="fp-sale-price"><?php echo wc_price($sale); ?></span>
                 <?php else : ?>
@@ -109,12 +111,21 @@ function fd_render_product_card() {
                 <?php endif; ?>
             </div>
             <?php if ( $is_rx ) : ?>
+                <?php if ( $in_stock ) : ?>
                 <a href="<?php echo esc_url( medicare_prescription_url( get_the_ID() ) ); ?>" class="fp-add-btn fp-rx-btn">
                     <svg class="fp-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
                     </svg>
                     Submit Prescription
                 </a>
+                <?php else : ?>
+                <span class="fp-add-btn fp-rx-btn atc-outofstock" aria-disabled="true">
+                    <svg class="fp-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    Out of Stock
+                </span>
+                <?php endif; ?>
             <?php elseif ( $is_simple ) : ?>
                 <button type="button"
                     class="fp-add-btn carevee-atc-btn<?php echo $in_stock ? '' : ' atc-outofstock'; ?>"
@@ -466,6 +477,7 @@ if (
 .fp-reg-price       { font-size:11px; color:#bbb; text-decoration:line-through; }
 .fp-sale-price      { font-size:15px; font-weight:900; color:var(--fd-blue); font-family:var(--fd-font-body); }
 .fp-sale-price ins  { text-decoration:none; }
+.fp-price-unavailable { font-size:12px; font-weight:700; color:var(--fd-text-light); opacity:.6; font-family:var(--fd-font-body); }
 .fp-add-btn         { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:auto; background:var(--fd-blue); color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; border:none; cursor:pointer; }
 .fp-add-btn:hover   { background:var(--fd-blue-dark); }
 .fp-add-btn.fp-rx-btn { background:#e53935; }

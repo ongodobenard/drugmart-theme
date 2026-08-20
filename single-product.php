@@ -356,9 +356,13 @@ while (have_posts()): the_post();
 
       <!-- Live price (updates as qty changes) -->
       <div class="sp-price-wrap">
-        <div class="sp-price-cur" id="sp-live-price">KES <?php echo number_format($price_c, 2); ?></div>
-        <?php if ($sale && $price_r): ?>
-          <div class="sp-price-old">KES <?php echo number_format($price_r, 2); ?></div>
+        <?php if ($is_rx && !$in_stock): ?>
+          <div class="sp-price-cur" style="opacity:.4;">Price Unavailable</div>
+        <?php else: ?>
+          <div class="sp-price-cur" id="sp-live-price">KES <?php echo number_format($price_c, 2); ?></div>
+          <?php if ($sale && $price_r): ?>
+            <div class="sp-price-old">KES <?php echo number_format($price_r, 2); ?></div>
+          <?php endif; ?>
         <?php endif; ?>
       </div>
 
@@ -408,11 +412,18 @@ while (have_posts()): the_post();
         <?php endif; ?>
 
         <?php if ($is_rx): ?>
-        <!-- PRESCRIPTION-ONLY PRODUCT — Add to Cart replaced with this. Now appears BEFORE WhatsApp button. -->
+        <!-- PRESCRIPTION-ONLY PRODUCT — Add to Cart replaced with this. Now appears BEFORE WhatsApp button.
+             If out of stock, button is disabled/greyed instead of linking to the Rx form. -->
+        <?php if ($in_stock): ?>
         <a href="<?php echo esc_url($rx_url); ?>" class="sp-atc-btn sp-rx-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Submit Prescription
         </a>
+        <?php else: ?>
+        <span class="sp-atc-btn sp-rx-btn atc-outofstock" aria-disabled="true">
+          Out of Stock
+        </span>
+        <?php endif; ?>
         <?php elseif ($is_service_cat): ?>
         <!-- ULTRASOUND SERVICES — plain text link to booking form, no icon -->
         <a href="<?php echo esc_url($book_now_url); ?>" class="sp-atc-btn sp-book-btn" target="_blank" rel="noopener noreferrer">
@@ -482,6 +493,7 @@ while (have_posts()): the_post();
         $ris_new  = (time() - strtotime($rp->get_date_created())) < (30*DAY_IN_SECONDS);
         $rsimp    = $rp->is_type('simple');
         $ris_rx   = function_exists('medicare_is_prescription_product') ? medicare_is_prescription_product($rid) : false;
+        $r_in_stock = $rp->is_in_stock();
         $r_rx_url = function_exists('medicare_prescription_url') ? medicare_prescription_url($rid) : home_url('/submit-prescription/?product_id=' . $rid);
         $rcats    = get_the_terms($rid,'product_cat');
         $rcat_n   = ($rcats&&!is_wp_error($rcats))?$rcats[0]->name:'';
@@ -521,15 +533,23 @@ while (have_posts()): the_post();
           <?php endif; ?>
           <div class="p-name"><a href="<?php echo get_permalink($rid); ?>"><?php echo esc_html($rp->get_name()); ?></a></div>
           <div class="p-price-wrap">
-            <?php if ($rsale&&$rpr): ?><div class="p-price-old">KES <?php echo number_format($rpr,2); ?></div><?php endif; ?>
-            <div class="p-price-cur">KES <?php echo number_format($rpc,2); ?></div>
+            <?php if ($ris_rx && !$r_in_stock): ?>
+              <div class="p-price-cur" style="opacity:.4;">Unavailable</div>
+            <?php else: ?>
+              <?php if ($rsale&&$rpr): ?><div class="p-price-old">KES <?php echo number_format($rpr,2); ?></div><?php endif; ?>
+              <div class="p-price-cur">KES <?php echo number_format($rpc,2); ?></div>
+            <?php endif; ?>
           </div>
           <div class="p-btns">
             <?php if ($ris_rx): ?>
-            <a href="<?php echo esc_url($r_rx_url); ?>" class="p-btn-cart p-btn-rx">
-              <span class="p-btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-              Submit Prescription
-            </a>
+              <?php if ($r_in_stock): ?>
+              <a href="<?php echo esc_url($r_rx_url); ?>" class="p-btn-cart p-btn-rx">
+                <span class="p-btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                Submit Prescription
+              </a>
+              <?php else: ?>
+              <span class="p-btn-cart p-btn-rx atc-outofstock" aria-disabled="true">Out of Stock</span>
+              <?php endif; ?>
             <?php elseif ($ris_service_cat): ?>
             <a href="<?php echo esc_url($book_now_url); ?>" class="p-btn-cart p-btn-book" target="_blank" rel="noopener">
               Book Now
