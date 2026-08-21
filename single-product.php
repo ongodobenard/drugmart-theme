@@ -355,14 +355,10 @@ while (have_posts()): the_post();
       <h1 class="sp-title"><?php the_title(); ?></h1>
 
       <!-- Live price (updates as qty changes) -->
-      <div class="sp-price-wrap">
-        <?php if ($is_rx && !$in_stock): ?>
-          <div class="sp-price-cur" style="opacity:.4;">Price Unavailable</div>
-        <?php else: ?>
-          <div class="sp-price-cur" id="sp-live-price">KES <?php echo number_format($price_c, 2); ?></div>
-          <?php if ($sale && $price_r): ?>
-            <div class="sp-price-old">KES <?php echo number_format($price_r, 2); ?></div>
-          <?php endif; ?>
+            <div class="sp-price-wrap">
+        <div class="sp-price-cur" id="sp-live-price">KES <?php echo number_format($price_c, 2); ?></div>
+        <?php if ($sale && $price_r): ?>
+          <div class="sp-price-old">KES <?php echo number_format($price_r, 2); ?></div>
         <?php endif; ?>
       </div>
 
@@ -532,13 +528,9 @@ while (have_posts()): the_post();
           </div>
           <?php endif; ?>
           <div class="p-name"><a href="<?php echo get_permalink($rid); ?>"><?php echo esc_html($rp->get_name()); ?></a></div>
-          <div class="p-price-wrap">
-            <?php if ($ris_rx && !$r_in_stock): ?>
-              <div class="p-price-cur" style="opacity:.4;">Unavailable</div>
-            <?php else: ?>
-              <?php if ($rsale&&$rpr): ?><div class="p-price-old">KES <?php echo number_format($rpr,2); ?></div><?php endif; ?>
-              <div class="p-price-cur">KES <?php echo number_format($rpc,2); ?></div>
-            <?php endif; ?>
+                    <div class="p-price-wrap">
+            <?php if ($rsale&&$rpr): ?><div class="p-price-old">KES <?php echo number_format($rpr,2); ?></div><?php endif; ?>
+            <div class="p-price-cur">KES <?php echo number_format($rpc,2); ?></div>
           </div>
           <div class="p-btns">
             <?php if ($ris_rx): ?>

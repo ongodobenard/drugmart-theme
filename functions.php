@@ -237,7 +237,7 @@ function medicare_filter_products() {
 
             $wa_product_url = medicare_get_wa_url( $product_id );
             $is_rx          = medicare_is_prescription_product( $product_id );
-            $in_stock       = $product->is_in_stock(); // ── ADDED: needed for Rx out-of-stock check below ──
+            $in_stock       = $product->is_in_stock(); // ── used by Rx button disabled/out-of-stock check below ──
             ?>
             <div class="p-card">
               <a href="<?php the_permalink(); ?>" class="p-img-link">
@@ -265,15 +265,12 @@ function medicare_filter_products() {
                   </div>
                 <?php endif; ?>
                 <div class="p-name"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div>
+                <!-- ── FIX: price now always shown, regardless of Rx/out-of-stock status ── -->
                 <div class="p-price-wrap">
-                  <?php if ( $is_rx && ! $in_stock ) : ?>
-                    <div class="p-price-unavailable" style="font-size:.78rem;font-weight:700;color:#6b7280;opacity:.6;">Unavailable</div>
-                  <?php else : ?>
-                    <?php if ( $sale && $price_reg ) : ?>
-                      <div class="p-price-old">KES <?php echo number_format( $price_reg, 2 ); ?></div>
-                    <?php endif; ?>
-                    <div class="p-price-cur">KES <?php echo $price_cur; ?></div>
+                  <?php if ( $sale && $price_reg ) : ?>
+                    <div class="p-price-old">KES <?php echo number_format( $price_reg, 2 ); ?></div>
                   <?php endif; ?>
+                  <div class="p-price-cur">KES <?php echo $price_cur; ?></div>
                 </div>
                 <div class="p-btns">
                   <?php if ( $is_rx ) : ?>

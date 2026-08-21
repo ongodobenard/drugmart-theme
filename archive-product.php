@@ -619,13 +619,9 @@ ul.woocommerce-error,
                 </div>
               <?php endif; ?>
               <div class="p-name"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div>
-              <div class="p-price-wrap">
-                <?php if ($is_rx && !$in_stock): ?>
-                  <div class="p-price-unavailable">Unavailable</div>
-                <?php else: ?>
-                  <?php if ($sale && $pr): ?><div class="p-price-old">KES <?php echo number_format($pr,2); ?></div><?php endif; ?>
-                  <div class="p-price-cur">KES <?php echo number_format($pc,2); ?></div>
-                <?php endif; ?>
+                            <div class="p-price-wrap">
+                <?php if ($sale && $pr): ?><div class="p-price-old">KES <?php echo number_format($pr,2); ?></div><?php endif; ?>
+                <div class="p-price-cur">KES <?php echo number_format($pc,2); ?></div>
               </div>
               <div class="p-btns">
                 <?php if ($is_rx): ?>

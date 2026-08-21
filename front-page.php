@@ -100,10 +100,8 @@ function fd_render_product_card() {
                 <div class="fp-cat-label"><?php echo $cat_name; ?></div>
             <?php endif; ?>
             <a href="<?php echo esc_url($url); ?>" class="fp-prod-name"><?php echo esc_html($title); ?></a>
-            <div class="fp-price-row">
-                <?php if ( $is_rx && ! $in_stock ) : ?>
-                    <span class="fp-price-unavailable">Unavailable</span>
-                <?php elseif ( $on_sale && $reg ) : ?>
+                       <div class="fp-price-row">
+                <?php if ( $on_sale && $reg ) : ?>
                     <span class="fp-reg-price"><?php echo wc_price($reg); ?></span>
                     <span class="fp-sale-price"><?php echo wc_price($sale); ?></span>
                 <?php else : ?>
