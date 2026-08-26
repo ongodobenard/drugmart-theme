@@ -104,6 +104,11 @@ function fd_render_product_card() {
     } else {
         $wa_btn_label = 'Order Via WhatsApp';
     }
+
+    /* Add-to-Cart button label for unrestricted (non-Rx) simple products:
+       - Out of stock  → "Out of Stock"
+       - In stock      → "Add to Cart" */
+    $atc_btn_label = $in_stock ? 'Add to Cart' : 'Out of Stock';
     ?>
     <div class="fp-prod-card">
         <?php if ( $pct > 0 ) : ?>
@@ -159,7 +164,7 @@ function fd_render_product_card() {
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                     </svg>
-                    <span class="fp-atc-txt">Add to Cart</span>
+                    <span class="fp-atc-txt"><?php echo esc_html( $atc_btn_label ); ?></span>
                 </button>
             <?php else : ?>
                 <a href="<?php echo esc_url($url); ?>" class="fp-add-btn">
