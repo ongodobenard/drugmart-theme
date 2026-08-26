@@ -591,6 +591,11 @@ ul.woocommerce-error,
             $pname     = get_the_title();
             $pname_short = mb_strlen($pname) > 30 ? mb_substr($pname,0,30).'…' : $pname;
 
+            /* Add-to-Cart button label for unrestricted (non-Rx) simple products:
+               - Out of stock  → "Out of Stock"
+               - In stock      → "Add to Cart" */
+            $atc_btn_label = $in_stock ? 'Add to Cart' : 'Out of Stock';
+
             /* WhatsApp button label:
                - Ultrasound/service products → "Service Enquiry" (unchanged)
                - Restricted/prescription (Rx) products → "Medicine Enquiry" (unchanged)
@@ -667,7 +672,7 @@ ul.woocommerce-error,
                     <span class="p-btn-ico">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.97 1.61h9.72a2 2 0 001.97-1.67L23 6H6"/></svg>
                     </span>
-                    <span class="p-atc-txt">Add to Cart</span>
+                    <span class="p-atc-txt"><?php echo esc_html( $atc_btn_label ); ?></span>
                   </button>
                 <?php else: ?>
                   <a href="<?php the_permalink(); ?>" class="p-btn-cart">
