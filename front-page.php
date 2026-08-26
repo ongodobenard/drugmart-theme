@@ -485,7 +485,8 @@ if (
 .fp-prod-grid   { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
 .fp-prod-grid-6 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
 
-/* Health Products grid — 4 products: 4-across on desktop, 2-per-row on mobile */
+/* 4-product grid — used by Health Products and Trending Products:
+   4-across on desktop, 2-per-row on mobile */
 .fp-prod-grid-health { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
 
 /* ══ PRODUCT CARD ══ */
@@ -902,7 +903,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- TRENDING PRODUCTS -->
+            <!-- TRENDING PRODUCTS — 4 products: 4-across desktop, 2-per-row mobile -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -912,9 +913,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                             <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
                         </div>
                     </div>
-                    <div class="fp-prod-grid">
+                    <div class="fp-prod-grid-health">
                         <?php
-                        $q3 = fd_get_products('trending', 3);
+                        $q3 = fd_get_products('trending', 4);
                         if ( $q3->have_posts() ) :
                             while ( $q3->have_posts() ) : $q3->the_post(); fd_render_product_card(); endwhile;
                             wp_reset_postdata();
