@@ -490,17 +490,13 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .footer-bottom-links a:hover { color: var(--gold); }
 
 /* ============================================================
-   FLOATING ACTION BUTTON
+   FLOATING ACTION BUTTON — direct WhatsApp link
    ============================================================ */
 .fab-container {
   position: fixed;
   bottom: 32px;
   right: 28px;
   z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
 }
 
 @keyframes fab-pulse {
@@ -519,61 +515,9 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   outline: none;
   animation: fab-pulse 2.2s ease-out infinite;
   transition: transform .2s, background .2s;
-  position: relative;
-  z-index: 2;
+  text-decoration: none;
 }
 .fab-main:hover { transform: scale(1.08); background: #1fb855; }
-
-.fab-actions {
-  display: none;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  opacity: 0;
-  transform: translateY(14px) scale(.94);
-  pointer-events: none;
-  transition: opacity .25s, transform .25s;
-}
-.fab-actions.open {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: all;
-}
-
-.fab-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: #0e2358;
-  border: 1px solid rgba(245,166,35,.25);
-  color: rgba(255,255,255,.85);
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 10px 18px 10px 12px;
-  border-radius: 50px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.35);
-  text-decoration: none;
-  transition: background .18s, color .18s, border-color .18s, transform .15s;
-  white-space: nowrap;
-}
-.fab-action-btn:hover {
-  background: #1d3f8f;
-  color: var(--gold);
-  border-color: var(--gold);
-  transform: translateX(-3px);
-}
-
-.fab-icon {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.fab-wa   { background: #25d366; }
-.fab-call { background: #1d3f8f; border: 1.5px solid rgba(245,166,35,.4); }
-.fab-sms  { background: #25d366; border: none; }
 
 /* ============================================================
    RESPONSIVE — TABLET
@@ -729,10 +673,8 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   .footer-bottom-links a { font-size: 12px; }
 
   /* ── FAB ── */
-  .fab-container { bottom: 20px; right: 16px; gap: 10px; }
+  .fab-container { bottom: 20px; right: 16px; }
   .fab-main { width: 52px; height: 52px; }
-  .fab-action-btn { font-size: 12.5px; padding: 9px 16px 9px 10px; }
-  .fab-icon { width: 28px; height: 28px; }
 }
 
 @media (max-width: 380px) {
@@ -968,75 +910,13 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   </div>
 </div>
 
-<!-- ==================== FAB ==================== -->
-<div class="fab-container" id="fabContainer">
-
-  <div class="fab-actions" id="fabActions">
-
-    <a href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo urlencode('Hello Family Drugmart Kenya! I would like to place an order.'); ?>"
-       class="fab-action-btn" target="_blank" rel="noopener">
-      <span class="fab-icon fab-wa">
-        <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-      </span>
-      WhatsApp Us
-    </a>
-
-    <a href="tel:+254796140021" class="fab-action-btn">
-      <span class="fab-icon fab-call">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" width="15" height="15"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.81a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L6.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      </span>
-      Call Us
-    </a>
-
-    <a href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo urlencode('Hello Family Drugmart Kenya! I would like to place an order.'); ?>" class="fab-action-btn" target="_blank" rel="noopener">
-      <span class="fab-icon fab-sms">
-        <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-      </span>
-      WhatsApp Us
-    </a>
-
-  </div>
-
-  <button class="fab-main" id="fabMain" aria-label="Contact us" aria-expanded="false">
-    <span id="fabIconChat" style="display:flex;align-items:center;justify-content:center;">
-      <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-    </span>
-    <svg id="fabIconClose" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="24" height="24" style="display:none;">
-      <line x1="18" y1="6" x2="6" y2="18"/>
-      <line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
-  </button>
-
+<!-- ==================== FAB — direct WhatsApp link ==================== -->
+<div class="fab-container">
+  <a href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo urlencode('Hello Family Drugmart Kenya! I would like to place an order.'); ?>"
+     class="fab-main" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
 </div>
-
-<script>
-(function(){
-  var btn      = document.getElementById('fabMain');
-  var actions  = document.getElementById('fabActions');
-  var iconChat = document.getElementById('fabIconChat');
-  var iconX    = document.getElementById('fabIconClose');
-  var open     = false;
-  if (!btn) return;
-  btn.addEventListener('click', function(){
-    open = !open;
-    actions.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open);
-    iconChat.style.display = open ? 'none' : 'flex';
-    iconX.style.display    = open ? 'block' : 'none';
-    btn.style.animation    = open ? 'none' : 'fab-pulse 2.2s ease-out infinite';
-  });
-  document.addEventListener('click', function(e){
-    if (open && !document.getElementById('fabContainer').contains(e.target)){
-      open = false;
-      actions.classList.remove('open');
-      btn.setAttribute('aria-expanded','false');
-      iconChat.style.display = 'flex';
-      iconX.style.display    = 'none';
-      btn.style.animation    = 'fab-pulse 2.2s ease-out infinite';
-    }
-  });
-})();
-</script>
 
 <?php wp_footer(); ?>
 </body>
