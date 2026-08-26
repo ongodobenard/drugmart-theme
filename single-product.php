@@ -37,6 +37,11 @@ while (have_posts()): the_post();
   $max_qty   = $product->get_max_purchase_quantity();
   $max_qty   = ($max_qty < 1) ? 9999 : $max_qty;
 
+  /* Add-to-Cart button label for unrestricted (non-Rx) simple products:
+     - Out of stock  → "Out of Stock"
+     - In stock      → "Add to Cart" */
+  $atc_btn_label = $in_stock ? 'Add to Cart' : 'Out of Stock';
+
   /* Ultrasound Services is a booked service, not a stocked product —
      hide the stock badge, replace Add to Cart with a plain "Book Now"
      link to the booking form, and relabel the WhatsApp button — all
@@ -232,6 +237,18 @@ while (have_posts()): the_post();
 .sp-related-grid .p-btn-cart.p-btn-book { justify-content: center; }
 .sp-related-grid .p-btn-wa { background: var(--fd-wa); color: #fff; box-shadow: 0 2px 8px rgba(37,211,102,.25); }
 .sp-related-grid .p-btn-wa .p-btn-ico { background: rgba(255,255,255,.2); color: #fff; }
+.sp-related-grid .p-btn-cart.atc-outofstock {
+  opacity: .5;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  background: #e9ecef !important;
+  color: #9aa1ac !important;
+  border-color: #e9ecef !important;
+}
+.sp-related-grid .p-btn-cart.atc-outofstock .p-btn-ico {
+  background: #c7cbd1 !important;
+  color: #fff !important;
+}
 .sp-rel-pagination { display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: 28px; flex-wrap: wrap; }
 .sp-rel-page-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; text-decoration: none; border: 1.5px solid rgba(0,0,0,.12); color: var(--fd-text-light); transition: background .15s, color .15s, border-color .15s, transform .15s; }
 .sp-rel-page-btn:hover { background: var(--fd-blue); color: #fff; border-color: var(--fd-blue); transform: scale(1.08); }
@@ -450,7 +467,7 @@ while (have_posts()): the_post();
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.97 1.61h9.72a2 2 0 001.97-1.67L23 6H6"/></svg>
           </span>
           <div class="atc-spinner"></div>
-          Add to Cart
+          <span class="sp-atc-txt"><?php echo esc_html( $atc_btn_label ); ?></span>
         </button>
         <?php else: ?>
         <?php woocommerce_template_single_add_to_cart(); ?>
@@ -502,6 +519,7 @@ while (have_posts()): the_post();
         $rsimp    = $rp->is_type('simple');
         $ris_rx   = function_exists('medicare_is_prescription_product') ? medicare_is_prescription_product($rid) : false;
         $r_in_stock = $rp->is_in_stock();
+        $r_atc_btn_label = $r_in_stock ? 'Add to Cart' : 'Out of Stock';
         $r_rx_url = function_exists('medicare_prescription_url') ? medicare_prescription_url($rid) : home_url('/submit-prescription/?product_id=' . $rid);
         $rcats    = get_the_terms($rid,'product_cat');
         $rcat_n   = ($rcats&&!is_wp_error($rcats))?$rcats[0]->name:'';
@@ -567,12 +585,14 @@ while (have_posts()): the_post();
               Book Now
             </a>
             <?php elseif ($rsimp): ?>
-            <button type="button" class="p-btn-cart carevee-rel-atc"
+            <button type="button"
+              class="p-btn-cart carevee-rel-atc<?php echo $r_in_stock ? '' : ' atc-outofstock'; ?>"
               data-pid="<?php echo esc_attr($rid); ?>"
               data-nonce="<?php echo esc_attr(wp_create_nonce('woocommerce-add-to-cart')); ?>"
-              data-name="<?php echo esc_attr($rname_s); ?>">
+              data-name="<?php echo esc_attr($rname_s); ?>"
+              <?php echo $r_in_stock ? '' : 'disabled aria-disabled="true"'; ?>>
               <span class="p-btn-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.97 1.61h9.72a2 2 0 001.97-1.67L23 6H6"/></svg></span>
-              Add to Cart
+              <span class="p-atc-txt"><?php echo esc_html( $r_atc_btn_label ); ?></span>
             </button>
             <?php else: ?>
             <a href="<?php echo get_permalink($rid); ?>" class="p-btn-cart">
