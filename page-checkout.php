@@ -519,7 +519,11 @@ wp_enqueue_style( 'dashicons' );
   .chkp-pay-pill { font-size: 11px; padding: 6px 10px; }
 }
 @media (max-width: 540px) {
-  .chkp-grid { grid-template-columns: 1fr !important; gap: 8px; }
+  .chkp-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+  /* Longer fields stay full-width so they're not squeezed too narrow */
+  .chkp-fg[data-field="billing_email"],
+  .chkp-fg[data-field="billing_address_1"],
+  .chkp-fg[data-field="billing_address_2"] { grid-column: 1 / -1 !important; }
   .chkp-step-lbl { display: none !important; }
   .chkp-step-line { min-width: 5px; margin: 0 4px; }
   .chkp-fg input, .chkp-fg select, .chkp-fg textarea { padding: 8px 10px; font-size: .8rem; }
