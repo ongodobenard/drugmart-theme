@@ -249,6 +249,10 @@ while (have_posts()): the_post();
   background: #c7cbd1 !important;
   color: #fff !important;
 }
+.sp-related-grid .p-btn-cart.atc-loading {
+  opacity: .7;
+  pointer-events: none;
+}
 .sp-rel-pagination { display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: 28px; flex-wrap: wrap; }
 .sp-rel-page-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; text-decoration: none; border: 1.5px solid rgba(0,0,0,.12); color: var(--fd-text-light); transition: background .15s, color .15s, border-color .15s, transform .15s; }
 .sp-rel-page-btn:hover { background: var(--fd-blue); color: #fff; border-color: var(--fd-blue); transform: scale(1.08); }
@@ -823,6 +827,11 @@ while (have_posts()): the_post();
       sessionStorage.setItem('cv_scroll_y',   scrollY);
       sessionStorage.setItem('cv_toast_name', name);
 
+      /* Loading animation (spinner + "Adding…" text) before the reload */
+      mainBtn.classList.add('atc-loading');
+      var mainTxtEl = mainBtn.querySelector('.sp-atc-txt');
+      if (mainTxtEl) mainTxtEl.textContent = 'Adding…';
+
       /* WC native add-to-cart: redirect back to this product page */
       window.location.href = PERMALINK
         + (PERMALINK.indexOf('?') > -1 ? '&' : '?')
@@ -831,23 +840,27 @@ while (have_posts()): the_post();
     });
   }
 
-  /* ── Related product ATC buttons (qty always 1) ── */
+  /* ── Related product ATC buttons (qty always 1) — same real-reload +
+       "Adding…" animation pattern as the main product button above.
+       (The previous version called an undefined silentATC() function,
+       which threw a JS error and silently did nothing on click.) ── */
   document.querySelectorAll('.carevee-rel-atc').forEach(function(btn){
     btn.addEventListener('click', function(){
-      /* Quick icon pulse for feedback */
-      var ico = btn.querySelector('.p-btn-ico');
-      if (ico) {
-        var origBg = ico.style.background;
-        ico.style.background = '#15306e';
-        setTimeout(function(){ ico.style.background = origBg; }, 600);
-      }
-      silentATC(
-        btn.getAttribute('data-pid'),
-        1,
-        btn.getAttribute('data-nonce'),
-        btn.getAttribute('data-name'),
-        null
-      );
+      var pid  = btn.getAttribute('data-pid');
+      var name = btn.getAttribute('data-name');
+
+      var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      sessionStorage.setItem('cv_scroll_y',   scrollY);
+      sessionStorage.setItem('cv_toast_name', name);
+
+      btn.classList.add('atc-loading');
+      var txtEl = btn.querySelector('.p-atc-txt');
+      if (txtEl) txtEl.textContent = 'Adding…';
+
+      window.location.href = PERMALINK
+        + (PERMALINK.indexOf('?') > -1 ? '&' : '?')
+        + 'add-to-cart=' + encodeURIComponent(pid)
+        + '&quantity=1';
     });
   });
 
