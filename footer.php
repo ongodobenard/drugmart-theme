@@ -490,73 +490,159 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .footer-bottom-links a:hover { color: var(--gold); }
 
 /* ============================================================
-   FLOATING ACTION BUTTON — direct WhatsApp link
-   Pill-shaped: round icon badge on the left (WhatsApp green,
-   slightly darker for depth) + a "WhatsApp Us" label pill on the
-   right in the brighter WhatsApp green, matching the reference
-   button shape but recoloured from the reference's plain green
-   "Follow Us" style into WhatsApp's own green with the WhatsApp
-   glyph, and the label text swapped to "WhatsApp Us".
+   FLOATING WHATSAPP BUTTON  (same shape as the "Follow Us" button)
+   - Rounded-square icon tile on the left (darker green, white outline)
+   - Rounded label bar behind/right of it (brighter green, white outline)
+   - On page load: only the icon tile shows, sitting at the right edge.
+     After a short delay the label slides out and the whole button
+     grows to the LEFT, revealing "WhatsApp Us".
    ============================================================ */
 .fab-container {
   position: fixed;
   bottom: 32px;
   right: 28px;
   z-index: 9999;
-}
-
-@keyframes fab-pulse {
-  0%   { box-shadow: 0 0 0 0    rgba(37,211,102,.55), 0 6px 20px rgba(0,0,0,.30); }
-  70%  { box-shadow: 0 0 0 14px rgba(37,211,102, 0),  0 6px 20px rgba(0,0,0,.30); }
-  100% { box-shadow: 0 0 0 0    rgba(37,211,102, 0),  0 6px 20px rgba(0,0,0,.30); }
+  --fab-tile: 60px;     /* icon tile size          */
+  --fab-bar-h: 52px;    /* label bar height        */
+  --fab-radius: 16px;
+  --fab-white: rgba(255,255,255,.92);
 }
 
 .fab-main {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0;
-  background: #25d366;
-  border-radius: 999px;
-  border: 2px solid rgba(255,255,255,.35);
   text-decoration: none;
-  overflow: hidden;
   cursor: pointer;
   outline: none;
-  animation: fab-pulse 2.2s ease-out infinite;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .2s ease;
 }
-.fab-main:hover {
-  transform: translateY(-2px);
-  background: #1fb855;
-}
+.fab-main:hover  { transform: translateY(-2px); }
+.fab-main:active { transform: translateY(0) scale(.98); }
 
+/* --- Icon tile ------------------------------------------------ */
 .fab-icon-wrap {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: #1ebe5a;
+  position: relative;
+  z-index: 2;
+  width: var(--fab-tile);
+  height: var(--fab-tile);
+  border-radius: var(--fab-radius);
+  background: linear-gradient(145deg, #2fd46b 0%, #17a34a 55%, #128a3d 100%);
+  border: 3px solid var(--fab-white);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,.18);
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.35),
+    inset 0 2px 3px rgba(255,255,255,.35),
+    inset 0 -3px 5px rgba(0,0,0,.20);
+  animation: fab-pulse 2.4s ease-out 2.2s infinite;
 }
-.fab-icon-wrap svg { width: 27px; height: 27px; display: block; }
+.fab-icon-wrap svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+}
+
+/* --- Label bar ------------------------------------------------ */
+.fab-label-wrap {
+  position: relative;
+  z-index: 1;
+  height: var(--fab-bar-h);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #34e07a 0%, #25d366 45%, #1db957 100%);
+  border-style: solid;
+  border-color: var(--fab-white);
+  border-radius: 0 var(--fab-radius) var(--fab-radius) 0;
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.30),
+    inset 0 2px 3px rgba(255,255,255,.30),
+    inset 0 -3px 5px rgba(0,0,0,.12);
+
+  /* collapsed start state */
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  padding: 0;
+  border-width: 0;
+
+  /* expand after the page has loaded */
+  animation: fab-expand .9s cubic-bezier(.22,1,.36,1) .8s forwards;
+}
 
 .fab-label {
   font-family: var(--font-body);
-  font-weight: 800;
-  font-size: clamp(11px, 2.6vw, 14px);
+  font-weight: 900;
+  font-size: 19px;
   color: #fff;
   letter-spacing: .2px;
-  white-space: nowrap;
-  padding: 0 18px 0 12px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.25);
+  line-height: 1;
+}
+
+@keyframes fab-expand {
+  0% {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+    padding: 0;
+    border-width: 0;
+  }
+  25% { opacity: 1; }
+  100% {
+    max-width: 240px;
+    opacity: 1;
+    margin-left: -14px;               /* tuck behind the icon tile */
+    padding: 0 22px 0 26px;
+    border-width: 3px 3px 3px 0;
+  }
+}
+
+@keyframes fab-pulse {
+  0%   { box-shadow: 0 0 0 0    rgba(37,211,102,.60), 0 6px 16px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(0,0,0,.20); }
+  70%  { box-shadow: 0 0 0 14px rgba(37,211,102,0),   0 6px 16px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(0,0,0,.20); }
+  100% { box-shadow: 0 0 0 0    rgba(37,211,102,0),   0 6px 16px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(0,0,0,.20); }
+}
+
+/* Respect users who prefer no motion: show final state immediately */
+@media (prefers-reduced-motion: reduce) {
+  .fab-label-wrap {
+    animation: none;
+    max-width: 240px;
+    opacity: 1;
+    margin-left: -14px;
+    padding: 0 22px 0 26px;
+    border-width: 3px 3px 3px 0;
+  }
+  .fab-icon-wrap { animation: none; }
 }
 
 @media (max-width: 480px) {
-  .fab-icon-wrap { width: 46px; height: 46px; }
-  .fab-icon-wrap svg { width: 22px; height: 22px; }
-  .fab-label { font-size: 11px; padding: 0 14px 0 10px; }
+  .fab-container {
+    --fab-tile: 50px;
+    --fab-bar-h: 44px;
+    --fab-radius: 14px;
+  }
+  .fab-icon-wrap svg { width: 26px; height: 26px; }
+  .fab-label { font-size: 15px; }
+  @keyframes fab-expand {
+    0% {
+      max-width: 0; opacity: 0; margin-left: 0; padding: 0; border-width: 0;
+    }
+    25% { opacity: 1; }
+    100% {
+      max-width: 190px; opacity: 1; margin-left: -12px;
+      padding: 0 18px 0 22px; border-width: 3px 3px 3px 0;
+    }
+  }
 }
 
 /* ============================================================
@@ -949,14 +1035,16 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   </div>
 </div>
 
-<!-- ==================== FAB — direct WhatsApp link ==================== -->
+<!-- ==================== FAB — animated WhatsApp button ==================== -->
 <div class="fab-container">
   <a href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo urlencode('Hello Family Drugmart Kenya! I would like to place an order.'); ?>"
      class="fab-main" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
     <span class="fab-icon-wrap">
       <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
     </span>
-    <span class="fab-label">WhatsApp Us</span>
+    <span class="fab-label-wrap">
+      <span class="fab-label">WhatsApp Us</span>
+    </span>
   </a>
 </div>
 
