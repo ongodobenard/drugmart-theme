@@ -539,7 +539,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     0 6px 16px rgba(0,0,0,.35),
     inset 0 2px 3px rgba(255,255,255,.35),
     inset 0 -3px 5px rgba(0,0,0,.20);
-  animation: fab-pulse 2.4s ease-out 2.2s infinite;
+  animation: fab-pulse 2.4s ease-out 3.6s infinite;
 }
 .fab-icon-wrap svg {
   width: 32px;
@@ -575,13 +575,13 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   border-width: 0;
 
   /* expand after the page has loaded */
-  animation: fab-expand .9s cubic-bezier(.22,1,.36,1) .8s forwards;
+  animation: fab-expand 2.4s cubic-bezier(.45,.05,.25,1) 1s forwards;
 }
 
 .fab-label {
   font-family: var(--font-body);
   font-weight: 900;
-  font-size: 19px;
+  font-size: 16px;
   color: #fff;
   letter-spacing: .2px;
   text-shadow: 0 1px 2px rgba(0,0,0,.25);
@@ -598,10 +598,10 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   }
   25% { opacity: 1; }
   100% {
-    max-width: 240px;
+    max-width: 170px;
     opacity: 1;
     margin-left: -14px;               /* tuck behind the icon tile */
-    padding: 0 22px 0 26px;
+    padding: 0 16px 0 22px;
     border-width: 3px 3px 3px 0;
   }
 }
@@ -616,10 +616,10 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 @media (prefers-reduced-motion: reduce) {
   .fab-label-wrap {
     animation: none;
-    max-width: 240px;
+    max-width: 170px;
     opacity: 1;
     margin-left: -14px;
-    padding: 0 22px 0 26px;
+    padding: 0 16px 0 22px;
     border-width: 3px 3px 3px 0;
   }
   .fab-icon-wrap { animation: none; }
