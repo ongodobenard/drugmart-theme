@@ -159,86 +159,117 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 }
 
 /* ============================================================
-   CUSTOMER SERVICE WEEK BANNER
+   CUSTOMER SERVICE WEEK — CENTERED MESSAGE
    ============================================================ */
 #fd-csw {
-  position: relative;
-  background: var(--blue-darker);
-  color: #fff;
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height .55s ease, opacity .55s ease;
-}
-#fd-csw.is-in  { max-height: 140px; opacity: 1; }
-#fd-csw.is-out { max-height: 0; opacity: 0; }
-
-.fd-csw-inner {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px 16px;
-  padding: 12px 56px 14px;
+  padding: 20px;
+  background: rgba(6,12,30,.58);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .4s ease, visibility .4s ease;
+}
+#fd-csw.is-in  { opacity: 1; visibility: visible; }
+#fd-csw.is-out { opacity: 0; visibility: hidden; }
+
+.fd-csw-card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: var(--navy);
+  border: 1px solid rgba(245,166,35,.5);
+  border-radius: 18px;
+  padding: 38px 30px 32px;
   text-align: center;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0,0,0,.5);
+  transform: translateY(14px) scale(.96);
+  transition: transform .45s cubic-bezier(.2,.9,.3,1.2);
 }
-.fd-csw-emoji {
-  font-size: 22px;
-  line-height: 1;
-  display: inline-block;
-  transform-origin: 30% 80%;
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-}
-#fd-csw.is-in .fd-csw-emoji { animation: fd-csw-pop .7s cubic-bezier(.3,1.6,.5,1) .35s both; }
-@keyframes fd-csw-pop {
-  0%   { transform: scale(.4) rotate(-18deg); opacity: 0; }
-  100% { transform: scale(1) rotate(0); opacity: 1; }
-}
-.fd-csw-title {
-  font-family: var(--font-head);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--gold);
-}
-.fd-csw-rule {
-  width: 1px;
-  height: 16px;
-  background: rgba(255,255,255,.28);
-}
-.fd-csw-text {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: rgba(255,255,255,.9);
-  letter-spacing: .01em;
-}
+#fd-csw.is-in .fd-csw-card { transform: translateY(0) scale(1); }
+
 .fd-csw-close {
   position: absolute;
-  top: 50%;
-  right: 16px;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: none;
   border-radius: 50%;
-  color: rgba(255,255,255,.7);
+  color: rgba(255,255,255,.75);
   cursor: pointer;
   transition: background .2s, color .2s;
 }
-.fd-csw-close:hover { background: rgba(255,255,255,.14); color: #fff; }
+.fd-csw-close:hover { background: rgba(255,255,255,.12); color: #fff; }
 .fd-csw-close svg { display: block; }
+
+.fd-csw-emoji {
+  display: block;
+  font-size: 52px;
+  line-height: 1;
+  margin-bottom: 18px;
+  transform-origin: 30% 80%;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+#fd-csw.is-in .fd-csw-emoji { animation: fd-csw-pop .7s cubic-bezier(.3,1.6,.5,1) .3s both; }
+@keyframes fd-csw-pop {
+  0%   { transform: scale(.4) rotate(-18deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.fd-csw-title {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #fff;
+  margin: 0 0 12px;
+}
+.fd-csw-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255,255,255,.82);
+  margin: 0 0 26px;
+}
+.fd-csw-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 20px;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.fd-csw-btn:hover {
+  background: #ffb740;
+  color: var(--navy);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(245,166,35,.32);
+}
 
 /* thin gold line that counts down the 10 seconds */
 .fd-csw-track {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  height: 2px;
-  background: rgba(245,166,35,.22);
+  height: 3px;
+  background: rgba(245,166,35,.18);
 }
 .fd-csw-bar {
   height: 100%;
@@ -252,17 +283,15 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
   to   { transform: scaleX(0); }
 }
 
-@media (max-width: 640px) {
-  .fd-csw-inner { padding: 10px 40px 12px 14px; flex-direction: column; gap: 3px; }
-  .fd-csw-rule  { display: none; }
-  .fd-csw-emoji { font-size: 20px; }
-  .fd-csw-title { font-size: 11px; }
-  .fd-csw-text  { font-size: 12px; }
-  .fd-csw-close { right: 8px; }
+@media (max-width: 480px) {
+  .fd-csw-card  { padding: 34px 22px 28px; border-radius: 16px; }
+  .fd-csw-emoji { font-size: 46px; }
+  .fd-csw-title { font-size: 19px; }
+  .fd-csw-text  { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #fd-csw { transition: none; }
-  #fd-csw.is-in .fd-csw-emoji { animation: none; }
+  #fd-csw, .fd-csw-card { transition: none; }
+  #fd-csw.is-in .fd-csw-emoji,
   #fd-csw.is-in .fd-csw-bar { animation: none; }
 }
 
@@ -874,23 +903,26 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 
 <?php wp_body_open(); ?>
 
-<?php if ($fd_csw_active): ?>
+<?php if ($fd_csw_active):
+  $fd_csw_shop = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : '';
+  if (!$fd_csw_shop) { $fd_csw_shop = 'https://familydrugmartkenya.com/shop/'; }
+?>
 <!-- ═══════════════════════════════════
-     CUSTOMER SERVICE WEEK BANNER
+     CUSTOMER SERVICE WEEK — centered message
      Shows once per visitor, until Sunday 11 Oct 2026.
-     Closes with the X or automatically after 10 seconds.
+     Closes with the X, Esc, a click outside, or automatically after 10 seconds.
 ═══════════════════════════════════ -->
-<div id="fd-csw" role="status" aria-live="polite">
-  <div class="fd-csw-inner">
+<div id="fd-csw" role="dialog" aria-modal="true" aria-labelledby="fdCswTitle">
+  <div class="fd-csw-card">
+    <button type="button" class="fd-csw-close" id="fdCswClose" aria-label="Close message">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
     <span class="fd-csw-emoji" aria-hidden="true">&#127881;</span>
-    <span class="fd-csw-title">Happy Customer Service Week</span>
-    <span class="fd-csw-rule" aria-hidden="true"></span>
-    <span class="fd-csw-text">Thank you for trusting our service. Your health is our priority.</span>
+    <h2 class="fd-csw-title" id="fdCswTitle">Happy Customer Service Week</h2>
+    <p class="fd-csw-text">Thank you for trusting our service. Your health is our priority.</p>
+    <a href="<?php echo esc_url($fd_csw_shop); ?>" class="fd-csw-btn" id="fdCswBtn">Continue Shopping</a>
+    <div class="fd-csw-track" aria-hidden="true"><div class="fd-csw-bar"></div></div>
   </div>
-  <button type="button" class="fd-csw-close" id="fdCswClose" aria-label="Close message">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
-  </button>
-  <div class="fd-csw-track" aria-hidden="true"><div class="fd-csw-bar"></div></div>
 </div>
 
 <script>
@@ -915,36 +947,42 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 
   var started = false, timer = null;
 
-  function closeBanner(){
+  function closeMsg(){
     if(timer){ clearTimeout(timer); timer = null; }
     el.classList.remove('is-in');
     el.classList.add('is-out');
-    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 650);
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 500);
   }
 
-  function startBanner(){
+  function startMsg(){
     if(started) return;
     started = true;
     mark();                       /* counts as seen the moment it appears */
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){ el.classList.add('is-in'); });
     });
-    timer = setTimeout(closeBanner, 10000);
+    timer = setTimeout(closeMsg, 10000);
   }
 
   var closeBtn = document.getElementById('fdCswClose');
-  if(closeBtn) closeBtn.addEventListener('click', closeBanner);
+  if(closeBtn) closeBtn.addEventListener('click', closeMsg);
+
+  /* click outside the card closes it */
+  el.addEventListener('click', function(e){ if(e.target === el) closeMsg(); });
+
+  /* Esc closes it */
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && started) closeMsg(); });
 
   /* Wait for the page loader to finish, then show */
   if(document.readyState === 'complete'){
-    setTimeout(startBanner, 700);
+    setTimeout(startMsg, 700);
   } else {
-    window.addEventListener('load', function(){ setTimeout(startBanner, 700); });
+    window.addEventListener('load', function(){ setTimeout(startMsg, 700); });
   }
-  setTimeout(startBanner, 4800);  /* fallback */
+  setTimeout(startMsg, 4800);  /* fallback */
 })();
 </script>
-<!-- END CUSTOMER SERVICE WEEK BANNER -->
+<!-- END CUSTOMER SERVICE WEEK MESSAGE -->
 <?php endif; ?>
 
 <!-- ==================== MOBILE NAV DRAWER ==================== -->
