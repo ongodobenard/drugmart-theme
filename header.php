@@ -2,6 +2,11 @@
 /**
  * Family Drugmart — header.php
  */
+
+/* Customer Service Week banner: visible until end of Sunday 11 Oct 2026 (Nairobi time) */
+$fd_csw_tz     = new DateTimeZone('Africa/Nairobi');
+$fd_csw_end    = new DateTime('2026-10-11 23:59:59', $fd_csw_tz);
+$fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -12,6 +17,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
+
+/* ============================================================
+   GOOGLE FONTS (must stay first in the stylesheet)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lato:wght@400;700&display=swap');
 
 /* ═══════════════════════════════════════════
    PAGE LOADER — Family Drugmart
@@ -127,11 +137,6 @@
 }
 
 /* ============================================================
-   GOOGLE FONTS
-   ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lato:wght@400;700&display=swap');
-
-/* ============================================================
    CSS VARS
    ============================================================ */
 :root {
@@ -151,6 +156,114 @@
   --font-head:   'Nunito', sans-serif;
   --font-body:   'Lato', sans-serif;
   --page-px:     48px;
+}
+
+/* ============================================================
+   CUSTOMER SERVICE WEEK BANNER
+   ============================================================ */
+#fd-csw {
+  position: relative;
+  background: var(--blue-darker);
+  color: #fff;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .55s ease, opacity .55s ease;
+}
+#fd-csw.is-in  { max-height: 140px; opacity: 1; }
+#fd-csw.is-out { max-height: 0; opacity: 0; }
+
+.fd-csw-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 12px 56px 14px;
+  text-align: center;
+}
+.fd-csw-emoji {
+  font-size: 22px;
+  line-height: 1;
+  display: inline-block;
+  transform-origin: 30% 80%;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+#fd-csw.is-in .fd-csw-emoji { animation: fd-csw-pop .7s cubic-bezier(.3,1.6,.5,1) .35s both; }
+@keyframes fd-csw-pop {
+  0%   { transform: scale(.4) rotate(-18deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.fd-csw-title {
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.fd-csw-rule {
+  width: 1px;
+  height: 16px;
+  background: rgba(255,255,255,.28);
+}
+.fd-csw-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: rgba(255,255,255,.9);
+  letter-spacing: .01em;
+}
+.fd-csw-close {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.fd-csw-close:hover { background: rgba(255,255,255,.14); color: #fff; }
+.fd-csw-close svg { display: block; }
+
+/* thin gold line that counts down the 10 seconds */
+.fd-csw-track {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: rgba(245,166,35,.22);
+}
+.fd-csw-bar {
+  height: 100%;
+  width: 100%;
+  background: var(--gold);
+  transform-origin: left center;
+}
+#fd-csw.is-in .fd-csw-bar { animation: fd-csw-count 10s linear forwards; }
+@keyframes fd-csw-count {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+@media (max-width: 640px) {
+  .fd-csw-inner { padding: 10px 40px 12px 14px; flex-direction: column; gap: 3px; }
+  .fd-csw-rule  { display: none; }
+  .fd-csw-emoji { font-size: 20px; }
+  .fd-csw-title { font-size: 11px; }
+  .fd-csw-text  { font-size: 12px; }
+  .fd-csw-close { right: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #fd-csw { transition: none; }
+  #fd-csw.is-in .fd-csw-emoji { animation: none; }
+  #fd-csw.is-in .fd-csw-bar { animation: none; }
 }
 
 /* ============================================================
@@ -760,6 +873,79 @@
 <!-- END PAGE LOADER -->
 
 <?php wp_body_open(); ?>
+
+<?php if ($fd_csw_active): ?>
+<!-- ═══════════════════════════════════
+     CUSTOMER SERVICE WEEK BANNER
+     Shows once per visitor, until Sunday 11 Oct 2026.
+     Closes with the X or automatically after 10 seconds.
+═══════════════════════════════════ -->
+<div id="fd-csw" role="status" aria-live="polite">
+  <div class="fd-csw-inner">
+    <span class="fd-csw-emoji" aria-hidden="true">&#127881;</span>
+    <span class="fd-csw-title">Happy Customer Service Week</span>
+    <span class="fd-csw-rule" aria-hidden="true"></span>
+    <span class="fd-csw-text">Thank you for trusting our service. Your health is our priority.</span>
+  </div>
+  <button type="button" class="fd-csw-close" id="fdCswClose" aria-label="Close message">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+  </button>
+  <div class="fd-csw-track" aria-hidden="true"><div class="fd-csw-bar"></div></div>
+</div>
+
+<script>
+(function(){
+  var el = document.getElementById('fd-csw');
+  if(!el) return;
+
+  var KEY = 'fd_csw_2026_seen';
+  /* Ends at the close of Sunday 11 Oct 2026, Nairobi time (checked again here in case the page is cached) */
+  var END = new Date('2026-10-11T23:59:59+03:00').getTime();
+
+  function seen(){
+    try { if(localStorage.getItem(KEY)) return true; } catch(e){}
+    return document.cookie.indexOf(KEY + '=1') > -1;
+  }
+  function mark(){
+    try { localStorage.setItem(KEY, '1'); } catch(e){}
+    document.cookie = KEY + '=1; max-age=1209600; path=/; SameSite=Lax';
+  }
+
+  if(Date.now() > END || seen()){ el.parentNode.removeChild(el); return; }
+
+  var started = false, timer = null;
+
+  function closeBanner(){
+    if(timer){ clearTimeout(timer); timer = null; }
+    el.classList.remove('is-in');
+    el.classList.add('is-out');
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 650);
+  }
+
+  function startBanner(){
+    if(started) return;
+    started = true;
+    mark();                       /* counts as seen the moment it appears */
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ el.classList.add('is-in'); });
+    });
+    timer = setTimeout(closeBanner, 10000);
+  }
+
+  var closeBtn = document.getElementById('fdCswClose');
+  if(closeBtn) closeBtn.addEventListener('click', closeBanner);
+
+  /* Wait for the page loader to finish, then show */
+  if(document.readyState === 'complete'){
+    setTimeout(startBanner, 700);
+  } else {
+    window.addEventListener('load', function(){ setTimeout(startBanner, 700); });
+  }
+  setTimeout(startBanner, 4800);  /* fallback */
+})();
+</script>
+<!-- END CUSTOMER SERVICE WEEK BANNER -->
+<?php endif; ?>
 
 <!-- ==================== MOBILE NAV DRAWER ==================== -->
 <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
