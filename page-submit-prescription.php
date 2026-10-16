@@ -25,12 +25,15 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
 * { box-sizing: border-box; }
 
+/* Flex column so the blocks can be re-ordered on mobile (form right after the hero) */
 .rxp-wrap {
   max-width: 1100px;
   margin: 40px auto 60px;
   padding: 0 24px;
   font-family: var(--rxp-font-body);
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── HERO ── */
@@ -41,19 +44,6 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   border-radius: 20px;
   padding: 48px 40px;
   text-align: center;
-}
-.rxp-tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: var(--rxp-gold);
-  background: rgba(245,166,35,.10);
-  border: 1px solid rgba(245,166,35,.30);
-  padding: 6px 16px;
-  border-radius: 50px;
-  margin-bottom: 16px;
 }
 .rxp-title {
   font-family: var(--rxp-font-head);
@@ -83,13 +73,14 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   padding: 18px 22px;
   margin-top: 20px;
 }
+/* Plain icon: no box / badge behind it */
 .rxp-notice-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: rgba(29,63,143,.12);
+  width: 24px; height: 24px;
+  background: none;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   color: var(--rxp-blue);
+  margin-top: 1px;
 }
 .rxp-notice p {
   font-size: 12.5px;
@@ -122,15 +113,15 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   padding: 20px 16px;
   text-align: center;
 }
+/* Plain number: no badge / box */
 .rxp-how-num {
-  width: 32px; height: 32px;
-  margin: 0 auto 12px;
-  border-radius: 9px;
-  background: var(--rxp-blue);
-  color: #fff;
-  display: flex; align-items: center; justify-content: center;
+  margin: 0 0 6px;
+  background: none;
+  color: var(--rxp-blue);
+  font-family: var(--rxp-font-head);
   font-weight: 900;
-  font-size: 13px;
+  font-size: 28px;
+  line-height: 1;
 }
 .rxp-how-title {
   font-family: var(--rxp-font-head);
@@ -154,7 +145,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   align-items: start;
 }
 
-/* ── IMAGE — FANCY FRAME (no bubbles) ── */
+/* ── IMAGE — FANCY FRAME ── */
 .rxp-img-col { position: relative; }
 .rxp-img-frame {
   position: relative;
@@ -164,9 +155,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   border: 1.5px solid #e3e8f2;
 }
 .rxp-img-frame::before,
-.rxp-img-frame::after,
-.rxp-img-frame .rxp-corner-tl,
-.rxp-img-frame .rxp-corner-br {
+.rxp-img-frame::after {
   content: '';
   position: absolute;
   width: 28px; height: 28px;
@@ -254,15 +243,13 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   justify-content: space-between;
   gap: 8px;
 }
+/* Plain text: no pill / badge */
 .rxp-form-section-label .rxp-optional-tag {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .3px;
   text-transform: none;
   color: var(--rxp-text-light);
-  border: 1px solid #e0e4ec;
-  border-radius: 50px;
-  padding: 2px 10px;
 }
 
 .fg { position: relative; margin-bottom: 14px; min-width: 0; }
@@ -362,10 +349,10 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 }
 .rxp-file-box:hover { border-color: var(--rxp-blue); background: #eef1f8; }
 .rxp-file-box input[type="file"] { display: none; }
+/* Plain icon: no box / badge behind it */
 .rxp-file-icon {
-  width: 34px; height: 34px;
-  border-radius: 9px;
-  background: rgba(29,63,143,.08);
+  width: 26px; height: 26px;
+  background: none;
   display: flex; align-items: center; justify-content: center;
   color: var(--rxp-blue);
   flex-shrink: 0;
@@ -397,7 +384,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   background: var(--rxp-blue);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 13.5px;
   font-weight: 800;
   font-family: var(--rxp-font-head);
@@ -433,9 +420,18 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
 @keyframes rxpSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* ── RESPONSIVE ── */
+/* ── RESPONSIVE ──
+   On tablet / mobile the order becomes:
+   hero  ->  FORM  ->  image  ->  notice  ->  how it works */
 @media (max-width: 900px) {
-  .rxp-section { grid-template-columns: minmax(0,1fr); }
+  .rxp-hero     { order: 1; }
+  .rxp-section  { order: 2; grid-template-columns: minmax(0,1fr); margin-top: 20px; gap: 24px; }
+  .rxp-notice   { order: 3; margin-top: 28px; }
+  .rxp-how      { order: 4; margin-top: 28px; }
+
+  .rxp-form-card { order: 1; }
+  .rxp-img-col   { order: 2; }
+
   .rxp-how-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
@@ -454,7 +450,6 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
   <!-- HERO -->
   <div class="rxp-hero">
-    <span class="rxp-tag">Quick &amp; Easy</span>
     <h1 class="rxp-title">Submit Your <span>Prescription</span></h1>
     <p class="rxp-hero-desc">Upload your prescription and we'll prepare and deliver your medication, same day within Nairobi, next day to counties outside Nairobi.</p>
   </div>
@@ -462,7 +457,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   <!-- PRESCRIPTION ONLY NOTICE -->
   <div class="rxp-notice">
     <div class="rxp-notice-icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
     </div>
     <p><strong>Prescription Medicines Only:</strong> this form is strictly for doctor-prescribed medicines. We cannot process orders without a valid prescription signed by a licensed medical practitioner. For over-the-counter medicines, please visit our <a href="<?php echo esc_url($rxp_shop); ?>">Shop page</a>.</p>
   </div>
@@ -501,12 +496,11 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
     <div class="rxp-img-col">
       <div class="rxp-img-frame">
         <div class="rxp-img-wrap">
-          <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/delivery.png'); ?>" alt="Family Drugmart Delivery">
+          <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/delivery.webp'); ?>" alt="Family Drugmart Delivery" loading="lazy" decoding="async">
         </div>
       </div>
       <div class="rxp-img-badge">
-        <h3>Fast, Reliable &amp; Secure Cold-Chain Delivery.
-</h3>
+        <h3>Fast, Reliable &amp; Secure Cold-Chain Delivery.</h3>
         <p>Same day Nairobi &nbsp;&middot;&nbsp; Next day countrywide</p>
       </div>
     </div>
@@ -577,7 +571,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
         <!-- HEALTH INFORMATION (OPTIONAL) -->
         <div class="rxp-form-section-label rxp-optional-label">
           <span>Health Information</span>
-          <span class="rxp-optional-tag">Optional</span>
+          <span class="rxp-optional-tag">(Optional)</span>
         </div>
 
         <div class="rxp-health-grid">
@@ -626,7 +620,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
           <label>Upload Prescription <span class="req">*</span></label>
           <div class="rxp-file-box" id="rxpFileBox" onclick="document.getElementById('rx_file').click()">
             <div class="rxp-file-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             </div>
             <div class="rxp-file-text">
               <span>Click to select your prescription file</span>
