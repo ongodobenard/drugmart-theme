@@ -136,7 +136,7 @@ if (!function_exists('fd_cat_link')) {
 .fd-ld-bar {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #1d3f8f, #f5a623);
+  background: #1d3f8f;
   border-radius: 3px;
   animation: fd-bar-fill 1.8s cubic-bezier(.4,0,.2,1) forwards;
 }
@@ -151,9 +151,7 @@ if (!function_exists('fd_cat_link')) {
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #f5a623, #1d3f8f, #f5a623, transparent);
-  background-size: 200% 100%;
-  animation: fd-foot-slide 2s linear infinite;
+  background: #1d3f8f;
 }
 @keyframes fd-foot-slide {
   0%   { background-position: 200% 0; }
