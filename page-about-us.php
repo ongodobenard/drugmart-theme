@@ -1,12 +1,108 @@
 <?php
 /**
  * Template Name: About Us
+ * SEO: About Family Drugmart | Trusted Pharmacy in Ruaka, Nairobi
  */
+
+if ( ! defined('ABSPATH') ) { die(); }
+
+/* ══════════════════════════════════════════════════════════════
+   SEO — runs BEFORE get_header() so wp_head can output it.
+   If an SEO plugin is active (you use Yoast), these tags are skipped:
+   set the title/description in the Yoast box under this page instead.
+   ══════════════════════════════════════════════════════════════ */
+$AB_SEO_TITLE = 'About Family Drugmart | Trusted Online Pharmacy in Ruaka, Nairobi Kenya';
+$AB_SEO_DESC  = 'About Family Drugmart Kenya, a PPB licensed pharmacy in Ruaka, Nairobi. Affordable prescribed drugs, baby formula, vitamins, skincare and ultrasound scans.';
+$AB_PPB       = 'PPB/F/3208';
+
+$ab_has_seo_plugin = defined( 'WPSEO_VERSION' )          // Yoast
+    || defined( 'RANK_MATH_VERSION' )                    // Rank Math
+    || defined( 'AIOSEO_VERSION' )                       // All in One SEO
+    || defined( 'SEOPRESS_VERSION' )                     // SEOPress
+    || defined( 'THE_SEO_FRAMEWORK_VERSION' );           // The SEO Framework
+
+if ( ! $ab_has_seo_plugin ) {
+
+    add_filter( 'pre_get_document_title', function ( $title ) use ( $AB_SEO_TITLE ) {
+        return is_page() ? $AB_SEO_TITLE : $title;
+    }, 99 );
+
+    add_action( 'wp_head', function () use ( $AB_SEO_DESC, $AB_SEO_TITLE ) {
+        if ( ! is_page() ) return;
+        $url = get_permalink();
+        echo '<meta name="description" content="' . esc_attr( $AB_SEO_DESC ) . '">' . "\n";
+        echo '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
+        echo '<meta property="og:title" content="' . esc_attr( $AB_SEO_TITLE ) . '">' . "\n";
+        echo '<meta property="og:description" content="' . esc_attr( $AB_SEO_DESC ) . '">' . "\n";
+        echo '<meta property="og:type" content="website">' . "\n";
+        echo '<meta property="og:url" content="' . esc_url( $url ) . '">' . "\n";
+    }, 1 );
+
+}
+
 get_header();
 
-$ab_wa    = function_exists('medicare_wa')    ? medicare_wa()    : '254796140021';
-$ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 796140021';
+$ab_wa    = function_exists('medicare_wa')      ? medicare_wa()      : '254796140021';
+$ab_phone = function_exists('medicare_phone')   ? medicare_phone()   : '+254 796140021';
+$ab_addr  = function_exists('medicare_address') ? medicare_address() : 'High Point Plaza, along Ruaka-Banana Road';
+
+/* WhatsApp icon path (used three times below) */
+$ab_wa_path = 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884';
+
+/* Category link helper (same logic as the front page; guarded so it never clashes) */
+if ( ! function_exists('fd_cat_url') ) :
+function fd_cat_url( array $frags ) {
+    foreach ( $frags as $slug ) {
+        $t = get_term_by( 'slug', $slug, 'product_cat' );
+        if ( $t && ! is_wp_error($t) ) return get_term_link($t);
+    }
+    $all = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => true, 'number' => 200]);
+    if ( ! is_wp_error($all) ) {
+        foreach ( $all as $t ) {
+            foreach ( $frags as $f ) {
+                if ( stripos($t->name, $f) !== false ) return get_term_link($t);
+            }
+        }
+    }
+    return function_exists('wc_get_page_id')
+        ? get_permalink( wc_get_page_id('shop') )
+        : home_url('/shop/');
+}
+endif;
+
+$AB_CATS = [
+    [ 'Prescription medicines Ruaka',               ['prescription'] ],
+    [ 'Blood pressure medicine Nairobi',            ['blood-pressure-medicine','hypertension'] ],
+    [ 'Diabetes and weight loss medicines Nairobi', ['diabetes','weight-management'] ],
+    [ 'Vaccines and immunization Nairobi',          ['vaccins-and-immunization'] ],
+    [ 'Vitamins and supplements Ruaka',             ['vitamins-supplements','vitamins','supplements','vitamin'] ],
+    [ 'Baby formula and baby care Ruaka',           ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
+    [ 'Affordable skincare Ruaka',                  ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
+];
+
+$AB_FAQS = [
+    [ 'q' => 'Is Family Drugmart Kenya a licensed pharmacy?',
+      'a' => 'Yes. Family Drugmart Kenya is licensed by the Pharmacy and Poisons Board (PPB) of Kenya, License No: ' . $AB_PPB . '.' ],
+    [ 'q' => 'Where is Family Drugmart Kenya located?',
+      'a' => 'Our pharmacy is at ' . $ab_addr . ', serving Ruaka, Banana, Kiambu and Nairobi. We also deliver across Kenya.' ],
+    [ 'q' => 'What products and services does Family Drugmart offer?',
+      'a' => 'We offer prescription medicines, vitamins and supplements, infant formula and baby care, diabetic and weight management products, skincare, and in-store and home visit ultrasound scans.' ],
+    [ 'q' => 'Do you offer ultrasound and obs scans?',
+      'a' => 'Yes. We offer in-store scans at our Ruaka pharmacy and home visit scans across Nairobi, including obs, breast, abdominal, pelvic and scrotal scans. No referral is needed.' ],
+    [ 'q' => 'Do you deliver outside Nairobi?',
+      'a' => 'Yes. We deliver same day in Nairobi, next day to nearby counties such as Kiambu, Machakos, Kajiado and Murang\'a, and in 1 to 2 days to more distant counties. We confirm your delivery time on WhatsApp before dispatch.' ],
+];
+
+$ab_faq_schema = [
+    '@context'   => 'https://schema.org',
+    '@type'      => 'FAQPage',
+    'mainEntity' => array_map( function ( $f ) {
+        return [ '@type' => 'Question', 'name' => $f['q'], 'acceptedAnswer' => [ '@type' => 'Answer', 'text' => $f['a'] ] ];
+    }, $AB_FAQS ),
+];
 ?>
+
+<script type="application/ld+json"><?php echo wp_json_encode( $ab_faq_schema, JSON_UNESCAPED_SLASHES ); ?></script>
 
 <style>
 :root {
@@ -231,6 +327,22 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
   font-weight: 600; margin: 0 0 14px;
 }
 
+/* SEO CONTENT + FAQ */
+.ab-seo { margin-top: 44px; background: var(--ab-bg-soft); border: 1.5px solid var(--ab-border); border-radius: 16px; padding: 28px; }
+.ab-seo h2 { font-family: var(--ab-font-head); font-size: 19px; font-weight: 900; color: var(--ab-text); margin: 0 0 10px; }
+.ab-seo p  { font-size: 13.5px; line-height: 1.8; color: var(--ab-text-light); margin: 0 0 14px; max-width: 900px; }
+.ab-seo h3 { font-family: var(--ab-font-head); font-size: 14.5px; font-weight: 800; color: var(--ab-blue); margin: 18px 0 8px; }
+.ab-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ab-chip  { display: inline-block; padding: 7px 12px; border: 1.5px solid #e0e4ec; border-radius: 50px; background: #fff; font-size: 12px; font-weight: 700; color: var(--ab-blue); text-decoration: none; transition: background .2s, border-color .2s; }
+.ab-chip:hover { background: #eef1f8; border-color: var(--ab-blue); }
+.ab-ppb { margin-top: 18px; padding: 12px 16px; border: 1.5px solid #e0e4ec; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 700; color: var(--ab-text); }
+
+.ab-faq { margin-top: 24px; background: #fff; border: 1.5px solid var(--ab-border); border-radius: 16px; padding: 28px; }
+.ab-faq h2 { font-family: var(--ab-font-head); font-size: 19px; font-weight: 900; color: var(--ab-text); margin: 0 0 8px; }
+.ab-faq-item { border-bottom: 1px solid var(--ab-border); padding: 14px 0; }
+.ab-faq-item summary { font-weight: 700; font-size: 14px; cursor: pointer; color: var(--ab-text); }
+.ab-faq-item p { font-size: 13.5px; line-height: 1.7; color: var(--ab-text-light); margin: 10px 0 0; }
+
 /* BUTTONS */
 .ab-btn {
   display: inline-flex; align-items: center; gap: 8px;
@@ -295,6 +407,7 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
   .ab-us-tags li { font-size: 10.5px; padding: 4px 8px; }
   .ab-delivery-grid { grid-template-columns: 1fr; }
   .ab-delivery-card { padding: 16px; }
+  .ab-seo, .ab-faq { padding: 20px; }
   .ab-btn-row { flex-direction: column; align-items: stretch; }
   .ab-btn { justify-content: center; font-size: 12px; padding: 11px 18px; }
   .ab-cta { padding: 26px 16px; }
@@ -322,17 +435,17 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
 
 <div class="ab-wrap">
 
-  <!-- HERO -->
+  <!-- HERO (the page's one and only H1) -->
   <div class="ab-hero">
     <div class="ab-hero-img-frame">
       <div class="ab-hero-img-wrap">
-        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/doctors.png'); ?>" alt="Family Drugmart Pharmacists">
+        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/doctors.png'); ?>" alt="Family Drugmart Kenya pharmacists at our pharmacy in Ruaka, Nairobi">
       </div>
     </div>
     <div>
       <span class="ab-tag">About Us</span>
-      <h1 class="ab-title">About <span>Family Drugmart</span></h1>
-      <p class="ab-hero-desc">Kenya's trusted online pharmacy, serving families with quality, affordable, certified medicines, including in-store and home visit ultrasound scanning services. Licensed by the Pharmacy and Poisons Board of Kenya.</p>
+      <h1 class="ab-title">About <span>Family Drugmart</span> Kenya</h1>
+      <p class="ab-hero-desc">Kenya's trusted online pharmacy in Ruaka, Nairobi, serving families with quality, affordable, certified medicines, including in-store and home visit ultrasound scanning services. Licensed by the Pharmacy and Poisons Board of Kenya (PPB License No: <?php echo esc_html( $AB_PPB ); ?>).</p>
     </div>
   </div>
 
@@ -384,7 +497,7 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
 
   <!-- SERVICES -->
   <div class="ab-services">
-    <h2>What We Do</h2>
+    <h2>Pharmacy Services in Ruaka &amp; Nairobi</h2>
     <div class="ab-services-grid">
       <div class="ab-service-card">
         <div class="ab-service-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
@@ -416,14 +529,14 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
   <!-- ULTRASOUND -->
   <div class="ab-ultrasound">
     <div class="ab-ultrasound-head">
-      <h2>In-Store &amp; Home Ultrasound Services</h2>
+      <h2>In-Store &amp; Home Ultrasound Services Nairobi</h2>
       <p>Professional diagnostic imaging at our pharmacy or in the comfort of your home.</p>
     </div>
     <div class="ab-ultrasound-grid">
       <div class="ab-us-card ab-us-card-dark">
         <div class="ab-us-eyebrow">In-Store</div>
         <h3>Visit Us at the Pharmacy</h3>
-        <p>Walk in or book an appointment with our certified sonographers at High Point Plaza, Ruaka-Banana Road. Fast results, no referral needed.</p>
+        <p>Walk in or book an appointment with our certified sonographers at <?php echo esc_html( $ab_addr ); ?>. Fast results, no referral needed.</p>
         <ul class="ab-us-tags">
           <li>Thyroid Scan</li><li>Obs Scan</li><li>Breast Ultrasound</li>
           <li>Abdominal Scan</li><li>Pelvic Scan</li><li>Scrotal Scan</li>
@@ -444,7 +557,7 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
         </ul>
         <a href="https://wa.me/<?php echo esc_attr($ab_wa); ?>?text=<?php echo urlencode('Hi! I would like to book a home visit ultrasound scan.'); ?>" class="ab-btn ab-btn-gold ab-btn-sm" target="_blank" rel="noopener">
           Book Home Visit via WhatsApp
-          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="<?php echo $ab_wa_path; ?>"/></svg>
         </a>
       </div>
     </div>
@@ -452,7 +565,7 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
 
   <!-- DELIVERY -->
   <div class="ab-delivery">
-    <div class="ab-delivery-head"><h2>Delivery Schedule</h2></div>
+    <div class="ab-delivery-head"><h2>Pharmacy Delivery Nairobi &amp; Countrywide</h2></div>
     <div class="ab-delivery-sub">Same day across Nairobi, 1–2 days countrywide.</div>
     <div class="ab-delivery-grid">
       <div class="ab-delivery-card">
@@ -477,19 +590,45 @@ $ab_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 7961400
     <div class="ab-wa-strip">
       <p>Have delivery questions? Chat with us directly!</p>
       <a href="https://wa.me/<?php echo esc_attr($ab_wa); ?>?text=<?php echo urlencode('Hello Family Drugmart! I have a delivery enquiry.'); ?>" class="ab-btn ab-btn-gold" target="_blank" rel="noopener">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="<?php echo $ab_wa_path; ?>"/></svg>
         Chat on WhatsApp
       </a>
     </div>
   </div>
 
+  <!-- SEO CONTENT -->
+  <section class="ab-seo">
+    <h2>Trusted Pharmacy Kenya: Family Drugmart in Ruaka</h2>
+    <p>Family Drugmart Kenya is a PPB licensed pharmacy at <?php echo esc_html( $ab_addr ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. We are an affordable online pharmacy in Kenya where families can buy medicine online, order prescribed drugs, shop infant formula such as Aptamil, Kendamil and Liptomil, choose Jamieson vitamins and supplements, find diabetic care products and affordable skincare, and book ultrasound scans, with delivery in Nairobi and across Kenya.</p>
+
+    <h3>Shop by category</h3>
+    <div class="ab-chips">
+      <?php foreach ( $AB_CATS as $c ) : ?>
+        <a class="ab-chip" href="<?php echo esc_url( fd_cat_url( $c[1] ) ); ?>"><?php echo esc_html( $c[0] ); ?></a>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="ab-ppb">Pharmacy and Poisons Board (PPB) Kenya License No: <?php echo esc_html( $AB_PPB ); ?></div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="ab-faq">
+    <h2>About Family Drugmart Kenya: FAQs</h2>
+    <?php foreach ( $AB_FAQS as $f ) : ?>
+      <details class="ab-faq-item">
+        <summary><?php echo esc_html( $f['q'] ); ?></summary>
+        <p><?php echo esc_html( $f['a'] ); ?></p>
+      </details>
+    <?php endforeach; ?>
+  </section>
+
   <!-- FINAL CTA -->
   <div class="ab-cta">
     <h2>Have Questions? <span>We're Here</span></h2>
-    <p>Reach out via WhatsApp or visit us at High Point Plaza, Ruaka-Banana Road.</p>
+    <p>Reach out via WhatsApp or visit us at <?php echo esc_html( $ab_addr ); ?>.</p>
     <div class="ab-btn-row">
       <a href="https://wa.me/<?php echo esc_attr($ab_wa); ?>?text=<?php echo urlencode('Hello Family Drugmart! I have an enquiry.'); ?>" class="ab-btn ab-btn-white" target="_blank" rel="noopener">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="<?php echo $ab_wa_path; ?>"/></svg>
         Chat on WhatsApp
       </a>
       <a href="<?php echo esc_url(home_url('/contact')); ?>" class="ab-btn ab-btn-outline">Contact Us</a>

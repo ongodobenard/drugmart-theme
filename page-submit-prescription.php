@@ -1,13 +1,114 @@
 <?php
 /**
  * Template Name: Submit Prescription
+ * SEO: Upload Prescription Online Kenya | Family Drugmart
  */
+
+if ( ! defined('ABSPATH') ) { die(); }
+
+/* ══════════════════════════════════════════════════════════════
+   SEO — runs BEFORE get_header() so wp_head can output it.
+   If an SEO plugin is active (you use Yoast), these tags are skipped:
+   set the title/description in the Yoast box under this page instead.
+   ══════════════════════════════════════════════════════════════ */
+$RXP_SEO_TITLE  = 'Upload Prescription Online Kenya | Prescribed Drugs Nairobi | Family Drugmart';
+$RXP_SEO_DESC   = 'Upload your prescription online in Kenya. Licensed pharmacist review, same day delivery in Nairobi, next day to other counties. PPB licensed pharmacy in Ruaka.';
+$RXP_PPB        = 'PPB/F/3208';
+
+$rxp_has_seo_plugin = defined( 'WPSEO_VERSION' )          // Yoast
+    || defined( 'RANK_MATH_VERSION' )                     // Rank Math
+    || defined( 'AIOSEO_VERSION' )                        // All in One SEO
+    || defined( 'SEOPRESS_VERSION' )                      // SEOPress
+    || defined( 'THE_SEO_FRAMEWORK_VERSION' );            // The SEO Framework
+
+if ( ! $rxp_has_seo_plugin ) {
+
+    add_filter( 'pre_get_document_title', function ( $title ) use ( $RXP_SEO_TITLE ) {
+        return is_page() ? $RXP_SEO_TITLE : $title;
+    }, 99 );
+
+    add_action( 'wp_head', function () use ( $RXP_SEO_DESC, $RXP_SEO_TITLE ) {
+        if ( ! is_page() ) return;
+        $url = get_permalink();
+        echo '<meta name="description" content="' . esc_attr( $RXP_SEO_DESC ) . '">' . "\n";
+        echo '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
+        echo '<meta property="og:title" content="' . esc_attr( $RXP_SEO_TITLE ) . '">' . "\n";
+        echo '<meta property="og:description" content="' . esc_attr( $RXP_SEO_DESC ) . '">' . "\n";
+        echo '<meta property="og:type" content="website">' . "\n";
+        echo '<meta property="og:url" content="' . esc_url( $url ) . '">' . "\n";
+    }, 1 );
+
+}
+
 get_header();
 
 $rxp_phone = function_exists('medicare_phone') ? medicare_phone() : '+254 796140021';
 $rxp_wa    = function_exists('medicare_wa')    ? medicare_wa()    : '254796140021';
+$rxp_addr  = function_exists('medicare_address') ? medicare_address() : 'High Point Plaza, along Ruaka-Banana Road';
 $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/shop');
+
+/* Category link helper (same logic as the front page; guarded so it never clashes) */
+if ( ! function_exists('fd_cat_url') ) :
+function fd_cat_url( array $frags ) {
+    foreach ( $frags as $slug ) {
+        $t = get_term_by( 'slug', $slug, 'product_cat' );
+        if ( $t && ! is_wp_error($t) ) return get_term_link($t);
+    }
+    $all = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => true, 'number' => 200]);
+    if ( ! is_wp_error($all) ) {
+        foreach ( $all as $t ) {
+            foreach ( $frags as $f ) {
+                if ( stripos($t->name, $f) !== false ) return get_term_link($t);
+            }
+        }
+    }
+    return function_exists('wc_get_page_id')
+        ? get_permalink( wc_get_page_id('shop') )
+        : home_url('/shop/');
+}
+endif;
+
+/* Prescription categories (from functions.php) with local keyphrases */
+$RXP_CATS = [
+    [ 'Prescription medicines Ruaka',                    ['prescription'] ],
+    [ 'Blood pressure medicine Nairobi',                 ['blood-pressure-medicine','hypertension'] ],
+    [ 'Heart and cardiovascular medicines Kenya',        ['cardiovascular-and-cerebrovascular'] ],
+    [ 'Diabetes and weight loss medicines Nairobi',      ['diabetes','weight-management'] ],
+    [ 'Vaccines and immunization Nairobi',               ['vaccins-and-immunization'] ],
+    [ 'Antibiotics and anti-infectives Kenya',           ['anti-infective'] ],
+    [ 'Brain and nervous system medicines Kenya',        ['brain-and-nervous-system-disorder'] ],
+    [ 'Hormonal and steroid medicines Kenya',            ['hormonal-and-steroids'] ],
+    [ 'Kidney (renal) care Kenya',                       ['renal-wellbeing'] ],
+    [ 'Digestive health medicines Nairobi',              ['digestive-system'] ],
+    [ 'Reproductive health and sexual wellness Nairobi', ['reproductive-health-and-sexual-wellness'] ],
+    [ 'Oncology (cancer care) medicines Kenya',          ['oncology'] ],
+];
+
+$RXP_FAQS = [
+    [ 'q' => 'Can I upload my prescription online in Kenya?',
+      'a' => 'Yes. Fill in the form on this page, attach a clear photo, PDF or Word copy of your prescription, and submit it. Our licensed pharmacist reviews it and contacts you by phone, WhatsApp or email.' ],
+    [ 'q' => 'Do I need a valid prescription to order prescribed drugs?',
+      'a' => 'Yes. We can only process prescription medicines with a valid prescription signed by a licensed medical practitioner. Over-the-counter products can be ordered from our shop without one.' ],
+    [ 'q' => 'Which medicines need a prescription at Family Drugmart Kenya?',
+      'a' => 'Prescription medicines include blood pressure, heart, antibiotic, hormonal, brain and nervous system, kidney, vaccine, cancer care, and diabetes and weight loss medicines such as Ozempic, Mounjaro, Wegovy and Rybelsus. Availability and prices are confirmed by our pharmacist.' ],
+    [ 'q' => 'How fast is prescription delivery in Nairobi?',
+      'a' => 'Verified prescriptions are delivered the same day within Nairobi and the next day to other counties. In Nairobi, delivery is KES 300 and free for orders from KES 2,500. For other counties, contact us on WhatsApp for your county rate.' ],
+    [ 'q' => 'What file types can I upload?',
+      'a' => 'You can upload JPG, PNG, PDF or Word files up to 10MB. Make sure the doctor\'s name, signature, date and medicine names are clearly visible.' ],
+    [ 'q' => 'Where is your pharmacy located?',
+      'a' => 'We are at ' . $rxp_addr . ', serving Ruaka, Banana, Kiambu and Nairobi. We are licensed by the Pharmacy and Poisons Board (PPB), License No: ' . $RXP_PPB . '.' ],
+];
+
+$rxp_faq_schema = [
+    '@context'   => 'https://schema.org',
+    '@type'      => 'FAQPage',
+    'mainEntity' => array_map( function ( $f ) {
+        return [ '@type' => 'Question', 'name' => $f['q'], 'acceptedAnswer' => [ '@type' => 'Answer', 'text' => $f['a'] ] ];
+    }, $RXP_FAQS ),
+];
 ?>
+
+<script type="application/ld+json"><?php echo wp_json_encode( $rxp_faq_schema, JSON_UNESCAPED_SLASHES ); ?></script>
 
 <style>
 :root {
@@ -218,7 +319,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   font-size: 16.5px;
   font-weight: 900;
   color: var(--rxp-text);
-  margin-bottom: 4px;
+  margin: 0 0 4px;
 }
 .rxp-form-sub {
   font-size: 12.5px;
@@ -420,14 +521,32 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
 @keyframes rxpSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+/* ── SEO CONTENT + FAQ ── */
+.rxp-seo { margin-top: 44px; background: var(--rxp-bg-soft); border: 1.5px solid #edf0f5; border-radius: 16px; padding: 28px; }
+.rxp-seo h2 { font-family: var(--rxp-font-head); font-size: 19px; font-weight: 900; color: var(--rxp-text); margin: 0 0 10px; }
+.rxp-seo p  { font-size: 13.5px; line-height: 1.8; color: var(--rxp-text-light); margin: 0 0 14px; max-width: 900px; }
+.rxp-seo h3 { font-family: var(--rxp-font-head); font-size: 14.5px; font-weight: 800; color: var(--rxp-blue); margin: 18px 0 8px; }
+.rxp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rxp-chip  { display: inline-block; padding: 7px 12px; border: 1.5px solid #e0e4ec; border-radius: 50px; background: #fff; font-size: 12px; font-weight: 700; color: var(--rxp-blue); text-decoration: none; transition: background .2s, border-color .2s; }
+.rxp-chip:hover { background: #eef1f8; border-color: var(--rxp-blue); }
+.rxp-ppb { margin-top: 18px; padding: 12px 16px; border: 1.5px solid #e0e4ec; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 700; color: var(--rxp-text); }
+
+.rxp-faq { margin-top: 24px; background: #fff; border: 1.5px solid #edf0f5; border-radius: 16px; padding: 28px; }
+.rxp-faq h2 { font-family: var(--rxp-font-head); font-size: 19px; font-weight: 900; color: var(--rxp-text); margin: 0 0 8px; }
+.rxp-faq-item { border-bottom: 1px solid #edf0f5; padding: 14px 0; }
+.rxp-faq-item summary { font-weight: 700; font-size: 14px; cursor: pointer; color: var(--rxp-text); }
+.rxp-faq-item p { font-size: 13.5px; line-height: 1.7; color: var(--rxp-text-light); margin: 10px 0 0; }
+
 /* ── RESPONSIVE ──
    On tablet / mobile the order becomes:
-   hero  ->  FORM  ->  image  ->  notice  ->  how it works */
+   hero  ->  FORM  ->  image  ->  notice  ->  how it works  ->  info  ->  FAQ */
 @media (max-width: 900px) {
   .rxp-hero     { order: 1; }
   .rxp-section  { order: 2; grid-template-columns: minmax(0,1fr); margin-top: 20px; gap: 24px; }
   .rxp-notice   { order: 3; margin-top: 28px; }
   .rxp-how      { order: 4; margin-top: 28px; }
+  .rxp-seo      { order: 5; margin-top: 28px; }
+  .rxp-faq      { order: 6; }
 
   .rxp-form-card { order: 1; }
   .rxp-img-col   { order: 2; }
@@ -439,6 +558,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
   .rxp-hero { padding: 32px 20px; border-radius: 16px; }
   .rxp-hero-desc { font-size: 12.5px; }
   .rxp-form-card { padding: 20px; }
+  .rxp-seo, .rxp-faq { padding: 20px; }
   .form-row { grid-template-columns: minmax(0,1fr); }
   .rxp-how-grid { grid-template-columns: 1fr 1fr; }
   .rxp-health-grid { grid-template-columns: minmax(0,1fr); }
@@ -448,10 +568,10 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
 <div class="rxp-wrap">
 
-  <!-- HERO -->
+  <!-- HERO (the page's one and only H1) -->
   <div class="rxp-hero">
-    <h1 class="rxp-title">Submit Your <span>Prescription</span></h1>
-    <p class="rxp-hero-desc">Upload your prescription and we'll prepare and deliver your medication, same day within Nairobi, next day to counties outside Nairobi.</p>
+    <h1 class="rxp-title">Upload Your <span>Prescription</span> Online in Kenya</h1>
+    <p class="rxp-hero-desc">Order prescribed drugs from a trusted, PPB licensed pharmacy in Ruaka, Nairobi. Upload your prescription and we'll prepare and deliver your medication, same day within Nairobi, next day to counties outside Nairobi.</p>
   </div>
 
   <!-- PRESCRIPTION ONLY NOTICE -->
@@ -464,7 +584,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
   <!-- HOW IT WORKS -->
   <div class="rxp-how">
-    <div class="rxp-how-head"><h2>How It Works</h2></div>
+    <div class="rxp-how-head"><h2>How to Order Prescription Medicine Online in Kenya</h2></div>
     <div class="rxp-how-grid">
       <div class="rxp-how-card">
         <div class="rxp-how-num">1</div>
@@ -496,7 +616,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
     <div class="rxp-img-col">
       <div class="rxp-img-frame">
         <div class="rxp-img-wrap">
-          <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/delivery.webp'); ?>" alt="Family Drugmart Delivery" loading="lazy" decoding="async">
+          <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/delivery.webp'); ?>" alt="Prescription medicine delivery in Nairobi by Family Drugmart Kenya" loading="lazy" decoding="async">
         </div>
       </div>
       <div class="rxp-img-badge">
@@ -507,7 +627,7 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
 
     <!-- FORM -->
     <div class="rxp-form-card">
-      <div class="rxp-form-title">Submit Your Prescription</div>
+      <h2 class="rxp-form-title">Submit Your Prescription</h2>
       <p class="rxp-form-sub">Kindly fill the form with correct details and upload your prescription.</p>
 
       <form id="rxpForm" enctype="multipart/form-data" novalidate>
@@ -651,6 +771,32 @@ $rxp_shop  = function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('s
     </div>
 
   </div>
+
+  <!-- SEO CONTENT -->
+  <section class="rxp-seo">
+    <h2>Prescribed Drugs Kenya: Trusted Pharmacy in Ruaka &amp; Nairobi</h2>
+    <p>Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( $rxp_addr ); ?>. Upload your prescription online and our licensed pharmacist will review it, confirm availability and prices, and arrange delivery of your prescribed drugs in Ruaka, Nairobi and across Kenya. This includes prescriptions for diabetes and weight loss medicines such as Ozempic, Mounjaro, Wegovy and Rybelsus, which are only supplied with a valid prescription.</p>
+
+    <h3>Prescription medicine categories</h3>
+    <div class="rxp-chips">
+      <?php foreach ( $RXP_CATS as $c ) : ?>
+        <a class="rxp-chip" href="<?php echo esc_url( fd_cat_url( $c[1] ) ); ?>"><?php echo esc_html( $c[0] ); ?></a>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="rxp-ppb">Pharmacy and Poisons Board (PPB) Kenya License No: <?php echo esc_html( $RXP_PPB ); ?></div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="rxp-faq">
+    <h2>Prescription Upload FAQs Kenya</h2>
+    <?php foreach ( $RXP_FAQS as $f ) : ?>
+      <details class="rxp-faq-item">
+        <summary><?php echo esc_html( $f['q'] ); ?></summary>
+        <p><?php echo esc_html( $f['a'] ); ?></p>
+      </details>
+    <?php endforeach; ?>
+  </section>
 
 </div>
 

@@ -1,9 +1,49 @@
 <?php
 /**
  * Front Page Template — Family Drugmart Kenya
+ * SEO: Family Drugmart | Affordable Online Pharmacy Kenya
  */
 
 if ( ! defined('ABSPATH') ) { die(); }
+
+/* ══════════════════════════════════════════════════════════════
+   SEO — must run BEFORE get_header() so wp_head can output it.
+   If you use Yoast or Rank Math, delete this whole SEO block
+   (title, description, canonical, schema) and set them in the plugin.
+   ══════════════════════════════════════════════════════════════ */
+$FD_SEO_TITLE = 'Family Drugmart | Affordable Online Pharmacy Kenya';
+$FD_SEO_DESC  = 'Affordable online pharmacy Kenya in Ruaka, Nairobi. PPB licensed. Prescribed drugs, baby formula, vitamins, skincare and ultrasound scans. Pay on delivery.';
+$FD_PPB_LICENSE = 'PPB/F/3208';
+
+/* functions.php already prints a Pharmacy schema on every page (medicare_schema).
+   This page prints its own fuller one below, so remove the duplicate here. */
+remove_action( 'wp_head', 'medicare_schema' );
+
+/* If an SEO plugin is active (Yoast, Rank Math, AIOSEO, SEOPress, SEO Framework), set the
+   Home page title/description in that plugin instead; these tags are skipped to avoid duplicates. */
+$fd_has_seo_plugin = defined( 'WPSEO_VERSION' )              // Yoast
+    || defined( 'RANK_MATH_VERSION' )                     // Rank Math
+    || defined( 'AIOSEO_VERSION' )                        // All in One SEO
+    || defined( 'SEOPRESS_VERSION' )                      // SEOPress
+    || defined( 'THE_SEO_FRAMEWORK_VERSION' );            // The SEO Framework
+
+if ( ! $fd_has_seo_plugin ) {
+
+    add_filter( 'pre_get_document_title', function ( $title ) use ( $FD_SEO_TITLE ) {
+        return is_front_page() ? $FD_SEO_TITLE : $title;
+    }, 99 );
+
+    add_action( 'wp_head', function () use ( $FD_SEO_DESC, $FD_SEO_TITLE ) {
+        if ( ! is_front_page() ) return;
+        echo '<meta name="description" content="' . esc_attr( $FD_SEO_DESC ) . '">' . "\n";
+        echo '<link rel="canonical" href="' . esc_url( home_url( '/' ) ) . '">' . "\n";
+        echo '<meta property="og:title" content="' . esc_attr( $FD_SEO_TITLE ) . '">' . "\n";
+        echo '<meta property="og:description" content="' . esc_attr( $FD_SEO_DESC ) . '">' . "\n";
+        echo '<meta property="og:type" content="website">' . "\n";
+        echo '<meta property="og:url" content="' . esc_url( home_url( '/' ) ) . '">' . "\n";
+    }, 1 );
+
+}
 
 get_header();
 
@@ -253,9 +293,89 @@ if (
 ) {
     $nl_message = '<p class="nl-success">&#10003; You\'re subscribed! Check your inbox.</p>';
 }
+
+/* ══ SEO content data ══ */
+$FD_FAQS = [
+    [ 'q' => 'Is Family Drugmart Kenya a licensed pharmacy?',
+      'a' => 'Yes. Family Drugmart Kenya is a Pharmacy and Poisons Board (PPB) licensed pharmacy in Kenya, License No: ' . $FD_PPB_LICENSE . '.' ],
+    [ 'q' => 'Where is Family Drugmart Kenya located?',
+      'a' => 'We are at ' . medicare_address() . ', serving Ruaka, Banana, Kiambu and Nairobi. You can also order online and have your items delivered.' ],
+    [ 'q' => 'Can I buy medicine online in Kenya from Family Drugmart?',
+      'a' => 'Yes. Browse our affordable online pharmacy and place your order on the website or on WhatsApp. In Nairobi and environs you pay cash or M-Pesa on delivery. Prescription medicines need a valid prescription, which you can upload on our Submit Prescription page.' ],
+    [ 'q' => 'How much is delivery in Nairobi?',
+      'a' => 'Delivery in Nairobi is KES 300, and it is free for orders of KES 2,500 and above. For other counties, contact us on WhatsApp for your county rate; full payment is made before dispatch.' ],
+    [ 'q' => 'Do I need a prescription for Ozempic, Mounjaro, Wegovy or Rybelsus?',
+      'a' => 'Yes. These are prescription-only medicines in Kenya. Upload your prescription and our pharmacist will review it, or chat with us on WhatsApp for availability and current prices.' ],
+    [ 'q' => 'Do you sell Aptamil, Kendamil and Liptomil baby formula?',
+      'a' => 'Yes. Our infant and baby section includes formula brands such as Aptamil, Kendamil and Liptomil, plus baby care and baby skincare products. Ask our pharmacist if you need help choosing a formula for your baby.' ],
+    [ 'q' => 'Do you stock Jamieson vitamins and supplements?',
+      'a' => 'Yes. Shop Jamieson and other trusted vitamins and supplements, including multivitamins, vitamin D and omega 3.' ],
+    [ 'q' => 'Where can I get an ultrasound or obs scan near Ruaka and Nairobi?',
+      'a' => 'We offer in-store and home visit ultrasound scans, including obs, breast, abdominal, pelvic, testicular and scrotal scans, as well as mobile ultrasound. Book on our ultrasound page or enquire on WhatsApp.' ],
+];
+
+/* Categories taken from functions.php (prescription category slugs) plus the shop
+   categories linked above. Each chip links to the matching category if it exists. */
+$FD_LOCAL_CATS = [
+    [ 'Prescription medicines Ruaka',                  ['prescription'] ],
+    [ 'Blood pressure medicine Nairobi',               ['blood-pressure-medicine','hypertension'] ],
+    [ 'Heart and cardiovascular medicines Kenya',      ['cardiovascular-and-cerebrovascular'] ],
+    [ 'Diabetes and weight loss medicines Nairobi',    ['diabetes','weight-management'] ],
+    [ 'Vaccines and immunization Nairobi',             ['vaccins-and-immunization'] ],
+    [ 'Antibiotics and anti-infectives Kenya',         ['anti-infective'] ],
+    [ 'Brain and nervous system medicines Kenya',      ['brain-and-nervous-system-disorder'] ],
+    [ 'Hormonal and steroid medicines Kenya',          ['hormonal-and-steroids'] ],
+    [ 'Kidney (renal) care Kenya',                     ['renal-wellbeing'] ],
+    [ 'Digestive health medicines Nairobi',            ['digestive-system'] ],
+    [ 'Reproductive health and sexual wellness Nairobi', ['reproductive-health-and-sexual-wellness'] ],
+    [ 'Oncology (cancer care) medicines Kenya',        ['oncology'] ],
+    [ 'Vitamins and supplements Ruaka',                ['vitamins-supplements','vitamins','supplements','vitamin'] ],
+    [ 'Baby formula and baby care Ruaka',              ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
+    [ 'Affordable skincare Ruaka',                     ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
+];
+
+$fd_pharmacy_schema = [
+    '@context'     => 'https://schema.org',
+    '@type'        => 'Pharmacy',
+    'name'         => 'Family Drugmart Kenya',
+    'alternateName'=> 'Family Drugmart',
+    'description'  => $FD_SEO_DESC,
+    'url'          => home_url( '/' ),
+    'telephone'    => '+' . $fd_wa_number,
+    'email'        => medicare_email(),
+    'areaServed'   => [
+        [ '@type' => 'City',    'name' => 'Nairobi' ],
+        [ '@type' => 'Country', 'name' => 'Kenya' ],
+    ],
+    'address'      => [
+        '@type'           => 'PostalAddress',
+        'streetAddress'   => medicare_address(),
+        'addressLocality' => 'Ruaka',
+        'addressRegion'   => 'Kiambu',
+        'addressCountry'  => 'KE',
+    ],
+    'identifier'   => [ '@type' => 'PropertyValue', 'name' => 'Pharmacy and Poisons Board (PPB) Kenya License No', 'value' => $FD_PPB_LICENSE ],
+    'paymentAccepted' => 'Cash on delivery, M-Pesa on delivery',
+];
+$fd_faq_schema = [
+    '@context'   => 'https://schema.org',
+    '@type'      => 'FAQPage',
+    'mainEntity' => array_map( function ( $f ) {
+        return [ '@type' => 'Question', 'name' => $f['q'], 'acceptedAnswer' => [ '@type' => 'Answer', 'text' => $f['a'] ] ];
+    }, $FD_FAQS ),
+];
 ?>
 
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+
+<?php
+/* Yoast SEO: Local already prints the business (Pharmacy) schema from its own settings,
+   so only print ours when Yoast Local is NOT active, to avoid duplicates. */
+$fd_has_yoast_local = defined( 'WPSEO_LOCAL_VERSION' ) || class_exists( 'WPSEO_Local_Core' );
+if ( ! $fd_has_yoast_local ) : ?>
+<script type="application/ld+json"><?php echo wp_json_encode( $fd_pharmacy_schema, JSON_UNESCAPED_SLASHES ); ?></script>
+<?php endif; ?>
+<script type="application/ld+json"><?php echo wp_json_encode( $fd_faq_schema, JSON_UNESCAPED_SLASHES ); ?></script>
 
 <style>
 *, *::before, *::after { box-sizing: border-box; }
@@ -491,7 +611,7 @@ if (
 
 /* ══ SECTION HEADER ══ */
 .fp-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.fp-section-title  { font-family:var(--fd-font-head); font-size:16px; font-weight:900; color:var(--fd-text); padding-left:10px; border-left:3px solid var(--fd-gold); }
+.fp-section-title  { font-family:var(--fd-font-head); font-size:16px; font-weight:900; color:var(--fd-text); padding-left:10px; border-left:3px solid var(--fd-gold); margin:0; }
 .fp-arrows         { display:flex; gap:7px; }
 .fp-arr            { width:30px; height:30px; border-radius:var(--fd-btn-radius); border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color:var(--fd-text); }
 .fp-arr:hover      { border-color:var(--fd-blue); background:#eef1f8; color:var(--fd-blue); }
@@ -580,6 +700,23 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 @keyframes cvCountdown { from { transform:scaleX(1); } to { transform:scaleX(0); } }
 @media(max-width:600px) { #carevee-toast { bottom:80px; right:12px; left:12px; min-width:unset; max-width:unset; } }
 
+/* ══ SEO CONTENT ══ */
+.fp-seo-intro { font-size:14px; line-height:1.8; color:var(--fd-text-light); margin:0 0 18px; max-width:900px; }
+.fp-seo-title { font-family:var(--fd-font-head); font-size:20px; font-weight:900; color:var(--fd-text); margin:0 0 10px; padding-left:10px; border-left:3px solid var(--fd-gold); }
+.fp-seo-grid  { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.fp-seo-box   { background:var(--fd-bg-soft); border:1.5px solid var(--fd-border); border-radius:12px; padding:16px; }
+.fp-seo-box h3 { font-family:var(--fd-font-head); font-size:14.5px; font-weight:800; color:var(--fd-blue); margin:0 0 6px; }
+.fp-seo-box p  { font-size:13px; line-height:1.7; color:var(--fd-text-light); margin:0; }
+.fp-seo-box a  { color:var(--fd-blue); font-weight:700; text-decoration:none; }
+.fp-seo-box a:hover { text-decoration:underline; }
+.fp-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.fp-chip  { display:inline-block; padding:7px 12px; border:1.5px solid var(--fd-border); border-radius:50px; background:#fff; font-size:12px; font-weight:700; color:var(--fd-blue); text-decoration:none; transition:background .2s,border-color .2s; }
+.fp-chip:hover { background:#eef1f8; border-color:var(--fd-blue); }
+.fp-ppb       { margin-top:18px; padding:12px 16px; border:1.5px solid var(--fd-border); border-radius:10px; background:#fff; font-size:13px; font-weight:700; color:var(--fd-text); }
+.fp-faq-item  { border-bottom:1px solid var(--fd-border); padding:14px 0; }
+.fp-faq-item summary { font-weight:700; font-size:14px; cursor:pointer; color:var(--fd-text); font-family:var(--fd-font-body); }
+.fp-faq-item p { font-size:13.5px; line-height:1.7; color:var(--fd-text-light); margin:10px 0 0; }
+
 /* ══ NEWSLETTER ══ */
 .fp-newsletter      { background:linear-gradient(135deg,#eef1f8 0%,#dde3f2 50%,#eef1f8 100%); border-radius:14px; padding:44px 28px; text-align:center; }
 .fp-newsletter-wrap { max-width:1380px; width:100%; margin:0 auto; padding:0 20px 20px; }
@@ -610,6 +747,8 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .fp-prod-grid     { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-6   { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .fp-seo-grid      { grid-template-columns:1fr; }
+    .fp-seo-title     { font-size:17px; }
     .fp-newsletter    { padding:28px 14px; }
     .fp-newsletter h2 { font-size:19px; }
     .fp-newsletter-wrap { padding:0 10px 10px; }
@@ -666,19 +805,19 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 
         <!-- HERO -->
         <div class="fp-card" style="padding:0;overflow:hidden;border-radius:16px;">
-            <div class="fd-hero" id="fdHero" role="banner" aria-roledescription="carousel" aria-label="Family Drugmart Kenya — Trusted Online Pharmacy">
+            <div class="fd-hero" id="fdHero" role="banner" aria-roledescription="carousel" aria-label="Family Drugmart Kenya — Affordable Online Pharmacy Kenya">
 
-                <!-- SLIDE 1 — PHARMACY -->
+                <!-- SLIDE 1 — PHARMACY (the page's ONE and only H1) -->
                 <div class="fd-hero-slide active" data-slide-index="0" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/doctors2.webp' ); ?>');">
                     <div class="fd-hero-slide-bg" aria-hidden="true"></div>
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h1 class="fd-hero-heading" data-main="Expert Advice, " data-highlight="Right When You Need It"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                            <h1 class="fd-hero-heading" data-main="Affordable Online Pharmacy Kenya: " data-highlight="Expert Advice When You Need It"><span class="fd-hero-heading-main">Affordable Online Pharmacy Kenya: </span><span class="fd-hero-heading-highlight">Expert Advice When You Need It</span><span class="fd-hero-cursor">|</span></h1>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Chat live with our qualified pharmacists every day. Trusted guidance on medications, supplements &amp; health questions, all in one place.</p>
+                            <p class="fd-hero-desc">Family Drugmart Kenya is a trusted, PPB licensed pharmacy in Ruaka, Nairobi. Chat live with our qualified pharmacists every day about medications, supplements &amp; health questions.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($shop_url); ?>" class="fd-hero-btn-primary">
                                     Shop Now
@@ -700,10 +839,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h1 class="fd-hero-heading" data-main="Skincare That " data-highlight="Loves You Back"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                            <h2 class="fd-hero-heading" data-main="Affordable Skincare Products " data-highlight="That Love You Back"><span class="fd-hero-heading-main">Affordable Skincare Products </span><span class="fd-hero-heading-highlight">That Love You Back</span><span class="fd-hero-cursor">|</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Dermatologist-trusted skincare for every skin type, sourced and stocked with care.</p>
+                            <p class="fd-hero-desc">Dermatologist-trusted skincare products in Nairobi for every skin type, sourced and stocked with care.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($skincare_url); ?>" class="fd-hero-btn-primary">
                                     Shop Skincare
@@ -721,10 +860,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h1 class="fd-hero-heading" data-main="Everything Your " data-highlight="Baby Needs"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                            <h2 class="fd-hero-heading" data-main="Baby Formula Kenya: " data-highlight="Aptamil, Kendamil &amp; Liptomil"><span class="fd-hero-heading-main">Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Aptamil, Kendamil &amp; Liptomil</span><span class="fd-hero-cursor">|</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">From formula to baby skincare, shop trusted essentials for your little one.</p>
+                            <p class="fd-hero-desc">From infant formula to baby skincare, shop trusted baby care products for your little one.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($infant_url); ?>" class="fd-hero-btn-primary">
                                     Shop Baby Care
@@ -742,11 +881,11 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <span class="fd-hero-tag">In-Store & Home Visit Scans</span>
-                            <h1 class="fd-hero-heading" data-main="Ultrasound Scans " data-highlight="In-Store & At Home"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
+                            <span class="fd-hero-tag">In-Store &amp; Home Visit Scans</span>
+                            <h2 class="fd-hero-heading" data-main="Ultrasound Nairobi: " data-highlight="In-Store &amp; At Home"><span class="fd-hero-heading-main">Ultrasound Nairobi: </span><span class="fd-hero-heading-highlight">In-Store &amp; At Home</span><span class="fd-hero-cursor">|</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Get professional ultrasound scans at our pharmacy or book a certified sonographer to come to you. Fast results, affordable pricing, no referral needed.</p>
+                            <p class="fd-hero-desc">Get an obs scan or other professional ultrasound at our pharmacy, or book a certified sonographer to come to you. Fast results, affordable pricing, no referral needed.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($ultrasound_url); ?>" class="fd-hero-btn-primary">
                                     Book a Scan
@@ -783,7 +922,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         <!-- PROMO CARDS — 4 per row on desktop, 2 x 2 on mobile; image is the full background -->
         <div class="promo-cards-row">
 
-            <div class="promo-card-h promo-vitamins" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.webp' ); ?>');">
+            <div class="promo-card-h promo-vitamins" role="img" aria-label="Vitamins and supplements Kenya" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Vitamins &amp; Supplements</h3>
@@ -794,7 +933,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-diabetic" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/diabeticbg.webp' ); ?>');">
+            <div class="promo-card-h promo-diabetic" role="img" aria-label="Diabetic care and weight management products Kenya" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/diabeticbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Diabetic &amp; Wellness</h3>
@@ -805,7 +944,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-infant" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.webp' ); ?>');">
+            <div class="promo-card-h promo-infant" role="img" aria-label="Infant and baby formula Kenya" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Infant &amp; Baby Formula</h3>
@@ -816,7 +955,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-prescription" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/prescriptionbg.webp' ); ?>');">
+            <div class="promo-card-h promo-prescription" role="img" aria-label="Prescribed drugs Kenya, upload your prescription" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/prescriptionbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Prescription Medicines</h3>
@@ -839,7 +978,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <div class="fp-section-title">Health Products</div>
+                        <h2 class="fp-section-title">Health Products Kenya</h2>
                         <div class="fp-arrows">
                             <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
                             <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
@@ -863,7 +1002,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card gray">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <div class="fp-section-title">Sale Products</div>
+                        <h2 class="fp-section-title">Affordable Pharmacy Deals Nairobi</h2>
                         <div class="fp-arrows">
                             <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
                             <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
@@ -908,7 +1047,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <div class="fp-section-title">More Sale Products</div>
+                        <h2 class="fp-section-title">More Sale Products</h2>
                         <div class="fp-arrows">
                             <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
                             <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
@@ -954,7 +1093,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <div class="fp-section-title">Trending Products</div>
+                        <h2 class="fp-section-title">Trending Pharmacy Products</h2>
                         <div class="fp-arrows">
                             <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
                             <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
@@ -975,6 +1114,85 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             </div>
 
         <?php endif; ?>
+
+        <!-- ═══════════ SEO CONTENT: short, keyphrase-focused ═══════════ -->
+        <div class="fp-card gray">
+            <div class="fp-pad">
+                <h2 class="fp-seo-title">Family Drugmart: Trusted Pharmacy Kenya</h2>
+                <p class="fp-seo-intro">
+                    Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. We are one of the best pharmacies in Nairobi for affordable care: buy medicine online in Kenya, order prescribed drugs, shop baby formula, vitamins and skincare, and get pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacist on WhatsApp.
+                </p>
+
+                <div class="fp-seo-grid">
+
+                    <div class="fp-seo-box">
+                        <h3>Prescribed Drugs Kenya</h3>
+                        <p>Order prescription medicine in Nairobi from a licensed pharmacy Kenya trusts. <a href="<?php echo esc_url($prescription_url); ?>">Upload your prescription online</a> and our pharmacist reviews it before your order is processed.</p>
+                    </div>
+
+                    <div class="fp-seo-box">
+                        <h3>Weight Loss &amp; Diabetes Medicines</h3>
+                        <p>Looking for affordable Ozempic in Kenya, cheap Mounjaro Kenya, Wegovy or Rybelsus? These are prescription-only medicines, so a valid prescription is required. Chat with our pharmacist for availability and current prices.</p>
+                    </div>
+
+                    <div class="fp-seo-box">
+                        <h3>Diabetic &amp; Weight Management</h3>
+                        <p>Shop <a href="<?php echo esc_url($diabetic_url); ?>">diabetic care products in Kenya</a>, including glucometers, blood glucose test strips and weight management products.</p>
+                    </div>
+
+                    <div class="fp-seo-box">
+                        <h3>Infant &amp; Baby Formula Kenya</h3>
+                        <p>Buy baby formula online in Kenya: Aptamil, Kendamil and Liptomil, plus baby milk, baby care products and <a href="<?php echo esc_url($infant_url); ?>">baby skincare</a>.</p>
+                    </div>
+
+                    <div class="fp-seo-box">
+                        <h3>Vitamins &amp; Supplements Kenya</h3>
+                        <p>Jamieson vitamins and other trusted supplements, from multivitamins and vitamin D to omega 3. <a href="<?php echo esc_url($vitamins_url); ?>">Buy vitamins online in Kenya</a>.</p>
+                    </div>
+
+                    <div class="fp-seo-box">
+                        <h3>Affordable Skincare Products</h3>
+                        <p>Affordable skincare products in Nairobi for acne, moisturising and sun protection. <a href="<?php echo esc_url($skincare_url); ?>">Shop skincare Kenya</a>.</p>
+                    </div>
+
+                </div>
+
+                <div class="fp-seo-box" style="margin-top:14px;">
+                    <h3>Shop Pharmacy Categories in Ruaka &amp; Nairobi</h3>
+                    <p>Prescription categories need a valid prescription, which you can upload online.</p>
+                    <div class="fp-chips">
+                        <?php foreach ( $FD_LOCAL_CATS as $c ) : ?>
+                            <a class="fp-chip" href="<?php echo esc_url( fd_cat_url( $c[1] ) ); ?>"><?php echo esc_html( $c[0] ); ?></a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="fp-seo-box" style="margin-top:14px;">
+                    <h3>Ultrasound &amp; Obs Scan Services Nairobi</h3>
+                    <p>Book an <a href="<?php echo esc_url($ultrasound_url); ?>">ultrasound in Ruaka and Nairobi</a>: obs scan, breast ultrasound, abdominal scan, pelvic scan, testicular scan and scrotal scan. We also offer home visit scans and mobile ultrasound across Nairobi.</p>
+                </div>
+
+                <div class="fp-seo-box" style="margin-top:14px;">
+                    <h3>Visit Us &amp; Delivery</h3>
+                    <p>Pharmacy address: <?php echo esc_html( medicare_address() ); ?>. Delivery in Nairobi is KES 300, free for orders from KES 2,500. For other counties, contact us on WhatsApp for your county rate.</p>
+                </div>
+
+                <div class="fp-ppb">Pharmacy and Poisons Board (PPB) Kenya License No: <?php echo esc_html( $FD_PPB_LICENSE ); ?></div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="fp-card">
+            <div class="fp-pad">
+                <h2 class="fp-seo-title">Online Pharmacy Kenya FAQs</h2>
+                <?php foreach ( $FD_FAQS as $f ) : ?>
+                    <details class="fp-faq-item">
+                        <summary><?php echo esc_html( $f['q'] ); ?></summary>
+                        <p><?php echo esc_html( $f['a'] ); ?></p>
+                    </details>
+                <?php endforeach; ?>
+            </div>
+        </div>
 
     </main>
 </div><!-- /.page-body -->
@@ -1034,11 +1252,19 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         var AUTOPLAY_MS = 6000;
         var TYPE_SPEED  = 35;
 
+        /* The heading text is already in the HTML (good for Google and for
+           visitors without JavaScript). The typing effect clears it and retypes it. */
+        function decodeEntities(str) {
+            var t = document.createElement('textarea');
+            t.innerHTML = str;
+            return t.value;
+        }
+
         function typeHeading(slideEl) {
             var heading = slideEl.querySelector('.fd-hero-heading');
             if (!heading) return;
-            var main = heading.getAttribute('data-main') || '';
-            var hi   = heading.getAttribute('data-highlight') || '';
+            var main = decodeEntities(heading.getAttribute('data-main') || '');
+            var hi   = decodeEntities(heading.getAttribute('data-highlight') || '');
             var full = main + hi;
             var mainSpan = heading.querySelector('.fd-hero-heading-main');
             var hiSpan   = heading.querySelector('.fd-hero-heading-highlight');
