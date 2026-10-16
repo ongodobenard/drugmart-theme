@@ -8,32 +8,32 @@ $fd_csw_tz     = new DateTimeZone('Africa/Nairobi');
 $fd_csw_end    = new DateTime('2026-10-11 23:59:59', $fd_csw_tz);
 $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 
-/* Shop by Category: the 13 categories to keep  [name, needs Submit Prescription] */
+/* Shop by Category: the 13 categories to keep  [display name, EXACT WooCommerce slug, needs Submit Prescription] */
 $fd_shop_cats = [
-  ['Wound Dressings',                  false],
-  ['Vitamins & Supplements',           false],
-  ['Medical Equipments',               false],
-  ['Personal Care & Grooming',         false],
-  ['Mother & Baby',                    false],
-  ['Skin Care & Dermatology',          false],
-  ['Preventive Medicines',             false],
-  ['Smoke Cessation',                  false],
-  ['Allergy,Cold,Flu & Coughs',        false],
-  ['Antihypertensives',                true],
-  ['Vaccines',                         true],
-  ['Prescriptions & Specialised Care', true],
-  ['Diabetes & Weightloss',            true],
+  ['Wound Dressings',                  'wound-dressings',                 false],
+  ['Vitamins & Supplements',           'vitamins-and-health-supplements', false],
+  ['Medical Equipments',               'medical-equipment',               false],
+  ['Personal Care & Grooming',         'personal-care-and-grooming',      false],
+  ['Mother & Baby',                    'mother-and-baby',                 false],
+  ['Skin Care & Dermatology',          'skin-care-dermatology',           false],
+  ['Preventive Medicines',             'preventive-medicine',             false],
+  ['Smoke Cessation',                  'smoke-cessation',                 false],
+  ['Allergy, Cold, Flu & Coughs',      'alllergy-cold-and-flu',           false],
+  ['Antihypertensives',                'blood-pressure-medicine',         true],
+  ['Vaccines',                         'vaccins-and-immunization',        true],
+  ['Prescriptions & Specialised Care', 'prescription',                    true],
+  ['Diabetes & Weightloss',            'diabetes',                        true],
 ];
 
-/* Finds the WooCommerce category by name and returns its link (falls back to a slug link) */
+/* Finds the WooCommerce category by slug and returns its link (falls back to ?product_cat=slug on the shop page) */
 if (!function_exists('fd_cat_link')) {
-  function fd_cat_link($name, $shop_url) {
-    $t = function_exists('get_term_by') ? get_term_by('name', $name, 'product_cat') : false;
+  function fd_cat_link($slug, $shop_url) {
+    $t = function_exists('get_term_by') ? get_term_by('slug', $slug, 'product_cat') : false;
     if ($t && !is_wp_error($t)) {
       $l = get_term_link($t);
       if (!is_wp_error($l)) return $l;
     }
-    return add_query_arg('product_cat', sanitize_title($name), $shop_url);
+    return add_query_arg('product_cat', $slug, $shop_url);
   }
 }
 ?>
@@ -760,16 +760,23 @@ if (!function_exists('fd_cat_link')) {
 
 /* ============================================================
    SHOP BY CATEGORY DROPDOWN (desktop)
+   2 columns to keep the dropdown short, every category
+   sits in its own grey bordered, rounded box.
    ============================================================ */
 .navbar-list > li.has-dropdown { position: relative; }
 .navbar-list > li.has-dropdown > a .caret { font-size: 10px; opacity: .8; }
 
 .cat-dropdown {
-  position: absolute; top: 100%; left: 0; min-width: 290px;
+  position: absolute; top: 100%; left: 0;
+  width: 580px; max-width: calc(100vw - 40px);
+  box-sizing: border-box;
   background: #fff; border-radius: 0 0 var(--radius) var(--radius);
   border-top: 3px solid var(--gold);
   box-shadow: 0 14px 36px rgba(0,0,0,.2);
-  list-style: none; margin: 0; padding: 6px 0; z-index: 600;
+  list-style: none; margin: 0; padding: 12px; z-index: 600;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
   opacity: 0; visibility: hidden; transform: translateY(8px);
   transition: opacity .2s ease, transform .2s ease, visibility .2s;
 }
@@ -777,17 +784,25 @@ if (!function_exists('fd_cat_link')) {
 .navbar-list > li.has-dropdown:focus-within .cat-dropdown {
   opacity: 1; visibility: visible; transform: translateY(0);
 }
-.cat-dropdown li { list-style: none; }
+.cat-dropdown li { list-style: none; margin: 0; padding: 0; }
 .cat-dropdown li a {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 10px 18px; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  height: 100%; box-sizing: border-box;
+  padding: 10px 14px; font-size: 13px; font-weight: 700;
   font-family: var(--font-head); color: var(--navy); text-decoration: none;
-  transition: background .15s, color .15s, padding-left .15s;
+  background: #fff;
+  border: 1.5px solid #c9ced6;
+  border-radius: 10px;
+  transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-.cat-dropdown li a:hover { background: var(--blue-light); color: var(--blue); padding-left: 24px; }
+.cat-dropdown li a:hover {
+  background: var(--blue-light); color: var(--blue);
+  border-color: #9aa3b2;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
 .cat-rx {
   background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 800;
-  padding: 2px 7px; border-radius: 10px; white-space: nowrap;
+  padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
 }
 
 /* ============================================================
@@ -1088,8 +1103,8 @@ if (!function_exists('fd_cat_link')) {
     if ($label === 'Shop') {
       echo '<a href="' . esc_url($url) . '"' . ($active ? ' class="active"' : '') . '>Shop (all products)</a>';
       echo '<details class="mob-cats"><summary>Shop by Category &#9662;</summary>';
-      foreach ($fd_shop_cats as [$cname, $rx]) {
-        echo '<a href="' . esc_url(fd_cat_link($cname, $url)) . '">' . esc_html($cname) . ($rx ? ' (Rx)' : '') . '</a>';
+      foreach ($fd_shop_cats as [$cname, $cslug, $rx]) {
+        echo '<a href="' . esc_url(fd_cat_link($cslug, $url)) . '">' . esc_html($cname) . ($rx ? ' (Rx)' : '') . '</a>';
       }
       echo '</details>';
     } else {
@@ -1334,12 +1349,12 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
       ];
       foreach ($nav_links as [$href, $label, $active]) {
         if ($label === 'Shop') {
-          /* Shop by Category: click = shop page, hover = category dropdown */
+          /* Shop by Category: click = shop page, hover = category dropdown (2 columns) */
           echo '<li class="has-dropdown">';
           echo '<a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>Shop by Category <span class="caret">&#9662;</span></a>';
           echo '<ul class="cat-dropdown">';
-          foreach ($fd_shop_cats as [$cname, $rx]) {
-            echo '<li><a href="' . esc_url(fd_cat_link($cname, $href)) . '">' . esc_html($cname)
+          foreach ($fd_shop_cats as [$cname, $cslug, $rx]) {
+            echo '<li><a href="' . esc_url(fd_cat_link($cslug, $href)) . '"><span>' . esc_html($cname) . '</span>'
                . ($rx ? '<span class="cat-rx">Rx</span>' : '') . '</a></li>';
           }
           echo '</ul></li>';
