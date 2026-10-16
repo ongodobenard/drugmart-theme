@@ -36,6 +36,10 @@ $diabetic_url   = fd_cat_url(['diabetic','diabetes','diabetic-care','diabetes-ca
 $infant_url     = fd_cat_url(['infant-baby','infant','baby','baby-formula','infant-formula']);
 $skincare_url   = fd_cat_url(['skincare','skin-care','skin','beauty-skincare','beauty']);
 $ultrasound_url = home_url('/ultra-sound-service/');
+
+/* Prescription promo card: change this URL if your prescription page has a different slug */
+$prescription_url = home_url('/prescription/');
+
 $shop_url       = function_exists('wc_get_page_id')
     ? esc_url( get_permalink( wc_get_page_id('shop') ) )
     : home_url('/shop/');
@@ -130,7 +134,7 @@ function fd_render_product_card() {
                 <div class="fp-cat-label"><?php echo $cat_name; ?></div>
             <?php endif; ?>
             <a href="<?php echo esc_url($url); ?>" class="fp-prod-name"><?php echo esc_html($title); ?></a>
-                       <div class="fp-price-row">
+            <div class="fp-price-row">
                 <?php if ( $on_sale && $reg ) : ?>
                     <span class="fp-reg-price"><?php echo wc_price($reg); ?></span>
                     <span class="fp-sale-price"><?php echo wc_price($sale); ?></span>
@@ -270,6 +274,7 @@ if (
     --fd-border:      #edf0f5;
     --fd-font-head:   'Nunito', sans-serif;
     --fd-font-body:   'Lato', sans-serif;
+    --fd-btn-radius:  6px;
 }
 
 /* No sidebar: the page body is a single full-width column */
@@ -376,7 +381,7 @@ if (
 .fd-hero-btn-primary {
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--fd-gold); color: var(--fd-blue-navy);
-    font-size: 13.5px; font-weight: 800; padding: 13px 30px; border-radius: 50px;
+    font-size: 13.5px; font-weight: 800; padding: 13px 30px; border-radius: var(--fd-btn-radius);
     text-decoration: none; font-family: var(--fd-font-body);
     box-shadow: 0 8px 22px rgba(0,0,0,.30); white-space: nowrap;
     transition: transform .18s, box-shadow .2s;
@@ -385,7 +390,7 @@ if (
 .fd-hero-btn-blue {
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--fd-blue); color: #fff;
-    font-size: 13.5px; font-weight: 800; padding: 13px 30px; border-radius: 50px;
+    font-size: 13.5px; font-weight: 800; padding: 13px 30px; border-radius: var(--fd-btn-radius);
     text-decoration: none; font-family: var(--fd-font-body);
     box-shadow: 0 8px 22px rgba(13,33,79,.35); white-space: nowrap;
     transition: transform .18s, box-shadow .2s, background .2s;
@@ -394,7 +399,7 @@ if (
 
 .fd-hero-nav {
     position: absolute; top: 50%; transform: translateY(-50%); z-index: 8;
-    width: 42px; height: 42px; border-radius: 50%;
+    width: 42px; height: 42px; border-radius: var(--fd-btn-radius);
     background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.45);
     color: #fff; display: flex; align-items: center; justify-content: center;
     cursor: pointer; backdrop-filter: blur(6px);
@@ -437,40 +442,61 @@ if (
 }
 @media (max-width: 360px) { .fd-hero { height: 260px !important; } .fd-hero-heading { font-size: 17px !important; } }
 
-/* ══ PROMO CARDS ══ */
-.promo-cards-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; width:100%; }
-.promo-card-h    { border-radius:12px; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; min-height:90px; overflow:hidden; gap:10px; }
-.promo-left      { min-width:0; flex:1; }
-.promo-card-h h3 { font-family:var(--fd-font-body); font-size:14px; font-weight:800; margin:0 0 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.promo-upto      { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-.promo-pct       { font-size:20px; font-weight:900; font-family:var(--fd-font-body); }
-.promo-shop-btn  { flex-shrink:0; font-size:10px; font-weight:800; text-decoration:none; padding:7px 12px; border-radius:50px; white-space:nowrap; transition:background .2s; font-family:var(--fd-font-body); }
-
-.promo-vitamins { background:linear-gradient(135deg,#1d3f8f,#15306e); }
-.promo-vitamins h3, .promo-vitamins .promo-upto, .promo-vitamins .promo-pct { color:#fff; }
-.promo-vitamins .promo-shop-btn { background:rgba(255,255,255,.16); color:#fff; }
-.promo-vitamins .promo-shop-btn:hover { background:rgba(255,255,255,.28); }
-
-.promo-diabetic { background:linear-gradient(135deg,#f5a623,#e0931a); }
-.promo-diabetic h3, .promo-diabetic .promo-upto, .promo-diabetic .promo-pct { color:var(--fd-blue-navy); }
-.promo-diabetic .promo-shop-btn { background:rgba(10,18,40,.16); color:var(--fd-blue-navy); }
-.promo-diabetic .promo-shop-btn:hover { background:rgba(10,18,40,.28); }
-
-.promo-infant { background:linear-gradient(135deg,#0e2358,#0a1228); }
-.promo-infant h3, .promo-infant .promo-upto, .promo-infant .promo-pct { color:#fff; }
-.promo-infant .promo-shop-btn { background:rgba(245,166,35,.20); color:var(--fd-gold); }
-.promo-infant .promo-shop-btn:hover { background:rgba(245,166,35,.32); }
+/* ══ PROMO CARDS ══
+   4 per row on desktop (taller cards), 2 x 2 on mobile.
+   The image is the full background: no colour overlay on top of it. */
+.promo-cards-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px; width: 100%;
+}
+.promo-card-h {
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; align-items: flex-start;
+    gap: 10px;
+    min-height: 240px;
+    padding: 18px;
+    border-radius: 12px;
+    background-color: var(--fd-blue);          /* only shows if the image is missing */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.promo-left { min-width: 0; width: 100%; }
+.promo-card-h h3 {
+    font-family: var(--fd-font-body); font-size: 16px; font-weight: 800;
+    margin: 0 0 4px; line-height: 1.25; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,.65), 0 0 2px rgba(0,0,0,.5);
+}
+.promo-upto {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,.65);
+}
+.promo-pct {
+    font-size: 24px; font-weight: 900; font-family: var(--fd-font-body); line-height: 1.15;
+    color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.7), 0 0 2px rgba(0,0,0,.5);
+}
+.promo-shop-btn {
+    flex-shrink: 0; font-size: 11px; font-weight: 800; text-decoration: none;
+    padding: 9px 16px; border-radius: var(--fd-btn-radius); white-space: nowrap;
+    background: var(--fd-gold); color: var(--fd-blue-navy);
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    transition: background .2s, transform .18s;
+    font-family: var(--fd-font-body);
+}
+.promo-shop-btn:hover { background: #ffb73d; transform: translateY(-1px); }
 
 /* ══ SECTION HEADER ══ */
 .fp-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
 .fp-section-title  { font-family:var(--fd-font-head); font-size:16px; font-weight:900; color:var(--fd-text); padding-left:10px; border-left:3px solid var(--fd-gold); }
 .fp-arrows         { display:flex; gap:7px; }
-.fp-arr            { width:30px; height:30px; border-radius:50%; border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color:var(--fd-text); }
+.fp-arr            { width:30px; height:30px; border-radius:var(--fd-btn-radius); border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color:var(--fd-text); }
 .fp-arr:hover      { border-color:var(--fd-blue); background:#eef1f8; color:var(--fd-blue); }
 
 /* ══ PRODUCT GRIDS ══
    Desktop: 5 products per row.
-   Mobile (≤860px): 2 per row, same as before. */
+   Mobile (≤860px): 2 per row. */
 .fp-prod-grid        { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
 .fp-prod-grid-6      { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
 .fp-prod-grid-health { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
@@ -502,13 +528,13 @@ if (
 .fp-sale-price      { font-size:15px; font-weight:900; color:var(--fd-blue); font-family:var(--fd-font-body); }
 .fp-sale-price ins  { text-decoration:none; }
 .fp-price-unavailable { font-size:12px; font-weight:700; color:var(--fd-text-light); opacity:.6; font-family:var(--fd-font-body); }
-.fp-add-btn         { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:auto; background:var(--fd-blue); color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; border:none; cursor:pointer; }
+.fp-add-btn         { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:auto; background:var(--fd-blue); color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:var(--fd-btn-radius); text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; border:none; cursor:pointer; }
 .fp-add-btn:hover   { background:var(--fd-blue-dark); }
 .fp-add-btn.fp-rx-btn { background:#e53935; }
 .fp-add-btn.fp-rx-btn:hover { background:#c62828; }
 .fp-add-btn.atc-loading { pointer-events:none; opacity:.7; }
 .fp-add-btn.atc-outofstock { pointer-events:none; opacity:.5; cursor:not-allowed !important; background:#c7cbd1 !important; color:#6b7280 !important; }
-.fp-wa-btn          { display:flex; align-items:center; justify-content:center; gap:7px; background:#25d366; color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; }
+.fp-wa-btn          { display:flex; align-items:center; justify-content:center; gap:7px; background:#25d366; color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:var(--fd-btn-radius); text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; }
 .fp-wa-btn:hover    { background:#1ebe5a; color:#fff; }
 .fp-no-products     { color:#888; font-size:13px; grid-column:1/-1; padding:20px 0; text-align:center; }
 
@@ -542,9 +568,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 .cv-toast-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--fd-gold); margin-bottom:3px; }
 .cv-toast-name { font-size:.85rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:10px; }
 .cv-toast-actions { display:flex; gap:8px; }
-.cv-toast-btn-cart { display:inline-flex; align-items:center; gap:5px; background:var(--fd-blue); color:#fff; padding:6px 12px; border-radius:8px; font-size:.72rem; font-weight:800; text-decoration:none; transition:background .2s; white-space:nowrap; }
+.cv-toast-btn-cart { display:inline-flex; align-items:center; gap:5px; background:var(--fd-blue); color:#fff; padding:6px 12px; border-radius:var(--fd-btn-radius); font-size:.72rem; font-weight:800; text-decoration:none; transition:background .2s; white-space:nowrap; }
 .cv-toast-btn-cart:hover { background:var(--fd-blue-dark); color:#fff; }
-.cv-toast-btn-close { display:inline-flex; align-items:center; background:rgba(255,255,255,.1); color:rgba(255,255,255,.7); padding:6px 10px; border-radius:8px; border:none; cursor:pointer; font-size:.72rem; font-weight:700; transition:background .2s; font-family:var(--fd-font-body); }
+.cv-toast-btn-close { display:inline-flex; align-items:center; background:rgba(255,255,255,.1); color:rgba(255,255,255,.7); padding:6px 10px; border-radius:var(--fd-btn-radius); border:none; cursor:pointer; font-size:.72rem; font-weight:700; transition:background .2s; font-family:var(--fd-font-body); }
 .cv-toast-btn-close:hover { background:rgba(255,255,255,.2); color:#fff; }
 .cv-toast-progress { position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,.15); border-radius:0 0 14px 14px; overflow:hidden; }
 .cv-toast-progress-bar { height:100%; width:100%; background:var(--fd-blue); transform-origin:left; animation:none; }
@@ -557,10 +583,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 .fp-newsletter-wrap { max-width:1380px; width:100%; margin:0 auto; padding:0 20px 20px; }
 .fp-newsletter h2   { font-family:var(--fd-font-head); font-size:24px; font-weight:900; color:var(--fd-text); margin:0 0 7px; }
 .fp-newsletter p    { color:var(--fd-text-light); font-size:13px; margin:0 0 20px; }
-.fp-nl-form         { display:flex; max-width:520px; width:100%; margin:0 auto; border-radius:50px; overflow:hidden; box-shadow:0 6px 20px rgba(13,33,79,.10); background:#fff; }
-.fp-nl-form input[type="email"]              { flex:1; border:none; outline:none; padding:12px 20px; font-size:13px; color:#333; min-width:0; font-family:var(--fd-font-body); }
+.fp-nl-form         { display:flex; gap:6px; max-width:520px; width:100%; margin:0 auto; padding:5px; border-radius:10px; overflow:hidden; box-shadow:0 6px 20px rgba(13,33,79,.10); background:#fff; }
+.fp-nl-form input[type="email"]              { flex:1; border:none; outline:none; padding:12px 16px; font-size:13px; color:#333; min-width:0; font-family:var(--fd-font-body); }
 .fp-nl-form input[type="email"]::placeholder { color:#aaa; }
-.fp-nl-form button  { background:var(--fd-blue); color:#fff; border:none; padding:12px 22px; font-size:11px; font-weight:800; cursor:pointer; font-family:var(--fd-font-body); display:flex; align-items:center; gap:6px; white-space:nowrap; transition:background .2s; flex-shrink:0; }
+.fp-nl-form button  { background:var(--fd-blue); color:#fff; border:none; padding:12px 22px; border-radius:var(--fd-btn-radius); font-size:11px; font-weight:800; cursor:pointer; font-family:var(--fd-font-body); display:flex; align-items:center; gap:6px; white-space:nowrap; transition:background .2s; flex-shrink:0; }
 .fp-nl-form button:hover { background:var(--fd-blue-dark); }
 .nl-success { color:var(--fd-blue); font-weight:700; font-size:13px; margin-top:12px; }
 
@@ -569,7 +595,15 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .page-body { padding:10px; }
     .site-main  { gap:10px; }
     .fp-pad     { padding:14px 12px; }
-    .promo-cards-row  { grid-template-columns:1fr; gap:8px; }
+
+    /* Promo cards: 2 x 2 */
+    .promo-cards-row  { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .promo-card-h     { min-height:180px; padding:12px; gap:8px; border-radius:10px; }
+    .promo-card-h h3  { font-size:12.5px; }
+    .promo-upto       { font-size:9px; }
+    .promo-pct        { font-size:18px; }
+    .promo-shop-btn   { font-size:10px; padding:7px 12px; }
+
     .fp-prod-grid     { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-6   { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
@@ -582,6 +616,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 }
 @media (max-width:480px) {
     .page-body  { padding:8px; }
+    .promo-card-h   { min-height:160px; padding:10px; }
+    .promo-card-h h3 { font-size:11.5px; }
+    .promo-pct      { font-size:16px; }
+    .promo-shop-btn { font-size:9px; padding:6px 10px; }
     .fp-prod-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
     .fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
     .fp-prod-name   { font-size:12px; }
@@ -590,9 +628,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .fp-img-wrap img { max-height:90px; }
     .fp-add-btn,.fp-wa-btn { font-size:9px; padding:7px 5px; gap:2px; }
     .fp-newsletter-wrap { padding:0 8px 8px; }
-    .fp-nl-form { flex-direction:column; border-radius:8px; }
-    .fp-nl-form input[type="email"] { padding:12px 16px; border-radius:8px 8px 0 0; }
-    .fp-nl-form button { justify-content:center; border-radius:0 0 8px 8px; }
+    .fp-nl-form { flex-direction:column; border-radius:10px; }
+    .fp-nl-form input[type="email"] { padding:12px 14px; border-radius:var(--fd-btn-radius); }
+    .fp-nl-form button { justify-content:center; border-radius:var(--fd-btn-radius); }
 }
 @media (max-width:320px) {
     .fp-prod-grid,.fp-prod-grid-6,.fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
@@ -743,9 +781,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             </div>
         </div>
 
-        <!-- PROMO CARDS -->
+        <!-- PROMO CARDS — 4 per row on desktop, 2 x 2 on mobile; image is the full background -->
         <div class="promo-cards-row">
-            <div class="promo-card-h promo-vitamins">
+
+            <div class="promo-card-h promo-vitamins" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.png' ); ?>');">
                 <div class="promo-left">
                     <h3>Vitamins &amp; Supplements</h3>
                     <div class="promo-upto">UP TO</div>
@@ -753,7 +792,8 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
                 <a href="<?php echo esc_url($vitamins_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
             </div>
-            <div class="promo-card-h promo-diabetic">
+
+            <div class="promo-card-h promo-diabetic" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/diabeticbg.png' ); ?>');">
                 <div class="promo-left">
                     <h3>Diabetic &amp; Wellness</h3>
                     <div class="promo-upto">UP TO</div>
@@ -761,7 +801,8 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
                 <a href="<?php echo esc_url($diabetic_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
             </div>
-            <div class="promo-card-h promo-infant">
+
+            <div class="promo-card-h promo-infant" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.png' ); ?>');">
                 <div class="promo-left">
                     <h3>Infant &amp; Baby Formula</h3>
                     <div class="promo-upto">UP TO</div>
@@ -769,6 +810,16 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
                 <a href="<?php echo esc_url($infant_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
             </div>
+
+            <div class="promo-card-h promo-prescription" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/prescriptionbg.png' ); ?>');">
+                <div class="promo-left">
+                    <h3>Prescription Medicines</h3>
+                    <div class="promo-upto">UPLOAD &amp; ORDER</div>
+                    <div class="promo-pct">Rx Made Easy</div>
+                </div>
+                <a href="<?php echo esc_url($prescription_url); ?>" class="promo-shop-btn">&rarr; SUBMIT NOW</a>
+            </div>
+
         </div>
 
         <?php if ( function_exists('wc_get_page_id') ) :
