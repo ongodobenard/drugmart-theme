@@ -23,85 +23,96 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 
 /* ============================================================
    ABOUT US + ULTRASOUND SECTION
+   Full-width background image, centered content
    ============================================================ */
 .footer-about-section {
-  background: #0a1228;
+  position: relative;
   width: 100%;
   margin-bottom: 14px;
+  overflow: hidden;
+  background-color: #0a1228;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Slight dark tint so the text stays readable while the photo still shows */
+.footer-about-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10,18,40,.62);
 }
 
 .footer-about-inner {
-  max-width: 1300px;
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  align-items: stretch;
-  min-height: 235px;
-}
-
-.footer-about-text {
-  padding: 22px 48px 10px;
-  height: 100%;
+  padding: 70px 24px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
+  align-items: center;
+  text-align: center;
 }
 
 .footer-about-eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
   color: var(--teal-bright);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-family: var(--font-body);
 }
 
-.footer-about-text h3 {
+.footer-about-inner h3 {
   font-family: var(--font-head);
-  font-size: 17px;
+  font-size: clamp(22px, 3vw, 34px);
   font-weight: 900;
-  color: var(--teal-bright);
-  margin: 0 0 10px;
-  line-height: 1.3;
+  color: #fff;
+  margin: 0 0 18px;
+  line-height: 1.25;
+  text-shadow: 0 2px 10px rgba(0,0,0,.4);
 }
 
-.footer-about-text p {
-  font-size: 13.5px;
-  line-height: 1.75;
-  color: rgba(255,255,255,.58);
+.footer-about-inner p {
+  font-size: 15px;
+  line-height: 1.8;
+  color: rgba(255,255,255,.92);
   font-family: var(--font-body);
-  margin: 0 0 12px;
-  max-width: 540px;
+  margin: 0 0 14px;
+  max-width: 780px;
+  text-shadow: 0 1px 6px rgba(0,0,0,.4);
 }
 
 .footer-scan-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  justify-content: center;
+  gap: 10px;
   list-style: none;
-  margin: 6px 0 14px;
+  margin: 12px 0 22px;
   padding: 0;
-  max-width: 560px;
+  max-width: 780px;
 }
 .footer-scan-list li {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
+  gap: 7px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #fff;
-  background: rgba(0,180,216,.15);
-  border: 1px solid var(--teal);
+  background: rgba(10,18,40,.55);
+  border: 1px solid rgba(0,229,255,.55);
   border-radius: 6px;
-  padding: 5px 10px;
+  padding: 7px 14px;
   font-family: var(--font-body);
   white-space: nowrap;
+  backdrop-filter: blur(4px);
 }
 .footer-scan-list li::before {
   content: '';
-  width: 4px; height: 4px;
+  width: 5px; height: 5px;
   border-radius: 50%;
   background: var(--teal-bright);
   flex-shrink: 0;
@@ -110,35 +121,25 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .footer-about-license {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(0,180,216,.30);
+  justify-content: center;
+  gap: 9px;
+  background: rgba(10,18,40,.65);
+  border: 1px solid rgba(0,229,255,.45);
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 11px 18px;
   font-family: var(--font-body);
   width: fit-content;
+  max-width: 100%;
+  backdrop-filter: blur(4px);
 }
-.footer-about-license svg { flex-shrink: 0; color: var(--teal-bright); width: 14px; height: 14px; }
+.footer-about-license svg { flex-shrink: 0; color: var(--teal-bright); width: 16px; height: 16px; }
 .footer-about-license span {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: rgba(255,255,255,.72);
+  color: #fff;
   line-height: 1.4;
 }
 .footer-about-license strong { color: var(--teal-bright); }
-
-.footer-about-img-wrap {
-  width: 100%;
-  height: 100%;
-  min-height: 235px;
-  overflow: hidden;
-}
-.footer-about-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 65% center;
-  display: block;
-}
 
 /* ============================================================
    CONTACT BAR
@@ -167,12 +168,13 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   flex: 1 1 200px;
 }
 
+/* Plain icon: no pill / badge / box behind it */
 .fc-icon {
-  width: 46px;
-  height: 46px;
-  background: rgba(245,166,35,.10);
-  border: 1.5px solid rgba(245,166,35,.30);
-  border-radius: 12px;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -381,14 +383,15 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 }
 .contact-item:hover { color: var(--gold); }
 
+/* Plain icon: no pill / badge / box behind it */
 .contact-item-icon {
-  width: 28px; height: 28px;
-  border-radius: 7px;
-  background: rgba(245,166,35,.10);
-  border: 1px solid rgba(245,166,35,.20);
+  width: 18px; height: 18px;
+  background: none;
+  border: none;
+  border-radius: 0;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 2px;
   color: var(--gold);
 }
 
@@ -490,20 +493,15 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .footer-bottom-links a:hover { color: var(--gold); }
 
 /* ============================================================
-   FLOATING WHATSAPP BUTTON  (same shape as the "Follow Us" button)
-   - Rounded-square icon tile on the left (darker green, white outline)
-   - Rounded label bar behind/right of it (brighter green, white outline)
-   - On page load: only the icon tile shows, sitting at the right edge.
-     After a short delay the label slides out and the whole button
-     grows to the LEFT, revealing "WhatsApp Us".
+   FLOATING WHATSAPP BUTTON
    ============================================================ */
 .fab-container {
   position: fixed;
   bottom: 32px;
   right: 28px;
   z-index: 9999;
-  --fab-tile: 60px;     /* icon tile size          */
-  --fab-bar-h: 52px;    /* label bar height        */
+  --fab-tile: 60px;
+  --fab-bar-h: 52px;
   --fab-radius: 16px;
   --fab-white: rgba(255,255,255,.92);
 }
@@ -521,7 +519,6 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 .fab-main:hover  { transform: translateY(-2px); }
 .fab-main:active { transform: translateY(0) scale(.98); }
 
-/* --- Icon tile ------------------------------------------------ */
 .fab-icon-wrap {
   position: relative;
   z-index: 2;
@@ -548,7 +545,6 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
 }
 
-/* --- Label bar ------------------------------------------------ */
 .fab-label-wrap {
   position: relative;
   z-index: 1;
@@ -567,14 +563,12 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     inset 0 2px 3px rgba(255,255,255,.30),
     inset 0 -3px 5px rgba(0,0,0,.12);
 
-  /* collapsed start state */
   max-width: 0;
   opacity: 0;
   margin-left: 0;
   padding: 0;
   border-width: 0;
 
-  /* expand after the page has loaded */
   animation: fab-expand 2.4s cubic-bezier(.45,.05,.25,1) 1s forwards;
 }
 
@@ -600,7 +594,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   100% {
     max-width: 170px;
     opacity: 1;
-    margin-left: -14px;               /* tuck behind the icon tile */
+    margin-left: -14px;
     padding: 0 16px 0 22px;
     border-width: 3px 3px 3px 0;
   }
@@ -612,7 +606,6 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   100% { box-shadow: 0 0 0 0    rgba(37,211,102,0),   0 6px 16px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(0,0,0,.20); }
 }
 
-/* Respect users who prefer no motion: show final state immediately */
 @media (prefers-reduced-motion: reduce) {
   .fab-label-wrap {
     animation: none;
@@ -656,9 +649,8 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 @media (max-width: 860px) {
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .footer-contact-col { display: none; }
-  .footer-about-inner { grid-template-columns: 1fr; min-height: auto; }
-  .footer-about-img-wrap { height: 220px; min-height: 220px; }
-  .footer-about-text { padding: 24px 32px; height: auto; }
+  .footer-about-inner { padding: 56px 24px; }
+  .footer-about-inner p { font-size: 14.5px; line-height: 1.75; }
 }
 
 /* ============================================================
@@ -666,27 +658,15 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
    ============================================================ */
 @media (max-width: 640px) {
 
-  /* ── About Us + Ultrasound: text first, small image below ── */
-  .footer-about-inner {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-  }
-  .footer-about-text {
-    order: 1;
-    padding: 24px 20px 10px;
-    height: auto;
-  }
-  .footer-about-img-wrap {
-    order: 2;
-    height: 190px;
-    min-height: 190px;
-  }
-  .footer-about-text h3 { font-size: 15px; }
-  .footer-about-text p  { font-size: 13px; }
-  .footer-scan-list li  { font-size: 10.5px; padding: 4px 9px; }
-  .footer-about-license { padding: 6px 11px; }
-  .footer-about-license span { font-size: 10.5px; }
+  /* ── About Us + Ultrasound ── */
+  .footer-about-section::before { background: rgba(10,18,40,.70); }
+  .footer-about-inner { padding: 44px 16px; }
+  .footer-about-eyebrow { font-size: 11px; }
+  .footer-about-inner p { font-size: 14px; }
+  .footer-scan-list { gap: 8px; margin: 10px 0 18px; }
+  .footer-scan-list li { font-size: 12px; padding: 6px 11px; }
+  .footer-about-license { padding: 10px 14px; flex-wrap: wrap; text-align: center; }
+  .footer-about-license span { font-size: 12px; }
 
   /* ── Contact bar ── */
   .footer-contact-bar {
@@ -708,7 +688,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   .fc-block:last-child { border-bottom: none; padding-bottom: 0; }
   .fc-block:first-child { padding-top: 0; }
 
-  .fc-icon { width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0; }
+  .fc-icon { width: 28px; height: 28px; flex-shrink: 0; }
   .fc-label { font-size: 9px; letter-spacing: 1.2px; margin-bottom: 2px; }
   .fc-value { font-size: 13.5px; }
   .fc-sub   { font-size: 11.5px; }
@@ -808,8 +788,6 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     max-width: calc(50% - 5px);
   }
   .footer-contact-bar { padding: 24px 16px; }
-  .footer-about-text  { padding: 20px 16px 10px; }
-  .footer-about-img-wrap { height: 170px; min-height: 170px; }
   .site-footer-main   { padding: 28px 16px 0; }
   .footer-bottom-bar  { padding: 14px 16px; }
   .payment-bar        { padding: 18px 16px; }
@@ -817,39 +795,29 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 </style>
 
 <!-- ==================== ABOUT US + ULTRASOUND ==================== -->
-<div class="footer-about-section">
+<div class="footer-about-section" style="background-image:url('<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/ultrasound2.png'); ?>');">
   <div class="footer-about-inner">
 
-    <div class="footer-about-text">
-      <div class="footer-about-eyebrow">About Us</div>
-      <h3>Your Trusted Pharmacy and Mobile Diagnostics Partner</h3>
-      <p>Family Drugmart Kenya is a fully licensed retail pharmacy committed to making quality healthcare accessible and affordable. We offer authentic prescription medicines, over-the-counter products, supplements, and wellness essentials all in one convenient place.</p>
-      <p>For added convenience, we also provide professional home-visit ultrasound scan services across Nairobi and its environs, performed at your doorstep by qualified specialists.</p>
+    <div class="footer-about-eyebrow">About Us</div>
+    <h3>Your Trusted Pharmacy and Mobile Diagnostics Partner</h3>
+    <p>Family Drugmart Kenya is a fully licensed retail pharmacy committed to making quality healthcare accessible and affordable. We offer authentic prescription medicines, over-the-counter products, supplements, and wellness essentials all in one convenient place.</p>
+    <p>For added convenience, we also provide professional home-visit ultrasound scan services across Nairobi and its environs, performed at your doorstep by qualified specialists.</p>
 
-      <ul class="footer-scan-list">
-        <li>Thyroid Scan</li>
-        <li>Obs Scan</li>
-        <li>Breast Ultrasound</li>
-        <li>Abdominal Scan</li>
-        <li>Pelvic Scan</li>
-        <li>Testicular Scan</li>
-        <li>Scrotal Scan</li>
-        <li>Home Visit Scans</li>
-        <li>Mobile Ultrasound</li>
-      </ul>
+    <ul class="footer-scan-list">
+      <li>Thyroid Scan</li>
+      <li>Obs Scan</li>
+      <li>Breast Ultrasound</li>
+      <li>Abdominal Scan</li>
+      <li>Pelvic Scan</li>
+      <li>Testicular Scan</li>
+      <li>Scrotal Scan</li>
+      <li>Home Visit Scans</li>
+      <li>Mobile Ultrasound</li>
+    </ul>
 
-      <div class="footer-about-license">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Pharmacy and Poisons Board (PPB) Kenya License No: <strong>PPB/F/3208</strong></span>
-      </div>
-    </div>
-
-    <div class="footer-about-img-wrap">
-      <img
-        src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/ultrasound.png'); ?>"
-        alt="Ultrasound scanning services at Family Drugmart Kenya"
-        loading="lazy" decoding="async"
-      />
+    <div class="footer-about-license">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Pharmacy and Poisons Board (PPB) Kenya License No: <strong>PPB/F/3208</strong></span>
     </div>
 
   </div>
@@ -861,7 +829,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 
     <div class="fc-block">
       <div class="fc-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
       </div>
       <div>
         <div class="fc-label">Our Address</div>
@@ -871,7 +839,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 
     <div class="fc-block">
       <div class="fc-icon">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" color="#f5a623"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
       </div>
       <div>
         <div class="fc-label">WhatsApp Us</div>
@@ -882,7 +850,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 
     <div class="fc-block">
       <div class="fc-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.81a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L6.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.81a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L6.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
       </div>
       <div>
         <div class="fc-label">Call Directly</div>
@@ -978,23 +946,23 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     <div class="footer-col footer-contact-col">
       <h4>Contact Us</h4>
       <a href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo urlencode('Hello Family Drugmart Kenya! I would like to place an order.'); ?>" class="contact-item" target="_blank" rel="noopener">
-        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="#25d366" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></span>
+        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="#25d366" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></span>
         WhatsApp Us
       </a>
       <a href="tel:+254796140021" class="contact-item">
-        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.81a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L6.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.81a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 2 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L6.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
         <?php echo esc_html($phone); ?>
       </a>
       <a href="mailto:<?php echo esc_attr($email); ?>" class="contact-item">
-        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
         <?php echo esc_html($email); ?>
       </a>
       <a href="#" class="contact-item">
-        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
         <?php echo esc_html($addr); ?>
       </a>
       <a href="<?php echo esc_url(home_url('/refund')); ?>" class="contact-item">
-        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg></span>
+        <span class="contact-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg></span>
         Return &amp; Refund Policy
       </a>
     </div>
