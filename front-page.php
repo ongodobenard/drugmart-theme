@@ -37,8 +37,8 @@ $infant_url     = fd_cat_url(['infant-baby','infant','baby','baby-formula','infa
 $skincare_url   = fd_cat_url(['skincare','skin-care','skin','beauty-skincare','beauty']);
 $ultrasound_url = home_url('/ultra-sound-service/');
 
-/* Prescription promo card: change this URL if your prescription page has a different slug */
-$prescription_url = home_url('/prescription/');
+/* Prescription promo card link */
+$prescription_url = home_url('/submit-prescription/');
 
 $shop_url       = function_exists('wc_get_page_id')
     ? esc_url( get_permalink( wc_get_page_id('shop') ) )
@@ -443,8 +443,9 @@ if (
 @media (max-width: 360px) { .fd-hero { height: 260px !important; } .fd-hero-heading { font-size: 17px !important; } }
 
 /* ══ PROMO CARDS ══
-   4 per row on desktop (taller cards), 2 x 2 on mobile.
-   The image is the full background: no colour overlay on top of it. */
+   4 per row on desktop (tall cards), 2 x 2 on mobile.
+   The image fills the whole card; the text sits in a clean white panel
+   at the bottom so it is readable on every image. */
 .promo-cards-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -452,40 +453,41 @@ if (
 }
 .promo-card-h {
     position: relative; overflow: hidden;
-    display: flex; flex-direction: column;
-    justify-content: flex-end; align-items: flex-start;
-    gap: 10px;
-    min-height: 240px;
-    padding: 18px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    min-height: 260px; padding: 12px;
     border-radius: 12px;
-    background-color: var(--fd-blue);          /* only shows if the image is missing */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: var(--fd-bg-soft);
+    background-size: cover; background-position: center; background-repeat: no-repeat;
 }
-.promo-left { min-width: 0; width: 100%; }
+.promo-panel {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 100%;
+    background: rgba(255,255,255,.95);
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 4px 16px rgba(10,18,40,.18);
+}
+.promo-left { min-width: 0; flex: 1; }
 .promo-card-h h3 {
-    font-family: var(--fd-font-body); font-size: 16px; font-weight: 800;
-    margin: 0 0 4px; line-height: 1.25; color: #fff;
-    text-shadow: 0 1px 6px rgba(0,0,0,.65), 0 0 2px rgba(0,0,0,.5);
+    font-family: var(--fd-font-body); font-size: 14px; font-weight: 800;
+    margin: 0 0 2px; line-height: 1.25; color: var(--fd-blue-navy);
 }
 .promo-upto {
-    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-    color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,.65);
+    font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--fd-text-light);
 }
 .promo-pct {
-    font-size: 24px; font-weight: 900; font-family: var(--fd-font-body); line-height: 1.15;
-    color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.7), 0 0 2px rgba(0,0,0,.5);
+    font-size: 20px; font-weight: 900; font-family: var(--fd-font-body); line-height: 1.15;
+    color: var(--fd-blue);
 }
 .promo-shop-btn {
-    flex-shrink: 0; font-size: 11px; font-weight: 800; text-decoration: none;
-    padding: 9px 16px; border-radius: var(--fd-btn-radius); white-space: nowrap;
-    background: var(--fd-gold); color: var(--fd-blue-navy);
-    box-shadow: 0 4px 12px rgba(0,0,0,.25);
-    transition: background .2s, transform .18s;
+    flex-shrink: 0; font-size: 10px; font-weight: 800; text-decoration: none;
+    padding: 8px 12px; border-radius: var(--fd-btn-radius); white-space: nowrap;
+    background: var(--fd-blue); color: #fff;
+    transition: background .2s;
     font-family: var(--fd-font-body);
 }
-.promo-shop-btn:hover { background: #ffb73d; transform: translateY(-1px); }
+.promo-shop-btn:hover { background: var(--fd-blue-dark); color: #fff; }
 
 /* ══ SECTION HEADER ══ */
 .fp-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
@@ -598,11 +600,12 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 
     /* Promo cards: 2 x 2 */
     .promo-cards-row  { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-    .promo-card-h     { min-height:180px; padding:12px; gap:8px; border-radius:10px; }
-    .promo-card-h h3  { font-size:12.5px; }
-    .promo-upto       { font-size:9px; }
-    .promo-pct        { font-size:18px; }
-    .promo-shop-btn   { font-size:10px; padding:7px 12px; }
+    .promo-card-h     { min-height:200px; padding:8px; border-radius:10px; }
+    .promo-panel      { flex-direction:column; align-items:flex-start; gap:6px; padding:8px 9px; border-radius:8px; }
+    .promo-card-h h3  { font-size:11.5px; }
+    .promo-upto       { font-size:8px; }
+    .promo-pct        { font-size:15px; }
+    .promo-shop-btn   { font-size:9px; padding:6px 10px; width:100%; text-align:center; }
 
     .fp-prod-grid     { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-6   { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
@@ -616,10 +619,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 }
 @media (max-width:480px) {
     .page-body  { padding:8px; }
-    .promo-card-h   { min-height:160px; padding:10px; }
-    .promo-card-h h3 { font-size:11.5px; }
-    .promo-pct      { font-size:16px; }
-    .promo-shop-btn { font-size:9px; padding:6px 10px; }
+    .promo-card-h   { min-height:180px; }
+    .promo-card-h h3 { font-size:11px; }
+    .promo-pct      { font-size:14px; }
     .fp-prod-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
     .fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
     .fp-prod-name   { font-size:12px; }
@@ -673,7 +675,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <span class="fd-hero-tag">Kenya's Trusted Pharmacy</span>
                             <h1 class="fd-hero-heading" data-main="Expert Advice, " data-highlight="Right When You Need It"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
                         </div>
                         <div class="fd-hero-content-bottom">
@@ -699,7 +700,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <span class="fd-hero-tag">Glow Naturally</span>
                             <h1 class="fd-hero-heading" data-main="Skincare That " data-highlight="Loves You Back"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
                         </div>
                         <div class="fd-hero-content-bottom">
@@ -721,7 +721,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <span class="fd-hero-tag">Gentle Care, Trusted Brands</span>
                             <h1 class="fd-hero-heading" data-main="Everything Your " data-highlight="Baby Needs"><span class="fd-hero-heading-main"></span><span class="fd-hero-heading-highlight"></span><span class="fd-hero-cursor">|</span></h1>
                         </div>
                         <div class="fd-hero-content-bottom">
@@ -785,39 +784,47 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         <div class="promo-cards-row">
 
             <div class="promo-card-h promo-vitamins" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.png' ); ?>');">
-                <div class="promo-left">
-                    <h3>Vitamins &amp; Supplements</h3>
-                    <div class="promo-upto">UP TO</div>
-                    <div class="promo-pct">30% off</div>
+                <div class="promo-panel">
+                    <div class="promo-left">
+                        <h3>Vitamins &amp; Supplements</h3>
+                        <div class="promo-upto">UP TO</div>
+                        <div class="promo-pct">30% off</div>
+                    </div>
+                    <a href="<?php echo esc_url($vitamins_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
                 </div>
-                <a href="<?php echo esc_url($vitamins_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
             </div>
 
             <div class="promo-card-h promo-diabetic" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/diabeticbg.png' ); ?>');">
-                <div class="promo-left">
-                    <h3>Diabetic &amp; Wellness</h3>
-                    <div class="promo-upto">UP TO</div>
-                    <div class="promo-pct">25% off</div>
+                <div class="promo-panel">
+                    <div class="promo-left">
+                        <h3>Diabetic &amp; Wellness</h3>
+                        <div class="promo-upto">UP TO</div>
+                        <div class="promo-pct">25% off</div>
+                    </div>
+                    <a href="<?php echo esc_url($diabetic_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
                 </div>
-                <a href="<?php echo esc_url($diabetic_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
             </div>
 
             <div class="promo-card-h promo-infant" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.png' ); ?>');">
-                <div class="promo-left">
-                    <h3>Infant &amp; Baby Formula</h3>
-                    <div class="promo-upto">UP TO</div>
-                    <div class="promo-pct">25% off</div>
+                <div class="promo-panel">
+                    <div class="promo-left">
+                        <h3>Infant &amp; Baby Formula</h3>
+                        <div class="promo-upto">UP TO</div>
+                        <div class="promo-pct">25% off</div>
+                    </div>
+                    <a href="<?php echo esc_url($infant_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
                 </div>
-                <a href="<?php echo esc_url($infant_url); ?>" class="promo-shop-btn">&rarr; SHOP NOW</a>
             </div>
 
             <div class="promo-card-h promo-prescription" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/prescriptionbg.png' ); ?>');">
-                <div class="promo-left">
-                    <h3>Prescription Medicines</h3>
-                    <div class="promo-upto">UPLOAD &amp; ORDER</div>
-                    <div class="promo-pct">Rx Made Easy</div>
+                <div class="promo-panel">
+                    <div class="promo-left">
+                        <h3>Prescription Medicines</h3>
+                        <div class="promo-upto">UPLOAD &amp; ORDER</div>
+                        <div class="promo-pct">Rx Made Easy</div>
+                    </div>
+                    <a href="<?php echo esc_url($prescription_url); ?>" class="promo-shop-btn">&rarr; SUBMIT NOW</a>
                 </div>
-                <a href="<?php echo esc_url($prescription_url); ?>" class="promo-shop-btn">&rarr; SUBMIT NOW</a>
             </div>
 
         </div>
