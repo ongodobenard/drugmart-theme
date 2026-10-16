@@ -1,7 +1,7 @@
 <?php
 /**
  * Family Drugmart Kenya — functions.php
- * Updated: June 2026
+ * Updated: October 2026
  */
 
 if ( defined('WP_DEBUG') && WP_DEBUG ) {
@@ -78,19 +78,27 @@ function medicare_get_wa_url( $product_id ) {
 // ════════════════════════════════════════════════════════════════════════════
 // ─── PRESCRIPTION-ONLY CATEGORIES ────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
+// NOTE: has_term() does NOT count parent categories, so every Rx slug must be listed.
 function medicare_prescription_categories() {
     return array(
+        // ── Final Rx categories (client's new structure) ──
+        'prescription',                            // Prescriptions & Specialised Care
+        'blood-pressure-medicine',                 // Antihypertensives
+        'vaccins-and-immunization',                // Vaccines
+        'diabetes',                                // Diabetes & Weightloss
+
+        // ── Old categories: keep until their products are merged into the 4 above,
+        //    then delete everything below this line ──
         'oncology',
         'anti-infective',
         'brain-and-nervous-system-disorder',
-        'diabetes',
         'hormonal-and-steroids',
         'hypertension',
-        'vaccins-and-immunization',
-        'weight-management',
         'cardiovascular-and-cerebrovascular',
-        'anti-hypertension',
-        'prescription',
+        'weight-management',
+        'renal-wellbeing',
+        'reproductive-health-and-sexual-wellness',
+        'digestive-system',
     );
 }
 
@@ -114,10 +122,9 @@ add_filter('woocommerce_add_to_cart_validation', function( $passed, $product_id 
     return $passed;
 }, 10, 2);
 
-// ── UPDATED: Rx add-to-cart loop link now checks stock and returns a
-//    disabled/greyed span (reuses .atc-outofstock, styled per-page) when
-//    the product is out of stock, instead of always showing the active
-//    "Submit Prescription" link. ──
+// ── Rx add-to-cart loop link checks stock and returns a disabled/greyed span
+//    (reuses .atc-outofstock, styled per-page) when out of stock, instead of
+//    always showing the active "Submit Prescription" link. ──
 add_filter('woocommerce_loop_add_to_cart_link', function( $button, $product ) {
     if ( medicare_is_prescription_product( $product->get_id() ) ) {
         if ( ! $product->is_in_stock() ) {
@@ -149,7 +156,7 @@ function medicare_wa_button() {
     $product_id = $product->get_id();
     $wa_url     = medicare_get_wa_url( $product_id );
     ?>
-    
+    <a
         href="<?php echo esc_url( $wa_url ); ?>"
         target="_blank"
         rel="noopener noreferrer"
@@ -237,7 +244,7 @@ function medicare_filter_products() {
 
             $wa_product_url = medicare_get_wa_url( $product_id );
             $is_rx          = medicare_is_prescription_product( $product_id );
-            $in_stock       = $product->is_in_stock(); // ── used by Rx button disabled/out-of-stock check below ──
+            $in_stock       = $product->is_in_stock(); // used by Rx button disabled/out-of-stock check below
             ?>
             <div class="p-card">
               <a href="<?php the_permalink(); ?>" class="p-img-link">
@@ -265,7 +272,7 @@ function medicare_filter_products() {
                   </div>
                 <?php endif; ?>
                 <div class="p-name"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></div>
-                <!-- ── FIX: price now always shown, regardless of Rx/out-of-stock status ── -->
+                <!-- price always shown, regardless of Rx/out-of-stock status -->
                 <div class="p-price-wrap">
                   <?php if ( $sale && $price_reg ) : ?>
                     <div class="p-price-old">KES <?php echo number_format( $price_reg, 2 ); ?></div>
@@ -298,7 +305,7 @@ function medicare_filter_products() {
                       Add to Cart
                     </a>
                   <?php endif; ?>
-                  
+                  <a
                     href="<?php echo esc_url( $wa_product_url ); ?>"
                     target="_blank"
                     rel="noopener noreferrer"

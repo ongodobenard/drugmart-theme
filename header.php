@@ -7,6 +7,35 @@
 $fd_csw_tz     = new DateTimeZone('Africa/Nairobi');
 $fd_csw_end    = new DateTime('2026-10-11 23:59:59', $fd_csw_tz);
 $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
+
+/* Shop by Category: the 13 categories to keep  [name, needs Submit Prescription] */
+$fd_shop_cats = [
+  ['Wound Dressings',                  false],
+  ['Vitamins & Supplements',           false],
+  ['Medical Equipments',               false],
+  ['Personal Care & Grooming',         false],
+  ['Mother & Baby',                    false],
+  ['Skin Care & Dermatology',          false],
+  ['Preventive Medicines',             false],
+  ['Smoke Cessation',                  false],
+  ['Allergy,Cold,Flu & Coughs',        false],
+  ['Antihypertensives',                true],
+  ['Vaccines',                         true],
+  ['Prescriptions & Specialised Care', true],
+  ['Diabetes & Weightloss',            true],
+];
+
+/* Finds the WooCommerce category by name and returns its link (falls back to a slug link) */
+if (!function_exists('fd_cat_link')) {
+  function fd_cat_link($name, $shop_url) {
+    $t = function_exists('get_term_by') ? get_term_by('name', $name, 'product_cat') : false;
+    if ($t && !is_wp_error($t)) {
+      $l = get_term_link($t);
+      if (!is_wp_error($l)) return $l;
+    }
+    return add_query_arg('product_cat', sanitize_title($name), $shop_url);
+  }
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -689,7 +718,8 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
   border-top: 4px solid var(--gold);
   padding: 6px 12px;
 }
-.navbar-inner { background: var(--blue-darker); border-radius: var(--radius); overflow: hidden; }
+/* overflow:hidden removed so the Shop by Category dropdown is not clipped */
+.navbar-inner { background: var(--blue-darker); border-radius: var(--radius); }
 .navbar-list {
   display: flex; align-items: stretch; list-style: none;
   margin: 0; padding: 0 var(--page-px); flex-wrap: wrap;
@@ -729,6 +759,38 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 .nav-contact > a.active svg { stroke: white !important; }
 
 /* ============================================================
+   SHOP BY CATEGORY DROPDOWN (desktop)
+   ============================================================ */
+.navbar-list > li.has-dropdown { position: relative; }
+.navbar-list > li.has-dropdown > a .caret { font-size: 10px; opacity: .8; }
+
+.cat-dropdown {
+  position: absolute; top: 100%; left: 0; min-width: 290px;
+  background: #fff; border-radius: 0 0 var(--radius) var(--radius);
+  border-top: 3px solid var(--gold);
+  box-shadow: 0 14px 36px rgba(0,0,0,.2);
+  list-style: none; margin: 0; padding: 6px 0; z-index: 600;
+  opacity: 0; visibility: hidden; transform: translateY(8px);
+  transition: opacity .2s ease, transform .2s ease, visibility .2s;
+}
+.navbar-list > li.has-dropdown:hover .cat-dropdown,
+.navbar-list > li.has-dropdown:focus-within .cat-dropdown {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.cat-dropdown li { list-style: none; }
+.cat-dropdown li a {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 18px; font-size: 13px; font-weight: 700;
+  font-family: var(--font-head); color: var(--navy); text-decoration: none;
+  transition: background .15s, color .15s, padding-left .15s;
+}
+.cat-dropdown li a:hover { background: var(--blue-light); color: var(--blue); padding-left: 24px; }
+.cat-rx {
+  background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 800;
+  padding: 2px 7px; border-radius: 10px; white-space: nowrap;
+}
+
+/* ============================================================
    MOBILE NAV DRAWER
    ============================================================ */
 .mobile-nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 998; backdrop-filter: blur(2px); }
@@ -753,6 +815,14 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 }
 .mobile-nav .mob-contact-btn:hover { background: var(--blue-dark) !important; padding-left: 22px !important; }
 .mobile-nav .mob-contact-btn.active { background: var(--navy) !important; border-left: none !important; }
+
+/* Shop by Category (mobile drawer) */
+.mobile-nav details.mob-cats summary {
+  padding: 13px 22px; font-size: 14px; font-weight: 700; font-family: var(--font-head);
+  color: var(--navy); border-bottom: 1px solid #f0f0f0; cursor: pointer; list-style: none;
+}
+.mobile-nav details.mob-cats summary::-webkit-details-marker { display: none; }
+.mobile-nav details.mob-cats a { padding-left: 38px; font-size: 13px; font-weight: 600; }
 
 /* ============================================================
    BREADCRUMB
@@ -1013,9 +1083,18 @@ $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
     [home_url('/ultra-sound-service'), 'Ultra Sound Services', is_page('ultrasound-services') || is_page('ultra-sound-service')],
     [home_url('/refund'),              'Returns &amp; Policy', is_page('refund')],
     [home_url('/blog'),                'Blog',                 is_page('blog')],
-];
+  ];
   foreach ($mob_nav_items as [$url, $label, $active]) {
-    echo '<a href="' . esc_url($url) . '"' . ($active ? ' class="active"' : '') . '>' . wp_kses_post($label) . '</a>';
+    if ($label === 'Shop') {
+      echo '<a href="' . esc_url($url) . '"' . ($active ? ' class="active"' : '') . '>Shop (all products)</a>';
+      echo '<details class="mob-cats"><summary>Shop by Category &#9662;</summary>';
+      foreach ($fd_shop_cats as [$cname, $rx]) {
+        echo '<a href="' . esc_url(fd_cat_link($cname, $url)) . '">' . esc_html($cname) . ($rx ? ' (Rx)' : '') . '</a>';
+      }
+      echo '</details>';
+    } else {
+      echo '<a href="' . esc_url($url) . '"' . ($active ? ' class="active"' : '') . '>' . wp_kses_post($label) . '</a>';
+    }
   }
   $is_contact_page = is_page('contact');
   ?>
@@ -1254,7 +1333,19 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
         [home_url('/ultra-sound-service'), 'Ultra Sound Services', is_page('ultrasound-services') || is_page('ultra-sound-service')],
       ];
       foreach ($nav_links as [$href, $label, $active]) {
-        echo '<li><a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>' . esc_html($label) . '</a></li>';
+        if ($label === 'Shop') {
+          /* Shop by Category: click = shop page, hover = category dropdown */
+          echo '<li class="has-dropdown">';
+          echo '<a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>Shop by Category <span class="caret">&#9662;</span></a>';
+          echo '<ul class="cat-dropdown">';
+          foreach ($fd_shop_cats as [$cname, $rx]) {
+            echo '<li><a href="' . esc_url(fd_cat_link($cname, $href)) . '">' . esc_html($cname)
+               . ($rx ? '<span class="cat-rx">Rx</span>' : '') . '</a></li>';
+          }
+          echo '</ul></li>';
+        } else {
+          echo '<li><a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>' . esc_html($label) . '</a></li>';
+        }
       }
       $is_refund_page  = is_page('refund');
       $is_contact_page = is_page('contact');
