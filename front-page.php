@@ -12,20 +12,18 @@ if ( ! defined('ABSPATH') ) { die(); }
    (title, description, canonical, schema) and set them in the plugin.
    ══════════════════════════════════════════════════════════════ */
 $FD_SEO_TITLE = 'Family Drugmart | Affordable Online Pharmacy Kenya';
-$FD_SEO_DESC  = 'Affordable online pharmacy Kenya in Ruaka, Nairobi. PPB licensed. Prescribed drugs, baby formula, vitamins, skincare and ultrasound scans. Pay on delivery.';
+$FD_SEO_DESC  = 'Affordable online pharmacy Kenya in Ruaka, Nairobi. PPB licensed. Prescribed drugs, baby formula, vitamins, skin care and ultrasound scans. Pay on delivery.';
 $FD_PPB_LICENSE = 'PPB/F/3208';
 
 /* functions.php already prints a Pharmacy schema on every page (medicare_schema).
    This page prints its own fuller one below, so remove the duplicate here. */
 remove_action( 'wp_head', 'medicare_schema' );
 
-/* If an SEO plugin is active (Yoast, Rank Math, AIOSEO, SEOPress, SEO Framework), set the
-   Home page title/description in that plugin instead; these tags are skipped to avoid duplicates. */
-$fd_has_seo_plugin = defined( 'WPSEO_VERSION' )              // Yoast
-    || defined( 'RANK_MATH_VERSION' )                     // Rank Math
-    || defined( 'AIOSEO_VERSION' )                        // All in One SEO
-    || defined( 'SEOPRESS_VERSION' )                      // SEOPress
-    || defined( 'THE_SEO_FRAMEWORK_VERSION' );            // The SEO Framework
+$fd_has_seo_plugin = defined( 'WPSEO_VERSION' )
+    || defined( 'RANK_MATH_VERSION' )
+    || defined( 'AIOSEO_VERSION' )
+    || defined( 'SEOPRESS_VERSION' )
+    || defined( 'THE_SEO_FRAMEWORK_VERSION' );
 
 if ( ! $fd_has_seo_plugin ) {
 
@@ -124,9 +122,7 @@ function fd_render_product_card() {
     $cats     = get_the_terms( get_the_ID(), 'product_cat' );
     $cat_name = ( $cats && ! is_wp_error($cats) ) ? esc_html( $cats[0]->name ) : '';
 
-    /* Ultrasound Services (or any "ultrasound" category) is a booked
-       service, not a stocked product — same detection used on the
-       single-product page — so the WhatsApp button can be relabeled. */
+    /* Ultrasound Services is a booked service, not a stocked product. */
     $is_service_cat = false;
     if ( $cats && ! is_wp_error($cats) ) {
         foreach ( $cats as $__c ) {
@@ -137,10 +133,7 @@ function fd_render_product_card() {
         }
     }
 
-    /* WhatsApp button label — mirrors single-product.php logic exactly:
-       - Ultrasound/service products   → "Service Enquiry"
-       - Restricted/prescription (Rx)  → "Medicine Enquiry"
-       - Everything else (non-restricted) → "Order Via WhatsApp" */
+    /* WhatsApp button label — mirrors single-product.php logic. */
     if ( $is_service_cat ) {
         $wa_btn_label = 'Service Enquiry';
     } elseif ( $is_rx ) {
@@ -149,9 +142,6 @@ function fd_render_product_card() {
         $wa_btn_label = 'Order Via WhatsApp';
     }
 
-    /* Add-to-Cart button label for unrestricted (non-Rx) simple products:
-       - Out of stock  → "Out of Stock"
-       - In stock      → "Add to Cart" */
     $atc_btn_label = $in_stock ? 'Add to Cart' : 'Out of Stock';
     ?>
     <div class="fp-prod-card">
@@ -248,21 +238,6 @@ function fd_get_products( string $type, int $limit = 6 ) : WP_Query {
                 ]],
             ]));
             break;
-        case 'sale':
-            $sale_ids = function_exists('wc_get_product_ids_on_sale') ? wc_get_product_ids_on_sale() : [];
-            if ( ! empty($sale_ids) ) {
-                $q = new WP_Query([
-                    'post_type'      => 'product',
-                    'post_status'    => 'publish',
-                    'posts_per_page' => $limit,
-                    'post__in'       => array_slice($sale_ids, 0, $limit * 3),
-                    'orderby'        => 'date',
-                    'order'          => 'DESC',
-                ]);
-            } else {
-                $q = new WP_Query(['post_type' => 'product', 'posts_per_page' => 0]);
-            }
-            break;
         case 'trending':
             $q = new WP_Query( array_merge($base, [
                 'meta_key' => 'total_sales',
@@ -306,16 +281,34 @@ $FD_FAQS = [
       'a' => 'Delivery in Nairobi is KES 300, and it is free for orders of KES 2,500 and above. For other counties, contact us on WhatsApp for your county rate; full payment is made before dispatch.' ],
     [ 'q' => 'Do I need a prescription for Ozempic, Mounjaro, Wegovy or Rybelsus?',
       'a' => 'Yes. These are prescription-only medicines in Kenya. Upload your prescription and our pharmacist will review it, or chat with us on WhatsApp for availability and current prices.' ],
-    [ 'q' => 'Do you sell Aptamil, Kendamil and Liptomil baby formula?',
-      'a' => 'Yes. Our infant and baby section includes formula brands such as Aptamil, Kendamil and Liptomil, plus baby care and baby skincare products. Ask our pharmacist if you need help choosing a formula for your baby.' ],
+    [ 'q' => 'Do you sell baby formula in Nairobi?',
+      'a' => 'Yes. Our infant and baby section includes baby formula, baby care and baby skincare products. Ask our pharmacist if you need help choosing a formula for your baby.' ],
     [ 'q' => 'Do you stock Jamieson vitamins and supplements?',
       'a' => 'Yes. Shop Jamieson and other trusted vitamins and supplements, including multivitamins, vitamin D and omega 3.' ],
     [ 'q' => 'Where can I get an ultrasound or obs scan near Ruaka and Nairobi?',
       'a' => 'We offer in-store and home visit ultrasound scans, including obs, breast, abdominal, pelvic, testicular and scrotal scans, as well as mobile ultrasound. Book on our ultrasound page or enquire on WhatsApp.' ],
 ];
 
-/* Categories taken from functions.php (prescription category slugs) plus the shop
-   categories linked above. Each chip links to the matching category if it exists. */
+/* Info boxes (one row, 3 visible on desktop, the rest slide slowly left).
+   Each topic appears ONCE only. */
+$FD_BOXES = [
+    [ 'Prescribed Drugs Kenya',
+      'Order prescription medicine in Nairobi from a licensed pharmacy. <a href="' . esc_url( $prescription_url ) . '">Upload your prescription online</a> and our pharmacist reviews it before your order is processed.' ],
+    [ 'Diabetes &amp; Weight Management',
+      'Shop <a href="' . esc_url( $diabetic_url ) . '">diabetic care products in Kenya</a> such as glucometers and test strips. Injectables like Ozempic or Mounjaro are prescription-only; chat with our pharmacist for availability and prices.' ],
+    [ 'Baby Formula Kenya',
+      'Buy baby formula online in Kenya, plus baby milk, baby care products and <a href="' . esc_url( $infant_url ) . '">baby skincare</a>.' ],
+    [ 'Vitamins &amp; Supplements',
+      'Jamieson vitamins and other trusted supplements, from multivitamins and vitamin D to omega 3. <a href="' . esc_url( $vitamins_url ) . '">Buy vitamins online in Kenya</a>.' ],
+    [ 'Best Skin Care Products in Kenya',
+      'Find the best skin care products in Nairobi for acne, moisturising and sun protection. <a href="' . esc_url( $skincare_url ) . '">Shop skin care Kenya</a>.' ],
+    [ 'Ultrasound &amp; Obs Scans',
+      'Book an <a href="' . esc_url( $ultrasound_url ) . '">ultrasound in Ruaka and Nairobi</a>: obs, breast, abdominal, pelvic and scrotal scans, in-store or at home.' ],
+    [ 'Delivery &amp; Payment',
+      'Delivery in Nairobi is KES 300, free for orders from KES 2,500. Pay cash or M-Pesa on delivery. Other counties: contact us on WhatsApp for your rate.' ],
+];
+
+/* Category chips (one row, 5 visible on desktop, 3 on mobile, the rest slide slowly left) */
 $FD_LOCAL_CATS = [
     [ 'Prescription medicines Ruaka',                  ['prescription'] ],
     [ 'Blood pressure medicine Nairobi',               ['blood-pressure-medicine','hypertension'] ],
@@ -331,8 +324,14 @@ $FD_LOCAL_CATS = [
     [ 'Oncology (cancer care) medicines Kenya',        ['oncology'] ],
     [ 'Vitamins and supplements Ruaka',                ['vitamins-supplements','vitamins','supplements','vitamin'] ],
     [ 'Baby formula and baby care Ruaka',              ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
-    [ 'Affordable skincare Ruaka',                     ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
+    [ 'Best skin care products in Kenya',              ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
 ];
+
+/* Resolve chip URLs once (not twice) */
+$FD_CHIP_LINKS = [];
+foreach ( $FD_LOCAL_CATS as $c ) {
+    $FD_CHIP_LINKS[] = [ $c[0], fd_cat_url( $c[1] ) ];
+}
 
 $fd_pharmacy_schema = [
     '@context'     => 'https://schema.org',
@@ -369,8 +368,6 @@ $fd_faq_schema = [
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
 
 <?php
-/* Yoast SEO: Local already prints the business (Pharmacy) schema from its own settings,
-   so only print ours when Yoast Local is NOT active, to avoid duplicates. */
 $fd_has_yoast_local = defined( 'WPSEO_LOCAL_VERSION' ) || class_exists( 'WPSEO_Local_Core' );
 if ( ! $fd_has_yoast_local ) : ?>
 <script type="application/ld+json"><?php echo wp_json_encode( $fd_pharmacy_schema, JSON_UNESCAPED_SLASHES ); ?></script>
@@ -397,7 +394,6 @@ if ( ! $fd_has_yoast_local ) : ?>
     --fd-btn-radius:  6px;
 }
 
-/* No sidebar: the page body is a single full-width column */
 .page-body {
     display: block;
     max-width: 1380px; width: 100%;
@@ -407,11 +403,11 @@ if ( ! $fd_has_yoast_local ) : ?>
 
 .site-main {
     width: 100%; min-width: 0; min-height: 400px;
-    display: flex; flex-direction: column; gap: 16px; overflow: visible;
+    display: flex; flex-direction: column; gap: 22px; overflow: visible;
 }
 .fp-card { width:100%; background:#fff; border-radius:14px; border:1.5px solid var(--fd-border); overflow:visible; }
 .fp-card.gray { background:var(--fd-bg-soft); }
-.fp-pad { padding:20px; }
+.fp-pad { padding:22px; }
 
 /* ══ HERO ══ */
 @keyframes fd-fade-up {
@@ -562,10 +558,7 @@ if ( ! $fd_has_yoast_local ) : ?>
 }
 @media (max-width: 360px) { .fd-hero { height: 260px !important; } .fd-hero-heading { font-size: 17px !important; } }
 
-/* ══ PROMO CARDS ══
-   4 per row on desktop (tall cards), 2 x 2 on mobile.
-   The image fills the whole card; the text sits in a clean white panel
-   at the bottom so it is readable on every image. */
+/* ══ PROMO CARDS ══ */
 .promo-cards-row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -610,26 +603,18 @@ if ( ! $fd_has_yoast_local ) : ?>
 .promo-shop-btn:hover { background: var(--fd-blue-dark); color: #fff; }
 
 /* ══ SECTION HEADER ══ */
-.fp-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.fp-section-title  { font-family:var(--fd-font-head); font-size:16px; font-weight:900; color:var(--fd-text); padding-left:10px; border-left:3px solid var(--fd-gold); margin:0; }
-.fp-arrows         { display:flex; gap:7px; }
-.fp-arr            { width:30px; height:30px; border-radius:var(--fd-btn-radius); border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color:var(--fd-text); }
-.fp-arr:hover      { border-color:var(--fd-blue); background:#eef1f8; color:var(--fd-blue); }
+.fp-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:10px; }
+.fp-section-title  { font-family:var(--fd-font-head); font-size:17px; font-weight:900; color:var(--fd-text); padding-left:10px; border-left:3px solid var(--fd-gold); margin:0; }
+.fp-view-all       { font-family:var(--fd-font-body); font-size:12px; font-weight:800; color:var(--fd-blue); text-decoration:none; white-space:nowrap; padding:7px 12px; border:1.5px solid var(--fd-border); border-radius:var(--fd-btn-radius); background:#fff; transition:background .2s,border-color .2s; }
+.fp-view-all:hover { background:#eef1f8; border-color:var(--fd-blue); color:var(--fd-blue); }
 
-/* ══ PRODUCT GRIDS ══
-   Desktop: 5 products per row.
-   Mobile (≤860px): 2 per row. */
-.fp-prod-grid        { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
+/* ══ PRODUCT GRIDS ══ */
 .fp-prod-grid-6      { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
 .fp-prod-grid-health { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
 
-/* Sale rows fetch 6 products so mobile keeps 3 full rows of 2;
-   on desktop only the first 5 are shown. */
 @media (min-width:861px) {
     .fp-prod-grid-6 > .fp-prod-card:nth-child(n+6) { display:none; }
 }
-/* Health & Trending fetch 5 products for desktop;
-   on mobile only the first 4 are shown (2 full rows of 2). */
 @media (max-width:860px) {
     .fp-prod-grid-health > .fp-prod-card:nth-child(n+5) { display:none; }
 }
@@ -649,7 +634,6 @@ if ( ! $fd_has_yoast_local ) : ?>
 .fp-reg-price       { font-size:11px; color:#bbb; text-decoration:line-through; }
 .fp-sale-price      { font-size:15px; font-weight:900; color:var(--fd-blue); font-family:var(--fd-font-body); }
 .fp-sale-price ins  { text-decoration:none; }
-.fp-price-unavailable { font-size:12px; font-weight:700; color:var(--fd-text-light); opacity:.6; font-family:var(--fd-font-body); }
 .fp-add-btn         { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:auto; background:var(--fd-blue); color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:var(--fd-btn-radius); text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; border:none; cursor:pointer; }
 .fp-add-btn:hover   { background:var(--fd-blue-dark); }
 .fp-add-btn.fp-rx-btn { background:#e53935; }
@@ -660,7 +644,6 @@ if ( ! $fd_has_yoast_local ) : ?>
 .fp-wa-btn:hover    { background:#1ebe5a; color:#fff; }
 .fp-no-products     { color:#888; font-size:13px; grid-column:1/-1; padding:20px 0; text-align:center; }
 
-/* 5 cards across are narrower on desktop: tighten the card content a little */
 @media (min-width:861px) {
     .fp-card-body { padding:10px 10px 12px; }
     .fp-img-wrap  { height:140px; }
@@ -700,22 +683,72 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 @keyframes cvCountdown { from { transform:scaleX(1); } to { transform:scaleX(0); } }
 @media(max-width:600px) { #carevee-toast { bottom:80px; right:12px; left:12px; min-width:unset; max-width:unset; } }
 
-/* ══ SEO CONTENT ══ */
-.fp-seo-intro { font-size:14px; line-height:1.8; color:var(--fd-text-light); margin:0 0 18px; max-width:900px; }
-.fp-seo-title { font-family:var(--fd-font-head); font-size:20px; font-weight:900; color:var(--fd-text); margin:0 0 10px; padding-left:10px; border-left:3px solid var(--fd-gold); }
-.fp-seo-grid  { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
-.fp-seo-box   { background:var(--fd-bg-soft); border:1.5px solid var(--fd-border); border-radius:12px; padding:16px; }
-.fp-seo-box h3 { font-family:var(--fd-font-head); font-size:14.5px; font-weight:800; color:var(--fd-blue); margin:0 0 6px; }
+/* ══ SLOW MOVING ROWS (info boxes + category chips) ══
+   One row only. The track holds two identical groups and slides left by
+   exactly one group width, so the loop is seamless.
+   --n = how many items are visible at once. */
+@keyframes fp-marq-scroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+.fp-marq {
+    --gap: 14px;
+    --n: 3;
+    container-type: inline-size;
+    overflow: hidden;
+    width: 100%;
+}
+.fp-marq-track {
+    display: flex; width: max-content;
+    animation: fp-marq-scroll var(--dur, 70s) linear infinite;
+    will-change: transform;
+}
+.fp-marq:hover .fp-marq-track,
+.fp-marq:active .fp-marq-track,
+.fp-marq:focus-within .fp-marq-track { animation-play-state: paused; }
+.fp-marq-group { display: flex; gap: var(--gap); padding-right: var(--gap); flex-shrink: 0; }
+.fp-marq-item  { flex: 0 0 auto; width: calc((100cqw - var(--gap) * (var(--n) - 1)) / var(--n)); }
+
+/* Info boxes: 3 visible */
+.fp-marq-boxes { --n: 3; --dur: 75s; }
+.fp-seo-box {
+    height: 100%;
+    background: #fff; border: 1.5px solid var(--fd-border); border-radius: 14px;
+    padding: 18px 18px 20px; border-top: 3px solid var(--fd-gold);
+}
+.fp-seo-box h3 { font-family:var(--fd-font-head); font-size:15px; font-weight:800; color:var(--fd-blue); margin:0 0 8px; }
 .fp-seo-box p  { font-size:13px; line-height:1.7; color:var(--fd-text-light); margin:0; }
 .fp-seo-box a  { color:var(--fd-blue); font-weight:700; text-decoration:none; }
 .fp-seo-box a:hover { text-decoration:underline; }
-.fp-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-.fp-chip  { display:inline-block; padding:7px 12px; border:1.5px solid var(--fd-border); border-radius:50px; background:#fff; font-size:12px; font-weight:700; color:var(--fd-blue); text-decoration:none; transition:background .2s,border-color .2s; }
+
+/* Category chips: 5 visible */
+.fp-marq-chips { --n: 5; --gap: 10px; --dur: 90s; }
+.fp-chip {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    height: 100%; min-height: 56px; padding: 10px 14px;
+    border: 1.5px solid var(--fd-border); border-radius: 12px; background: #fff;
+    font-size: 12.5px; font-weight: 700; line-height: 1.3; color: var(--fd-blue);
+    text-decoration: none; transition: background .2s, border-color .2s;
+}
 .fp-chip:hover { background:#eef1f8; border-color:var(--fd-blue); }
-.fp-ppb       { margin-top:18px; padding:12px 16px; border:1.5px solid var(--fd-border); border-radius:10px; background:#fff; font-size:13px; font-weight:700; color:var(--fd-text); }
+
+.fp-sub-title { font-family:var(--fd-font-head); font-size:15px; font-weight:800; color:var(--fd-text); margin:26px 0 12px; }
+
+/* Plain info strip */
+.fp-info-strip { display:flex; flex-wrap:wrap; gap:10px 28px; margin-top:22px; padding:14px 18px; border:1.5px solid var(--fd-border); border-radius:12px; background:#fff; font-size:13px; color:var(--fd-text); }
+.fp-info-strip strong { color:var(--fd-blue); font-weight:800; }
+
+/* ══ SEO TEXT ══ */
+.fp-seo-intro { font-size:14px; line-height:1.8; color:var(--fd-text-light); margin:0 0 20px; max-width:900px; }
+.fp-seo-title { font-family:var(--fd-font-head); font-size:20px; font-weight:900; color:var(--fd-text); margin:0 0 10px; padding-left:10px; border-left:3px solid var(--fd-gold); }
 .fp-faq-item  { border-bottom:1px solid var(--fd-border); padding:14px 0; }
 .fp-faq-item summary { font-weight:700; font-size:14px; cursor:pointer; color:var(--fd-text); font-family:var(--fd-font-body); }
 .fp-faq-item p { font-size:13.5px; line-height:1.7; color:var(--fd-text-light); margin:10px 0 0; }
+
+/* Respect reduced-motion: stop the movement and let people swipe instead */
+@media (prefers-reduced-motion: reduce) {
+    .fp-marq { overflow-x: auto; }
+    .fp-marq-track { animation: none; }
+    .fp-marq-group[aria-hidden="true"] { display: none; }
+}
 
 /* ══ NEWSLETTER ══ */
 .fp-newsletter      { background:linear-gradient(135deg,#eef1f8 0%,#dde3f2 50%,#eef1f8 100%); border-radius:14px; padding:44px 28px; text-align:center; }
@@ -732,10 +765,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 /* ══ RESPONSIVE ══ */
 @media (max-width:860px) {
     .page-body { padding:10px; }
-    .site-main  { gap:10px; }
-    .fp-pad     { padding:14px 12px; }
+    .site-main  { gap:16px; }
+    .fp-pad     { padding:16px 12px; }
 
-    /* Promo cards: 2 x 2 */
     .promo-cards-row  { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .promo-card-h     { min-height:200px; padding:8px; border-radius:10px; }
     .promo-panel      { flex-direction:column; align-items:flex-start; gap:6px; padding:8px 9px; border-radius:8px; }
@@ -744,10 +776,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .promo-pct        { font-size:15px; }
     .promo-shop-btn   { font-size:9px; padding:6px 10px; width:100%; text-align:center; }
 
-    .fp-prod-grid     { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-6   { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-    .fp-seo-grid      { grid-template-columns:1fr; }
+    .fp-section-title { font-size:15px; }
     .fp-seo-title     { font-size:17px; }
     .fp-newsletter    { padding:28px 14px; }
     .fp-newsletter h2 { font-size:19px; }
@@ -755,27 +786,32 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .fp-add-btn,.fp-wa-btn { font-size:10px; padding:8px 6px; gap:3px; }
     .fp-btn-icon  { display:none; }
     .fp-card-body { padding:10px 8px 10px; gap:5px; }
+
+    /* Moving rows on tablet / mobile */
+    .fp-marq-boxes { --n: 2.2; --gap: 10px; }
+    .fp-marq-chips { --n: 3; --gap: 8px; }
+    .fp-chip       { font-size:11px; padding:8px 8px; min-height:54px; }
+}
+@media (max-width:560px) {
+    .fp-marq-boxes { --n: 1.15; }
 }
 @media (max-width:480px) {
     .page-body  { padding:8px; }
     .promo-card-h   { min-height:180px; }
     .promo-card-h h3 { font-size:11px; }
     .promo-pct      { font-size:14px; }
-    .fp-prod-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
+    .fp-prod-grid-6 { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
     .fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
     .fp-prod-name   { font-size:12px; }
     .fp-sale-price  { font-size:13px; }
     .fp-img-wrap    { height:110px; }
     .fp-img-wrap img { max-height:90px; }
     .fp-add-btn,.fp-wa-btn { font-size:9px; padding:7px 5px; gap:2px; }
+    .fp-view-all    { font-size:11px; padding:6px 10px; }
     .fp-newsletter-wrap { padding:0 8px 8px; }
     .fp-nl-form { flex-direction:column; border-radius:10px; }
     .fp-nl-form input[type="email"] { padding:12px 14px; border-radius:var(--fd-btn-radius); }
     .fp-nl-form button { justify-content:center; border-radius:var(--fd-btn-radius); }
-}
-@media (max-width:320px) {
-    .fp-prod-grid,.fp-prod-grid-6,.fp-prod-grid-health { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
-    .fp-add-btn,.fp-wa-btn { font-size:12px; padding:10px 14px; gap:7px; }
 }
 </style>
 
@@ -800,7 +836,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 
 <div class="page-body">
 
-    <!-- MAIN (full width, no sidebar) -->
     <main class="site-main" id="mainContent">
 
         <!-- HERO -->
@@ -832,20 +867,20 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     </div>
                 </div>
 
-                <!-- SLIDE 2 — SKINCARE -->
+                <!-- SLIDE 2 — SKIN CARE -->
                 <div class="fd-hero-slide" data-slide-index="1" data-bg="<?php echo esc_url( FD_THEME_URI . '/assets/js/images/skincare.webp' ); ?>">
                     <div class="fd-hero-slide-bg" aria-hidden="true"></div>
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h2 class="fd-hero-heading" data-main="Affordable Skincare Products " data-highlight="That Love You Back"><span class="fd-hero-heading-main">Affordable Skincare Products </span><span class="fd-hero-heading-highlight">That Love You Back</span><span class="fd-hero-cursor">|</span></h2>
+                            <h2 class="fd-hero-heading" data-main="Best Skin Care Products in Kenya: " data-highlight="Healthy, Glowing Skin"><span class="fd-hero-heading-main">Best Skin Care Products in Kenya: </span><span class="fd-hero-heading-highlight">Healthy, Glowing Skin</span><span class="fd-hero-cursor">|</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Dermatologist-trusted skincare products in Nairobi for every skin type, sourced and stocked with care.</p>
+                            <p class="fd-hero-desc">Dermatologist-trusted skin care for every skin type, sourced and stocked with care.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($skincare_url); ?>" class="fd-hero-btn-primary">
-                                    Shop Skincare
+                                    Shop Skin Care
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </a>
                             </div>
@@ -860,10 +895,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h2 class="fd-hero-heading" data-main="Baby Formula Kenya: " data-highlight="Aptamil, Kendamil &amp; Liptomil"><span class="fd-hero-heading-main">Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Aptamil, Kendamil &amp; Liptomil</span><span class="fd-hero-cursor">|</span></h2>
+                            <h2 class="fd-hero-heading" data-main="Baby Formula Kenya: " data-highlight="Gentle Care for Your Little One"><span class="fd-hero-heading-main">Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Gentle Care for Your Little One</span><span class="fd-hero-cursor">|</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">From infant formula to baby skincare, shop trusted baby care products for your little one.</p>
+                            <p class="fd-hero-desc">From baby formula to baby skincare, shop trusted baby care products for your little one.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($infant_url); ?>" class="fd-hero-btn-primary">
                                     Shop Baby Care
@@ -900,7 +935,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     </div>
                 </div>
 
-                <!-- NAV ARROWS -->
                 <button type="button" class="fd-hero-nav fd-hero-nav-prev" id="fdHeroPrev" aria-label="Previous slide">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
@@ -908,7 +942,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
 
-                <!-- DOTS — 4 -->
                 <div class="fd-hero-dots" id="fdHeroDots">
                     <button type="button" class="fd-hero-dot active" data-go-to="0" aria-label="Go to slide 1"></button>
                     <button type="button" class="fd-hero-dot" data-go-to="1" aria-label="Go to slide 2"></button>
@@ -919,7 +952,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             </div>
         </div>
 
-        <!-- PROMO CARDS — 4 per row on desktop, 2 x 2 on mobile; image is the full background -->
+        <!-- PROMO CARDS -->
         <div class="promo-cards-row">
 
             <div class="promo-card-h promo-vitamins" role="img" aria-label="Vitamins and supplements Kenya" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.webp' ); ?>');">
@@ -944,10 +977,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-infant" role="img" aria-label="Infant and baby formula Kenya" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.webp' ); ?>');">
+            <div class="promo-card-h promo-infant" role="img" aria-label="Baby formula Kenya" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
-                        <h3>Infant &amp; Baby Formula</h3>
+                        <h3>Baby Formula</h3>
                         <div class="promo-upto">UP TO</div>
                         <div class="promo-pct">25% off</div>
                     </div>
@@ -970,19 +1003,15 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 
         <?php if ( function_exists('wc_get_page_id') ) :
 
-            // Pre-fetch sale IDs once so row 1 and row 2 don't repeat products
             $fd_sale_ids = function_exists('wc_get_product_ids_on_sale') ? wc_get_product_ids_on_sale() : [];
         ?>
 
-            <!-- HEALTH PRODUCTS — 5 products fetched: 5-across desktop, first 4 shown (2 per row) on mobile -->
+            <!-- HEALTH PRODUCTS -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
                         <h2 class="fp-section-title">Health Products Kenya</h2>
-                        <div class="fp-arrows">
-                            <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                            <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-                        </div>
+                        <a class="fp-view-all" href="<?php echo esc_url($shop_url); ?>">View all &rarr;</a>
                     </div>
                     <div class="fp-prod-grid-health">
                         <?php
@@ -998,106 +1027,45 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- SALE PRODUCTS — ROW 1 (6 fetched: desktop shows 5, mobile shows all 6) -->
+            <!-- DEALS (6 fetched: desktop shows 5, mobile shows all 6) -->
             <div class="fp-card gray">
                 <div class="fp-pad">
                     <div class="fp-section-header">
                         <h2 class="fp-section-title">Affordable Pharmacy Deals Nairobi</h2>
-                        <div class="fp-arrows">
-                            <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                            <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-                        </div>
+                        <a class="fp-view-all" href="<?php echo esc_url($shop_url); ?>">View all &rarr;</a>
                     </div>
                     <div class="fp-prod-grid-6">
                         <?php
-                        if ( ! empty($fd_sale_ids) ) :
-                            $row1_ids = array_slice($fd_sale_ids, 0, 6);
+                        $q2 = null;
+                        if ( ! empty($fd_sale_ids) ) {
                             $q2 = new WP_Query([
                                 'post_type'      => 'product',
                                 'post_status'    => 'publish',
                                 'posts_per_page' => 6,
-                                'post__in'       => $row1_ids,
+                                'post__in'       => array_slice($fd_sale_ids, 0, 6),
                                 'orderby'        => 'post__in',
                             ]);
-                            if ( $q2->have_posts() ) :
-                                while ( $q2->have_posts() ) : $q2->the_post(); fd_render_product_card(); endwhile;
-                                wp_reset_postdata();
-                            else :
-                                $q2b = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'DESC']);
-                                if ( $q2b->have_posts() ) :
-                                    while ( $q2b->have_posts() ) : $q2b->the_post(); fd_render_product_card(); endwhile;
-                                    wp_reset_postdata();
-                                endif;
-                            endif;
+                        }
+                        if ( ! $q2 || ! $q2->have_posts() ) {
+                            $q2 = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'DESC']);
+                        }
+                        if ( $q2->have_posts() ) :
+                            while ( $q2->have_posts() ) : $q2->the_post(); fd_render_product_card(); endwhile;
+                            wp_reset_postdata();
                         else :
-                            $q2b = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'DESC']);
-                            if ( $q2b->have_posts() ) :
-                                while ( $q2b->have_posts() ) : $q2b->the_post(); fd_render_product_card(); endwhile;
-                                wp_reset_postdata();
-                            else :
-                                echo '<p class="fp-no-products">No products found.</p>';
-                            endif;
+                            echo '<p class="fp-no-products">No products found.</p>';
                         endif;
                         ?>
                     </div>
                 </div>
             </div>
 
-            <!-- SALE PRODUCTS — ROW 2 (6 fetched: desktop shows 5, mobile shows all 6) -->
-            <div class="fp-card">
-                <div class="fp-pad">
-                    <div class="fp-section-header">
-                        <h2 class="fp-section-title">More Sale Products</h2>
-                        <div class="fp-arrows">
-                            <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                            <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-                        </div>
-                    </div>
-                    <div class="fp-prod-grid-6">
-                        <?php
-                        if ( ! empty($fd_sale_ids) && count($fd_sale_ids) > 6 ) :
-                            $row2_ids = array_slice($fd_sale_ids, 6, 6);
-                            $q2c = new WP_Query([
-                                'post_type'      => 'product',
-                                'post_status'    => 'publish',
-                                'posts_per_page' => 6,
-                                'post__in'       => $row2_ids,
-                                'orderby'        => 'post__in',
-                            ]);
-                            if ( $q2c->have_posts() ) :
-                                while ( $q2c->have_posts() ) : $q2c->the_post(); fd_render_product_card(); endwhile;
-                                wp_reset_postdata();
-                            else :
-                                $q2d = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'ASC']);
-                                if ( $q2d->have_posts() ) :
-                                    while ( $q2d->have_posts() ) : $q2d->the_post(); fd_render_product_card(); endwhile;
-                                    wp_reset_postdata();
-                                endif;
-                            endif;
-                        else :
-                            // Not enough sale items for a distinct second row — fall back to next newest products
-                            $q2d = new WP_Query(['post_type'=>'product','post_status'=>'publish','posts_per_page'=>6,'orderby'=>'date','order'=>'ASC']);
-                            if ( $q2d->have_posts() ) :
-                                while ( $q2d->have_posts() ) : $q2d->the_post(); fd_render_product_card(); endwhile;
-                                wp_reset_postdata();
-                            else :
-                                echo '<p class="fp-no-products">No products found.</p>';
-                            endif;
-                        endif;
-                        ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TRENDING PRODUCTS — 5 products fetched: 5-across desktop, first 4 shown (2 per row) on mobile -->
+            <!-- TRENDING -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
                         <h2 class="fp-section-title">Trending Pharmacy Products</h2>
-                        <div class="fp-arrows">
-                            <button class="fp-arr" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-                            <button class="fp-arr" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-                        </div>
+                        <a class="fp-view-all" href="<?php echo esc_url($shop_url); ?>">View all &rarr;</a>
                     </div>
                     <div class="fp-prod-grid-health">
                         <?php
@@ -1115,69 +1083,56 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 
         <?php endif; ?>
 
-        <!-- ═══════════ SEO CONTENT: short, keyphrase-focused ═══════════ -->
+        <!-- ═══════════ SEO CONTENT ═══════════ -->
         <div class="fp-card gray">
             <div class="fp-pad">
                 <h2 class="fp-seo-title">Family Drugmart: Trusted Pharmacy Kenya</h2>
                 <p class="fp-seo-intro">
-                    Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. We are one of the best pharmacies in Nairobi for affordable care: buy medicine online in Kenya, order prescribed drugs, shop baby formula, vitamins and skincare, and get pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacist on WhatsApp.
+                    Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Buy medicine online in Kenya, order prescribed drugs, and get pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacist on WhatsApp.
                 </p>
 
-                <div class="fp-seo-grid">
-
-                    <div class="fp-seo-box">
-                        <h3>Prescribed Drugs Kenya</h3>
-                        <p>Order prescription medicine in Nairobi from a licensed pharmacy Kenya trusts. <a href="<?php echo esc_url($prescription_url); ?>">Upload your prescription online</a> and our pharmacist reviews it before your order is processed.</p>
-                    </div>
-
-                    <div class="fp-seo-box">
-                        <h3>Weight Loss &amp; Diabetes Medicines</h3>
-                        <p>Looking for affordable Ozempic in Kenya, cheap Mounjaro Kenya, Wegovy or Rybelsus? These are prescription-only medicines, so a valid prescription is required. Chat with our pharmacist for availability and current prices.</p>
-                    </div>
-
-                    <div class="fp-seo-box">
-                        <h3>Diabetic &amp; Weight Management</h3>
-                        <p>Shop <a href="<?php echo esc_url($diabetic_url); ?>">diabetic care products in Kenya</a>, including glucometers, blood glucose test strips and weight management products.</p>
-                    </div>
-
-                    <div class="fp-seo-box">
-                        <h3>Infant &amp; Baby Formula Kenya</h3>
-                        <p>Buy baby formula online in Kenya: Aptamil, Kendamil and Liptomil, plus baby milk, baby care products and <a href="<?php echo esc_url($infant_url); ?>">baby skincare</a>.</p>
-                    </div>
-
-                    <div class="fp-seo-box">
-                        <h3>Vitamins &amp; Supplements Kenya</h3>
-                        <p>Jamieson vitamins and other trusted supplements, from multivitamins and vitamin D to omega 3. <a href="<?php echo esc_url($vitamins_url); ?>">Buy vitamins online in Kenya</a>.</p>
-                    </div>
-
-                    <div class="fp-seo-box">
-                        <h3>Affordable Skincare Products</h3>
-                        <p>Affordable skincare products in Nairobi for acne, moisturising and sun protection. <a href="<?php echo esc_url($skincare_url); ?>">Shop skincare Kenya</a>.</p>
-                    </div>
-
-                </div>
-
-                <div class="fp-seo-box" style="margin-top:14px;">
-                    <h3>Shop Pharmacy Categories in Ruaka &amp; Nairobi</h3>
-                    <p>Prescription categories need a valid prescription, which you can upload online.</p>
-                    <div class="fp-chips">
-                        <?php foreach ( $FD_LOCAL_CATS as $c ) : ?>
-                            <a class="fp-chip" href="<?php echo esc_url( fd_cat_url( $c[1] ) ); ?>"><?php echo esc_html( $c[0] ); ?></a>
-                        <?php endforeach; ?>
+                <!-- Info boxes: ONE row, 3 visible, the rest move slowly to the left -->
+                <div class="fp-marq fp-marq-boxes" aria-label="What we offer">
+                    <div class="fp-marq-track">
+                        <?php for ( $pass = 0; $pass < 2; $pass++ ) : $is_dup = ( $pass === 1 ); ?>
+                        <div class="fp-marq-group"<?php echo $is_dup ? ' aria-hidden="true"' : ''; ?>>
+                            <?php foreach ( $FD_BOXES as $b ) :
+                                $body = $b[1];
+                                if ( $is_dup ) { $body = str_replace( '<a ', '<a tabindex="-1" ', $body ); }
+                            ?>
+                                <div class="fp-marq-item">
+                                    <div class="fp-seo-box">
+                                        <h3><?php echo $b[0]; ?></h3>
+                                        <p><?php echo $body; ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endfor; ?>
                     </div>
                 </div>
 
-                <div class="fp-seo-box" style="margin-top:14px;">
-                    <h3>Ultrasound &amp; Obs Scan Services Nairobi</h3>
-                    <p>Book an <a href="<?php echo esc_url($ultrasound_url); ?>">ultrasound in Ruaka and Nairobi</a>: obs scan, breast ultrasound, abdominal scan, pelvic scan, testicular scan and scrotal scan. We also offer home visit scans and mobile ultrasound across Nairobi.</p>
+                <h3 class="fp-sub-title">Shop Pharmacy Categories in Ruaka &amp; Nairobi</h3>
+
+                <!-- Category chips: ONE row, 5 visible (3 on mobile), the rest move slowly to the left -->
+                <div class="fp-marq fp-marq-chips" aria-label="Pharmacy categories">
+                    <div class="fp-marq-track">
+                        <?php for ( $pass = 0; $pass < 2; $pass++ ) : $is_dup = ( $pass === 1 ); ?>
+                        <div class="fp-marq-group"<?php echo $is_dup ? ' aria-hidden="true"' : ''; ?>>
+                            <?php foreach ( $FD_CHIP_LINKS as $c ) : ?>
+                                <div class="fp-marq-item">
+                                    <a class="fp-chip" href="<?php echo esc_url( $c[1] ); ?>"<?php echo $is_dup ? ' tabindex="-1"' : ''; ?>><?php echo esc_html( $c[0] ); ?></a>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endfor; ?>
+                    </div>
                 </div>
 
-                <div class="fp-seo-box" style="margin-top:14px;">
-                    <h3>Visit Us &amp; Delivery</h3>
-                    <p>Pharmacy address: <?php echo esc_html( medicare_address() ); ?>. Delivery in Nairobi is KES 300, free for orders from KES 2,500. For other counties, contact us on WhatsApp for your county rate.</p>
+                <div class="fp-info-strip">
+                    <span><strong>Address:</strong> <?php echo esc_html( medicare_address() ); ?></span>
+                    <span><strong>PPB License No:</strong> <?php echo esc_html( $FD_PPB_LICENSE ); ?></span>
                 </div>
-
-                <div class="fp-ppb">Pharmacy and Poisons Board (PPB) Kenya License No: <?php echo esc_html( $FD_PPB_LICENSE ); ?></div>
             </div>
         </div>
 
@@ -1229,8 +1184,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         var total   = slides.length;
         if (!total) return;
 
-        /* Slide 1 loads straight away; slides 2-4 load after the page has loaded
-           (or the moment a visitor navigates to them), so the first view is fast. */
         function loadSlide(i) {
             var sl = slides[i];
             if (!sl) return;
@@ -1252,8 +1205,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         var AUTOPLAY_MS = 6000;
         var TYPE_SPEED  = 35;
 
-        /* The heading text is already in the HTML (good for Google and for
-           visitors without JavaScript). The typing effect clears it and retypes it. */
         function decodeEntities(str) {
             var t = document.createElement('textarea');
             t.innerHTML = str;
