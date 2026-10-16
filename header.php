@@ -59,7 +59,7 @@ if (!function_exists('fd_cat_link')) {
   position: fixed;
   inset: 0;
   z-index: 9999999;
-  background: #0e2358;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -84,6 +84,7 @@ if (!function_exists('fd_cat_link')) {
   justify-content: center;
   box-shadow: 0 0 0 0 rgba(245,166,35,0);
   animation: fd-logo-pulse 2s ease-in-out infinite;
+  border: 2px solid #e5e9f2;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -109,7 +110,7 @@ if (!function_exists('fd_cat_link')) {
   font-family: 'Nunito', system-ui, sans-serif;
   font-size: clamp(1.1rem, 3vw, 1.45rem);
   font-weight: 900;
-  color: #fff;
+  color: #0e2358;
   letter-spacing: .12em;
   text-transform: uppercase;
 }
@@ -120,7 +121,7 @@ if (!function_exists('fd_cat_link')) {
   font-family: 'Lato', system-ui, sans-serif;
   font-size: .68rem;
   font-weight: 700;
-  color: rgba(255,255,255,.40);
+  color: #6b7280;
   letter-spacing: .3em;
   text-transform: uppercase;
 }
@@ -129,7 +130,7 @@ if (!function_exists('fd_cat_link')) {
 .fd-ld-bar-wrap {
   width: clamp(180px, 40vw, 260px);
   height: 3px;
-  background: rgba(255,255,255,.10);
+  background: #e5e9f2;
   border-radius: 3px;
   overflow: hidden;
 }
