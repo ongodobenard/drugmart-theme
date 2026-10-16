@@ -272,39 +272,21 @@ if (
     --fd-font-body:   'Lato', sans-serif;
 }
 
+/* No sidebar: the page body is a single full-width column */
 .page-body {
-    display: flex; align-items: flex-start; gap: 20px;
+    display: block;
     max-width: 1380px; width: 100%;
     margin: 0 auto; padding: 14px 20px; overflow-x: hidden;
     font-family: var(--fd-font-body);
 }
-.sidebar-wrapper {
-    width: 270px; min-width: 270px; flex-shrink: 0;
-    border-radius: 12px; overflow: visible;
-    border: 1.5px solid var(--fd-border); background: #fff;
-    position: sticky; top: 12px; align-self: flex-start; max-width: 270px;
-}
-.sidebar-wrapper:empty::after { content:''; display:block; min-height:200px; }
-.sidebar-wrapper > * { max-width:100%; overflow-x:hidden; }
 
 .site-main {
-    flex: 1; min-width: 0; min-height: 400px;
+    width: 100%; min-width: 0; min-height: 400px;
     display: flex; flex-direction: column; gap: 16px; overflow: visible;
 }
 .fp-card { width:100%; background:#fff; border-radius:14px; border:1.5px solid var(--fd-border); overflow:visible; }
 .fp-card.gray { background:var(--fd-bg-soft); }
 .fp-pad { padding:20px; }
-
-.mobile-sidebar-toggle-wrap { display:none; max-width:1380px; margin:0 auto; padding:10px 10px 0; }
-.mobile-sidebar-toggle {
-    display:flex; width:100%; align-items:center; gap:8px;
-    background:var(--fd-blue-darker); color:#fff; border:none;
-    padding:11px 14px; font-size:13px; font-weight:700;
-    font-family:var(--fd-font-body); cursor:pointer; border-radius:8px;
-}
-.tog-label { flex:1; text-align:center; }
-.tog-arrow { flex-shrink:0; transition:transform .3s; }
-.mobile-sidebar-toggle.open .tog-arrow { transform:rotate(180deg); }
 
 /* ══ HERO ══ */
 @keyframes fd-fade-up {
@@ -486,13 +468,23 @@ if (
 .fp-arr            { width:30px; height:30px; border-radius:50%; border:1.5px solid #ddd; background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:border-color .2s,background .2s; color:var(--fd-text); }
 .fp-arr:hover      { border-color:var(--fd-blue); background:#eef1f8; color:var(--fd-blue); }
 
-/* ══ PRODUCT GRIDS ══ */
-.fp-prod-grid   { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
-.fp-prod-grid-6 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+/* ══ PRODUCT GRIDS ══
+   Desktop: 5 products per row.
+   Mobile (≤860px): 2 per row, same as before. */
+.fp-prod-grid        { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
+.fp-prod-grid-6      { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
+.fp-prod-grid-health { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
 
-/* 4-product grid — used by Health Products and Trending Products:
-   4-across on desktop, 2-per-row on mobile */
-.fp-prod-grid-health { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+/* Sale rows fetch 6 products so mobile keeps 3 full rows of 2;
+   on desktop only the first 5 are shown. */
+@media (min-width:861px) {
+    .fp-prod-grid-6 > .fp-prod-card:nth-child(n+6) { display:none; }
+}
+/* Health & Trending fetch 5 products for desktop;
+   on mobile only the first 4 are shown (2 full rows of 2). */
+@media (max-width:860px) {
+    .fp-prod-grid-health > .fp-prod-card:nth-child(n+5) { display:none; }
+}
 
 /* ══ PRODUCT CARD ══ */
 .fp-prod-card       { position:relative; background:#fff; border:1.5px solid var(--fd-border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .2s,transform .2s; min-width:0; width:100%; }
@@ -519,6 +511,15 @@ if (
 .fp-wa-btn          { display:flex; align-items:center; justify-content:center; gap:7px; background:#25d366; color:#fff; font-size:12px; font-weight:800; padding:10px 14px; border-radius:8px; text-decoration:none; font-family:var(--fd-font-body); transition:background .2s; white-space:nowrap; overflow:hidden; min-width:0; width:100%; }
 .fp-wa-btn:hover    { background:#1ebe5a; color:#fff; }
 .fp-no-products     { color:#888; font-size:13px; grid-column:1/-1; padding:20px 0; text-align:center; }
+
+/* 5 cards across are narrower on desktop: tighten the card content a little */
+@media (min-width:861px) {
+    .fp-card-body { padding:10px 10px 12px; }
+    .fp-img-wrap  { height:140px; }
+    .fp-img-wrap img { max-height:116px; }
+    .fp-add-btn, .fp-wa-btn { font-size:11px; padding:9px 8px; gap:5px; }
+    .fp-sale-price { font-size:14px; }
+}
 
 .woocommerce-notices-wrapper, .woocommerce-message, .woocommerce-info,
 ul.woocommerce-error, .wc-forward { display:none !important; }
@@ -565,10 +566,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 
 /* ══ RESPONSIVE ══ */
 @media (max-width:860px) {
-    .page-body { flex-direction:column; padding:10px; gap:0; }
-    .sidebar-wrapper { width:100% !important; min-width:0 !important; max-width:100% !important; position:static !important; max-height:0; overflow:hidden; transition:max-height .4s ease; margin-bottom:0; border-radius:0; }
-    .sidebar-wrapper.open { max-height:3000px; margin-bottom:10px; overflow:visible; }
-    .mobile-sidebar-toggle-wrap { display:block; }
+    .page-body { padding:10px; }
     .site-main  { gap:10px; }
     .fp-pad     { padding:14px 12px; }
     .promo-cards-row  { grid-template-columns:1fr; gap:8px; }
@@ -621,23 +619,9 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
   <div class="cv-toast-progress"><div class="cv-toast-progress-bar" id="cv-toast-bar"></div></div>
 </div>
 
-<!-- MOBILE SIDEBAR TOGGLE -->
-<div class="mobile-sidebar-toggle-wrap">
-    <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <span class="tog-label">Browse Categories &amp; Brands</span>
-        <svg class="tog-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-    </button>
-</div>
-
 <div class="page-body">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar-wrapper" id="sidebarWrapper">
-        <?php get_sidebar(); ?>
-    </aside>
-
-    <!-- MAIN -->
+    <!-- MAIN (full width, no sidebar) -->
     <main class="site-main" id="mainContent">
 
         <!-- HERO -->
@@ -748,7 +732,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
 
-                <!-- DOTS — now 4 -->
+                <!-- DOTS — 4 -->
                 <div class="fd-hero-dots" id="fdHeroDots">
                     <button type="button" class="fd-hero-dot active" data-go-to="0" aria-label="Go to slide 1"></button>
                     <button type="button" class="fd-hero-dot" data-go-to="1" aria-label="Go to slide 2"></button>
@@ -793,7 +777,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             $fd_sale_ids = function_exists('wc_get_product_ids_on_sale') ? wc_get_product_ids_on_sale() : [];
         ?>
 
-            <!-- HEALTH PRODUCTS — 4 products: 4-across desktop, 2-per-row mobile -->
+            <!-- HEALTH PRODUCTS — 5 products fetched: 5-across desktop, first 4 shown (2 per row) on mobile -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -805,7 +789,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     </div>
                     <div class="fp-prod-grid-health">
                         <?php
-                        $q1 = fd_get_products('featured', 4);
+                        $q1 = fd_get_products('featured', 5);
                         if ( $q1->have_posts() ) :
                             while ( $q1->have_posts() ) : $q1->the_post(); fd_render_product_card(); endwhile;
                             wp_reset_postdata();
@@ -817,7 +801,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- SALE PRODUCTS — ROW 1 -->
+            <!-- SALE PRODUCTS — ROW 1 (6 fetched: desktop shows 5, mobile shows all 6) -->
             <div class="fp-card gray">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -862,7 +846,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- SALE PRODUCTS — ROW 2 (fills the space where the info section used to be) -->
+            <!-- SALE PRODUCTS — ROW 2 (6 fetched: desktop shows 5, mobile shows all 6) -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -908,7 +892,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <!-- TRENDING PRODUCTS — 4 products: 4-across desktop, 2-per-row mobile -->
+            <!-- TRENDING PRODUCTS — 5 products fetched: 5-across desktop, first 4 shown (2 per row) on mobile -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -920,7 +904,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     </div>
                     <div class="fp-prod-grid-health">
                         <?php
-                        $q3 = fd_get_products('trending', 4);
+                        $q3 = fd_get_products('trending', 5);
                         if ( $q3->have_posts() ) :
                             while ( $q3->have_posts() ) : $q3->the_post(); fd_render_product_card(); endwhile;
                             wp_reset_postdata();
@@ -957,17 +941,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 <script>
 (function () {
     'use strict';
-
-    function initSidebar() {
-        var btn = document.getElementById('mobileSidebarToggle');
-        var sb  = document.getElementById('sidebarWrapper');
-        if (!btn || !sb) return;
-        btn.addEventListener('click', function () {
-            var open = sb.classList.toggle('open');
-            btn.classList.toggle('open', open);
-            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
-    }
 
     function initHeroCarousel() {
         var hero = document.getElementById('fdHero');
@@ -1041,7 +1014,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         startAuto();
     }
 
-    function init() { initSidebar(); initHeroCarousel(); }
+    function init() { initHeroCarousel(); }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
