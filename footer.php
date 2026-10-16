@@ -795,7 +795,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
 </style>
 
 <!-- ==================== ABOUT US + ULTRASOUND ==================== -->
-<div class="footer-about-section" style="background-image:url('<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/ultrasound2.png'); ?>');">
+<div class="footer-about-section" id="footerAbout" data-bg="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/ultrasound2.webp'); ?>">
   <div class="footer-about-inner">
 
     <div class="footer-about-eyebrow">About Us</div>
@@ -886,7 +886,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
       <a href="<?php echo esc_url(home_url('/')); ?>" class="footer-logo-link">
         <div class="footer-logo-img-wrap">
           <img
-            src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/drugmart_logo.png'); ?>"
+            src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/drugmart_logo.webp'); ?>"
             alt="Family Drugmart Kenya"
             class="footer-logo-img"
             width="52" height="52"
@@ -1015,6 +1015,26 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     </span>
   </a>
 </div>
+
+<script>
+/* Load the About Us background image only when it is about to come into view */
+(function () {
+  var el = document.getElementById('footerAbout');
+  if (!el) return;
+  function load() {
+    var bg = el.getAttribute('data-bg');
+    if (bg) { el.style.backgroundImage = "url('" + bg + "')"; el.removeAttribute('data-bg'); }
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { load(); io.disconnect(); }
+    }, { rootMargin: '400px 0px' });
+    io.observe(el);
+  } else {
+    load();
+  }
+})();
+</script>
 
 <?php wp_footer(); ?>
 </body>

@@ -669,7 +669,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fd-hero" id="fdHero" role="banner" aria-roledescription="carousel" aria-label="Family Drugmart Kenya — Trusted Online Pharmacy">
 
                 <!-- SLIDE 1 — PHARMACY -->
-                <div class="fd-hero-slide active" data-slide-index="0" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/doctors2.png' ); ?>');">
+                <div class="fd-hero-slide active" data-slide-index="0" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/doctors2.webp' ); ?>');">
                     <div class="fd-hero-slide-bg" aria-hidden="true"></div>
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
@@ -694,7 +694,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
 
                 <!-- SLIDE 2 — SKINCARE -->
-                <div class="fd-hero-slide" data-slide-index="1" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/skincare.png' ); ?>');">
+                <div class="fd-hero-slide" data-slide-index="1" data-bg="<?php echo esc_url( FD_THEME_URI . '/assets/js/images/skincare.webp' ); ?>">
                     <div class="fd-hero-slide-bg" aria-hidden="true"></div>
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
@@ -715,7 +715,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
 
                 <!-- SLIDE 3 — BABY CARE -->
-                <div class="fd-hero-slide" data-slide-index="2" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/babycare.png' ); ?>');">
+                <div class="fd-hero-slide" data-slide-index="2" data-bg="<?php echo esc_url( FD_THEME_URI . '/assets/js/images/babycare.webp' ); ?>">
                     <div class="fd-hero-slide-bg" aria-hidden="true"></div>
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
@@ -736,7 +736,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
 
                 <!-- SLIDE 4 — ULTRASOUND -->
-                <div class="fd-hero-slide" data-slide-index="3" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/ultrasound2.png' ); ?>');">
+                <div class="fd-hero-slide" data-slide-index="3" data-bg="<?php echo esc_url( FD_THEME_URI . '/assets/js/images/ultrasound2.webp' ); ?>">
                     <div class="fd-hero-slide-bg" aria-hidden="true"></div>
                     <div class="fd-hero-overlay" aria-hidden="true"></div>
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
@@ -783,7 +783,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         <!-- PROMO CARDS — 4 per row on desktop, 2 x 2 on mobile; image is the full background -->
         <div class="promo-cards-row">
 
-            <div class="promo-card-h promo-vitamins" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.png' ); ?>');">
+            <div class="promo-card-h promo-vitamins" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/vitaminsbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Vitamins &amp; Supplements</h3>
@@ -794,7 +794,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-diabetic" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/diabeticbg.png' ); ?>');">
+            <div class="promo-card-h promo-diabetic" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/diabeticbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Diabetic &amp; Wellness</h3>
@@ -805,7 +805,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-infant" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.png' ); ?>');">
+            <div class="promo-card-h promo-infant" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/infantbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Infant &amp; Baby Formula</h3>
@@ -816,7 +816,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 </div>
             </div>
 
-            <div class="promo-card-h promo-prescription" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/prescriptionbg.png' ); ?>');">
+            <div class="promo-card-h promo-prescription" style="background-image:url('<?php echo esc_url( FD_THEME_URI . '/assets/js/images/prescriptionbg.webp' ); ?>');">
                 <div class="promo-panel">
                     <div class="promo-left">
                         <h3>Prescription Medicines</h3>
@@ -1011,6 +1011,24 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         var total   = slides.length;
         if (!total) return;
 
+        /* Slide 1 loads straight away; slides 2-4 load after the page has loaded
+           (or the moment a visitor navigates to them), so the first view is fast. */
+        function loadSlide(i) {
+            var sl = slides[i];
+            if (!sl) return;
+            var bg = sl.getAttribute('data-bg');
+            if (bg) {
+                sl.style.backgroundImage = "url('" + bg + "')";
+                sl.removeAttribute('data-bg');
+            }
+        }
+        function loadAllSlides() { for (var k = 1; k < slides.length; k++) loadSlide(k); }
+        if (document.readyState === 'complete') {
+            setTimeout(loadAllSlides, 300);
+        } else {
+            window.addEventListener('load', function () { setTimeout(loadAllSlides, 300); });
+        }
+
         var current     = 0;
         var autoTimer   = null;
         var AUTOPLAY_MS = 6000;
@@ -1046,6 +1064,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         function goTo(index) {
             index = ((index % total) + total) % total;
             if (index === current) return;
+            loadSlide(index);
             slides[current].classList.remove('active');
             if (dots[current]) dots[current].classList.remove('active');
             current = index;
