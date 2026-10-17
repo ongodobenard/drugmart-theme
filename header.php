@@ -22,7 +22,7 @@ $fd_shop_cats = [
   ['Antihypertensives',                'blood-pressure-medicine',         true],
   ['Vaccines',                         'vaccins-and-immunization',        true],
   ['Prescriptions & Specialised Care', 'prescription',                    true],
-  ['Diabetes & Weightloss',            'diabetes',                        true],
+  ['Diabetes & Weight Loss',            'diabetes',                        true],
 ];
 
 /* Finds the WooCommerce category by slug and returns its link (falls back to ?product_cat=slug on the shop page) */
