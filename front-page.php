@@ -222,7 +222,7 @@ function fd_render_product_card() {
 endif;
 
 if ( ! function_exists('fd_get_products') ) :
-function fd_get_products( string $type, int $limit = 6 ) : WP_Query {
+function fd_get_products( string $type, int $limit = 6, string $cat_slug = '' ) : WP_Query {
     $base = [
         'post_type'      => 'product',
         'post_status'    => 'publish',
@@ -235,6 +235,18 @@ function fd_get_products( string $type, int $limit = 6 ) : WP_Query {
                     'taxonomy' => 'product_visibility',
                     'field'    => 'name',
                     'terms'    => 'featured',
+                ]],
+            ]));
+            break;
+        case 'category':
+            $q = new WP_Query( array_merge($base, [
+                'orderby'   => 'date',
+                'order'     => 'DESC',
+                'tax_query' => [[
+                    'taxonomy'         => 'product_cat',
+                    'field'            => 'slug',
+                    'terms'            => $cat_slug,
+                    'include_children' => true,
                 ]],
             ]));
             break;
@@ -1006,7 +1018,8 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             $fd_sale_ids = function_exists('wc_get_product_ids_on_sale') ? wc_get_product_ids_on_sale() : [];
         ?>
 
-            <!-- HEALTH PRODUCTS -->
+            <!-- HEALTH PRODUCTS — pulls the 5 newest from Vitamins & Health Supplements
+                 (the Featured flag only matched 1 product). Change the slug below to use another category. -->
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
@@ -1015,7 +1028,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     </div>
                     <div class="fp-prod-grid-health">
                         <?php
-                        $q1 = fd_get_products('featured', 5);
+                        $q1 = fd_get_products('category', 5, 'vitamins-and-health-supplements');
                         if ( $q1->have_posts() ) :
                             while ( $q1->have_posts() ) : $q1->the_post(); fd_render_product_card(); endwhile;
                             wp_reset_postdata();
