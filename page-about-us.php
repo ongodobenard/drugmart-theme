@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: About Us
- * SEO: About Family Drugmart | Trusted Pharmacy in Ruaka, Nairobi
+ * SEO: About Family Drugmart | Trusted Pharmacy in Nairobi, Kenya
  */
 
 if ( ! defined('ABSPATH') ) { die(); }
@@ -11,8 +11,8 @@ if ( ! defined('ABSPATH') ) { die(); }
    If an SEO plugin is active (you use Yoast), these tags are skipped:
    set the title/description in the Yoast box under this page instead.
    ══════════════════════════════════════════════════════════════ */
-$AB_SEO_TITLE = 'About Family Drugmart | Trusted Online Pharmacy in Ruaka, Nairobi Kenya';
-$AB_SEO_DESC  = 'About Family Drugmart Kenya, a PPB licensed pharmacy in Ruaka, Nairobi. Affordable prescribed drugs, baby formula, vitamins, skincare and ultrasound scans.';
+$AB_SEO_TITLE = 'About Family Drugmart | Trusted Online Pharmacy in Nairobi Kenya';
+$AB_SEO_DESC  = 'About Family Drugmart Kenya, a PPB licensed pharmacy in Nairobi. Affordable prescribed drugs, baby formula, vitamins, skincare and ultrasound scans.';
 $AB_PPB       = 'PPB/F/3208';
 
 $ab_has_seo_plugin = defined( 'WPSEO_VERSION' )          // Yoast
@@ -71,24 +71,30 @@ function fd_cat_url( array $frags ) {
 endif;
 
 $AB_CATS = [
-    [ 'Prescription medicines Ruaka',               ['prescription'] ],
+    [ 'Prescription medicines Nairobi',             ['prescription'] ],
     [ 'Blood pressure medicine Nairobi',            ['blood-pressure-medicine','hypertension'] ],
     [ 'Diabetes and weight loss medicines Nairobi', ['diabetes','weight-management'] ],
     [ 'Vaccines and immunization Nairobi',          ['vaccins-and-immunization'] ],
-    [ 'Vitamins and supplements Ruaka',             ['vitamins-supplements','vitamins','supplements','vitamin'] ],
-    [ 'Baby formula and baby care Ruaka',           ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
-    [ 'Affordable skincare Ruaka',                  ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
+    [ 'Vitamins and supplements Nairobi',           ['vitamins-supplements','vitamins','supplements','vitamin'] ],
+    [ 'Baby formula and baby care Nairobi',         ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
+    [ 'Affordable skincare Nairobi',                ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
 ];
+
+/* Resolve chip URLs once (the chips are printed twice on mobile for the loop) */
+$AB_CHIP_LINKS = [];
+foreach ( $AB_CATS as $c ) {
+    $AB_CHIP_LINKS[] = [ $c[0], fd_cat_url( $c[1] ) ];
+}
 
 $AB_FAQS = [
     [ 'q' => 'Is Family Drugmart Kenya a licensed pharmacy?',
       'a' => 'Yes. Family Drugmart Kenya is licensed by the Pharmacy and Poisons Board (PPB) of Kenya, License No: ' . $AB_PPB . '.' ],
     [ 'q' => 'Where is Family Drugmart Kenya located?',
-      'a' => 'Our pharmacy is at ' . $ab_addr . ', serving Ruaka, Banana, Kiambu and Nairobi. We also deliver across Kenya.' ],
+      'a' => 'Our pharmacy is at ' . $ab_addr . ', serving Nairobi, Banana, Kiambu and the rest of Kenya. We also deliver across Kenya.' ],
     [ 'q' => 'What products and services does Family Drugmart offer?',
       'a' => 'We offer prescription medicines, vitamins and supplements, infant formula and baby care, diabetic and weight management products, skincare, and in-store and home visit ultrasound scans.' ],
     [ 'q' => 'Do you offer ultrasound and obs scans?',
-      'a' => 'Yes. We offer in-store scans at our Ruaka pharmacy and home visit scans across Nairobi, including obs, breast, abdominal, pelvic and scrotal scans. No referral is needed.' ],
+      'a' => 'Yes. We offer in-store scans at our Nairobi pharmacy and home visit scans across Nairobi, including obs, breast, abdominal, pelvic and scrotal scans. No referral is needed.' ],
     [ 'q' => 'Do you deliver outside Nairobi?',
       'a' => 'Yes. We deliver same day in Nairobi, next day to nearby counties such as Kiambu, Machakos, Kajiado and Murang\'a, and in 1 to 2 days to more distant counties. We confirm your delivery time on WhatsApp before dispatch.' ],
 ];
@@ -332,9 +338,15 @@ $ab_faq_schema = [
 .ab-seo h2 { font-family: var(--ab-font-head); font-size: 19px; font-weight: 900; color: var(--ab-text); margin: 0 0 10px; }
 .ab-seo p  { font-size: 13.5px; line-height: 1.8; color: var(--ab-text-light); margin: 0 0 14px; max-width: 900px; }
 .ab-seo h3 { font-family: var(--ab-font-head); font-size: 14.5px; font-weight: 800; color: var(--ab-blue); margin: 18px 0 8px; }
-.ab-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
 .ab-chip  { display: inline-block; padding: 7px 12px; border: 1.5px solid #e0e4ec; border-radius: 50px; background: #fff; font-size: 12px; font-weight: 700; color: var(--ab-blue); text-decoration: none; transition: background .2s, border-color .2s; }
 .ab-chip:hover { background: #eef1f8; border-color: var(--ab-blue); }
+
+/* Category chips — DESKTOP: normal wrapped chips, no movement.
+   The second (duplicate) group only exists for the mobile loop, so it is hidden here. */
+.ab-marq-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.ab-marq-group[aria-hidden="true"] { display: none; }
+
 .ab-ppb { margin-top: 18px; padding: 12px 16px; border: 1.5px solid #e0e4ec; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 700; color: var(--ab-text); }
 
 .ab-faq { margin-top: 24px; background: #fff; border: 1.5px solid var(--ab-border); border-radius: 16px; padding: 28px; }
@@ -384,6 +396,43 @@ $ab_faq_schema = [
   .ab-services-grid { grid-template-columns: repeat(2, 1fr); }
   .ab-delivery-grid { grid-template-columns: 1fr; }
   .ab-ultrasound-grid { grid-template-columns: 1fr; }
+
+  /* ══ CATEGORY CHIPS — MOBILE ONLY: one row, 3 visible, the rest move slowly left ══ */
+  @keyframes ab-marq-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .ab-marq {
+    --gap: 8px;
+    --n: 3;
+    container-type: inline-size;
+    overflow: hidden;
+    width: 100%;
+  }
+  .ab-marq-track {
+    display: flex; width: max-content;
+    animation: ab-marq-scroll 50s linear infinite;
+    will-change: transform;
+  }
+  .ab-marq:hover .ab-marq-track,
+  .ab-marq:active .ab-marq-track,
+  .ab-marq:focus-within .ab-marq-track { animation-play-state: paused; }
+  .ab-marq-group,
+  .ab-marq-group[aria-hidden="true"] {
+    display: flex; flex-wrap: nowrap; gap: var(--gap);
+    padding-right: var(--gap); flex-shrink: 0;
+  }
+  .ab-marq-item { flex: 0 0 auto; width: calc((100cqw - var(--gap) * (var(--n) - 1)) / var(--n)); }
+  .ab-marq .ab-chip {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    height: 100%; min-height: 54px; padding: 8px 8px;
+    border-radius: 12px; font-size: 11px; line-height: 1.3;
+  }
+
+  /* Reduced motion: no movement, let people swipe instead */
+  @media (prefers-reduced-motion: reduce) {
+    .ab-marq { overflow-x: auto; }
+    .ab-marq-track { animation: none; }
+    .ab-marq-group[aria-hidden="true"] { display: none; }
+  }
 }
 @media (max-width: 640px) {
   .ab-wrap { margin: 20px auto 40px; padding: 0 14px; }
@@ -439,13 +488,13 @@ $ab_faq_schema = [
   <div class="ab-hero">
     <div class="ab-hero-img-frame">
       <div class="ab-hero-img-wrap">
-        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/doctors.png'); ?>" alt="Family Drugmart Kenya pharmacists at our pharmacy in Ruaka, Nairobi">
+        <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/js/images/doctors.png'); ?>" alt="Family Drugmart Kenya pharmacists at our pharmacy in Nairobi">
       </div>
     </div>
     <div>
       <span class="ab-tag">About Us</span>
       <h1 class="ab-title">About <span>Family Drugmart</span> Kenya</h1>
-      <p class="ab-hero-desc">Kenya's trusted online pharmacy in Ruaka, Nairobi, serving families with quality, affordable, certified medicines, including in-store and home visit ultrasound scanning services. Licensed by the Pharmacy and Poisons Board of Kenya (PPB License No: <?php echo esc_html( $AB_PPB ); ?>).</p>
+      <p class="ab-hero-desc">Kenya's trusted online pharmacy in Nairobi, serving families with quality, affordable, certified medicines, including in-store and home visit ultrasound scanning services. Licensed by the Pharmacy and Poisons Board of Kenya (PPB License No: <?php echo esc_html( $AB_PPB ); ?>).</p>
     </div>
   </div>
 
@@ -497,7 +546,7 @@ $ab_faq_schema = [
 
   <!-- SERVICES -->
   <div class="ab-services">
-    <h2>Pharmacy Services in Ruaka &amp; Nairobi</h2>
+    <h2>Pharmacy Services in Nairobi &amp; Kenya</h2>
     <div class="ab-services-grid">
       <div class="ab-service-card">
         <div class="ab-service-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
@@ -598,14 +647,25 @@ $ab_faq_schema = [
 
   <!-- SEO CONTENT -->
   <section class="ab-seo">
-    <h2>Trusted Pharmacy Kenya: Family Drugmart in Ruaka</h2>
-    <p>Family Drugmart Kenya is a PPB licensed pharmacy at <?php echo esc_html( $ab_addr ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. We are an affordable online pharmacy in Kenya where families can buy medicine online, order prescribed drugs, shop infant formula such as Aptamil, Kendamil and Liptomil, choose Jamieson vitamins and supplements, find diabetic care products and affordable skincare, and book ultrasound scans, with delivery in Nairobi and across Kenya.</p>
+    <h2>Trusted Pharmacy Kenya: Family Drugmart in Nairobi</h2>
+    <p>Family Drugmart Kenya is a PPB licensed pharmacy at <?php echo esc_html( $ab_addr ); ?>, serving Nairobi, Banana, Kiambu and the rest of Kenya. We are an affordable online pharmacy in Kenya where families can buy medicine online, order prescribed drugs, shop infant formula such as Aptamil, Kendamil and Liptomil, choose Jamieson vitamins and supplements, find diabetic care products and affordable skincare, and book ultrasound scans, with delivery in Nairobi and across Kenya.</p>
 
     <h3>Shop by category</h3>
-    <div class="ab-chips">
-      <?php foreach ( $AB_CATS as $c ) : ?>
-        <a class="ab-chip" href="<?php echo esc_url( fd_cat_url( $c[1] ) ); ?>"><?php echo esc_html( $c[0] ); ?></a>
-      <?php endforeach; ?>
+
+    <!-- Desktop: normal wrapped chips (no movement).
+         Mobile: ONE row, 3 visible, the rest move slowly to the left. -->
+    <div class="ab-marq" aria-label="Pharmacy categories">
+      <div class="ab-marq-track">
+        <?php for ( $pass = 0; $pass < 2; $pass++ ) : $is_dup = ( $pass === 1 ); ?>
+        <div class="ab-marq-group"<?php echo $is_dup ? ' aria-hidden="true"' : ''; ?>>
+          <?php foreach ( $AB_CHIP_LINKS as $c ) : ?>
+            <div class="ab-marq-item">
+              <a class="ab-chip" href="<?php echo esc_url( $c[1] ); ?>"<?php echo $is_dup ? ' tabindex="-1"' : ''; ?>><?php echo esc_html( $c[0] ); ?></a>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <?php endfor; ?>
+      </div>
     </div>
 
     <div class="ab-ppb">Pharmacy and Poisons Board (PPB) Kenya License No: <?php echo esc_html( $AB_PPB ); ?></div>

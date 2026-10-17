@@ -84,6 +84,12 @@ $RXP_CATS = [
     [ 'Oncology (cancer care) medicines Kenya',          ['oncology'] ],
 ];
 
+/* Resolve chip URLs once (the chips are printed twice for the mobile loop) */
+$RXP_CHIP_LINKS = [];
+foreach ( $RXP_CATS as $c ) {
+    $RXP_CHIP_LINKS[] = [ $c[0], fd_cat_url( $c[1] ) ];
+}
+
 $RXP_FAQS = [
     [ 'q' => 'Can I upload my prescription online in Kenya?',
       'a' => 'Yes. Fill in the form on this page, attach a clear photo, PDF or Word copy of your prescription, and submit it. Our licensed pharmacist reviews it and contacts you by phone, WhatsApp or email.' ],
@@ -526,9 +532,14 @@ $rxp_faq_schema = [
 .rxp-seo h2 { font-family: var(--rxp-font-head); font-size: 19px; font-weight: 900; color: var(--rxp-text); margin: 0 0 10px; }
 .rxp-seo p  { font-size: 13.5px; line-height: 1.8; color: var(--rxp-text-light); margin: 0 0 14px; max-width: 900px; }
 .rxp-seo h3 { font-family: var(--rxp-font-head); font-size: 14.5px; font-weight: 800; color: var(--rxp-blue); margin: 18px 0 8px; }
-.rxp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .rxp-chip  { display: inline-block; padding: 7px 12px; border: 1.5px solid #e0e4ec; border-radius: 50px; background: #fff; font-size: 12px; font-weight: 700; color: var(--rxp-blue); text-decoration: none; transition: background .2s, border-color .2s; }
 .rxp-chip:hover { background: #eef1f8; border-color: var(--rxp-blue); }
+
+/* Category chips — DESKTOP: normal wrapped chips, no movement.
+   The second (duplicate) group only exists for the mobile loop, so it is hidden here. */
+.rxp-marq-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.rxp-marq-group[aria-hidden="true"] { display: none; }
+
 .rxp-ppb { margin-top: 18px; padding: 12px 16px; border: 1.5px solid #e0e4ec; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 700; color: var(--rxp-text); }
 
 .rxp-faq { margin-top: 24px; background: #fff; border: 1.5px solid #edf0f5; border-radius: 16px; padding: 28px; }
@@ -552,6 +563,43 @@ $rxp_faq_schema = [
   .rxp-img-col   { order: 2; }
 
   .rxp-how-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* ══ CATEGORY CHIPS — MOBILE ONLY: one row, 3 visible, the rest move slowly left ══ */
+  @keyframes rxp-marq-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .rxp-marq {
+    --gap: 8px;
+    --n: 3;
+    container-type: inline-size;
+    overflow: hidden;
+    width: 100%;
+  }
+  .rxp-marq-track {
+    display: flex; width: max-content;
+    animation: rxp-marq-scroll 60s linear infinite;
+    will-change: transform;
+  }
+  .rxp-marq:hover .rxp-marq-track,
+  .rxp-marq:active .rxp-marq-track,
+  .rxp-marq:focus-within .rxp-marq-track { animation-play-state: paused; }
+  .rxp-marq-group,
+  .rxp-marq-group[aria-hidden="true"] {
+    display: flex; flex-wrap: nowrap; gap: var(--gap);
+    padding-right: var(--gap); flex-shrink: 0;
+  }
+  .rxp-marq-item { flex: 0 0 auto; width: calc((100cqw - var(--gap) * (var(--n) - 1)) / var(--n)); }
+  .rxp-marq .rxp-chip {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    height: 100%; min-height: 54px; padding: 8px 8px;
+    border-radius: 12px; font-size: 11px; line-height: 1.3;
+  }
+
+  /* Reduced motion: no movement, let people swipe instead */
+  @media (prefers-reduced-motion: reduce) {
+    .rxp-marq { overflow-x: auto; }
+    .rxp-marq-track { animation: none; }
+    .rxp-marq-group[aria-hidden="true"] { display: none; }
+  }
 }
 @media (max-width: 640px) {
   .rxp-wrap { margin: 24px auto 40px; padding: 0 16px; }
@@ -778,10 +826,21 @@ $rxp_faq_schema = [
     <p>Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( $rxp_addr ); ?>. Upload your prescription online and our licensed pharmacist will review it, confirm availability and prices, and arrange delivery of your prescribed drugs in Ruaka, Nairobi and across Kenya. This includes prescriptions for diabetes and weight loss medicines such as Ozempic, Mounjaro, Wegovy and Rybelsus, which are only supplied with a valid prescription.</p>
 
     <h3>Prescription medicine categories</h3>
-    <div class="rxp-chips">
-      <?php foreach ( $RXP_CATS as $c ) : ?>
-        <a class="rxp-chip" href="<?php echo esc_url( fd_cat_url( $c[1] ) ); ?>"><?php echo esc_html( $c[0] ); ?></a>
-      <?php endforeach; ?>
+
+    <!-- Desktop: normal wrapped chips (no movement).
+         Mobile: ONE row, 3 visible, the rest move slowly to the left. -->
+    <div class="rxp-marq" aria-label="Prescription medicine categories">
+      <div class="rxp-marq-track">
+        <?php for ( $pass = 0; $pass < 2; $pass++ ) : $is_dup = ( $pass === 1 ); ?>
+        <div class="rxp-marq-group"<?php echo $is_dup ? ' aria-hidden="true"' : ''; ?>>
+          <?php foreach ( $RXP_CHIP_LINKS as $c ) : ?>
+            <div class="rxp-marq-item">
+              <a class="rxp-chip" href="<?php echo esc_url( $c[1] ); ?>"<?php echo $is_dup ? ' tabindex="-1"' : ''; ?>><?php echo esc_html( $c[0] ); ?></a>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <?php endfor; ?>
+      </div>
     </div>
 
     <div class="rxp-ppb">Pharmacy and Poisons Board (PPB) Kenya License No: <?php echo esc_html( $RXP_PPB ); ?></div>

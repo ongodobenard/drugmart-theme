@@ -712,7 +712,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 .fp-seo-box {
     height: 100%;
     background: #fff; border: 1.5px solid var(--fd-border); border-radius: 14px;
-    padding: 18px 18px 20px; border-top: 3px solid var(--fd-gold);
+    padding: 18px 18px 20px;
 }
 .fp-seo-box h3 { font-family:var(--fd-font-head); font-size:15px; font-weight:800; color:var(--fd-blue); margin:0 0 8px; }
 .fp-seo-box p  { font-size:13px; line-height:1.7; color:var(--fd-text-light); margin:0; }
