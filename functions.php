@@ -114,6 +114,25 @@ function medicare_prescription_url( $product_id = 0 ) {
     return $url;
 }
 
+// ─── HIDE "% OFF" BADGE AND CROSSED-OUT PRICE ON PRESCRIPTION PRODUCTS ────
+// Rx products are never treated as "on sale", so the badge and old price
+// disappear on the front page, shop page, single product page and AJAX filter.
+add_filter( 'woocommerce_product_is_on_sale', function ( $on_sale, $product ) {
+    $id = $product->is_type( 'variation' ) ? $product->get_parent_id() : $product->get_id();
+    if ( medicare_is_prescription_product( $id ) ) {
+        return false;
+    }
+    return $on_sale;
+}, 10, 2 );
+
+// Belt and braces: remove the default WooCommerce "Sale!" flash on Rx products
+add_filter( 'woocommerce_sale_flash', function ( $html, $post, $product ) {
+    if ( $product && medicare_is_prescription_product( $product->get_id() ) ) {
+        return '';
+    }
+    return $html;
+}, 10, 3 );
+
 add_filter('woocommerce_add_to_cart_validation', function( $passed, $product_id ) {
     if ( medicare_is_prescription_product( $product_id ) ) {
         wc_add_notice( 'This product requires a valid prescription. Please submit your prescription before ordering.', 'error' );
