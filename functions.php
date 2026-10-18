@@ -1512,57 +1512,50 @@ function fd_crosslink_html( $product_id ) {
     if ( has_term( $eye_slug, 'product_cat', $product_id ) ) {
         $link = get_term_link( $allergy_slug, 'product_cat' );
         if ( ! is_wp_error( $link ) ) {
-            $out .= '<div class="fd-crosslink"><span class="fd-crosslink-label">Also see:</span> <a href="' . esc_url( $link ) . '">Allergy, Cold, Flu &amp; Cough medicines &rarr;</a></div>';
+            $out .= '<div class="fd-crosslink"><span class="fd-crosslink-label">Also see:</span> <a href="' . esc_url( $link ) . '">Allergy, Cold, Flu &amp; Cough medicines</a></div>';
         }
     }
 
     if ( has_term( $allergy_slug, 'product_cat', $product_id ) ) {
         $link = get_term_link( $eye_slug, 'product_cat' );
         if ( ! is_wp_error( $link ) ) {
-            $out .= '<div class="fd-crosslink"><span class="fd-crosslink-label">Also see:</span> <a href="' . esc_url( $link ) . '">Dry Eye &amp; Allergy Eye Drops &rarr;</a></div>';
+            $out .= '<div class="fd-crosslink"><span class="fd-crosslink-label">Also see:</span> <a href="' . esc_url( $link ) . '">Dry Eye &amp; Allergy Eye Drops</a></div>';
         }
     }
 
     return $out;
 }
 
-// ─── CROSS-LINK STYLING (stands out + responsive) ─────────────────────────
+// ─── CROSS-LINK STYLING (plain italic text, underlined link) ──────────────
 add_action( 'wp_head', function () {
     if ( is_admin() ) return;
     ?>
     <style>
     .fd-crosslink{
-        display:flex;
-        flex-wrap:wrap;
-        align-items:center;
-        gap:4px 8px;
         margin:0 !important;
-        padding:10px 16px;
-        background:#eef1f8;
-        border:1.5px solid #c7d2e8;
-        border-left:4px solid #f5a623;
-        border-radius:8px;
-        font-size:.95rem;
-        line-height:1.45;
+        padding:0;
+        background:none;
+        border:none;
+        font-size:.92rem;
+        font-style:italic;
+        line-height:1.5;
         color:#1b2230;
-        box-sizing:border-box;
-        width:100%;
     }
-    .fd-crosslink .fd-crosslink-label{ font-weight:700; color:#6b7280; white-space:nowrap; }
+    .fd-crosslink .fd-crosslink-label{ font-style:italic; }
     .fd-crosslink a,
     .term-description a{
         color:#1d3f8f !important;
-        font-weight:800 !important;
+        font-style:italic;
         text-decoration:underline !important;
         text-underline-offset:3px;
     }
     .fd-crosslink a:hover,
     .term-description a:hover{ color:#f5a623 !important; }
     @media (max-width:700px){
-        .fd-crosslink{ padding:9px 12px; font-size:.88rem; }
+        .fd-crosslink{ font-size:.88rem; }
     }
     @media (max-width:400px){
-        .fd-crosslink{ padding:8px 10px; font-size:.82rem; border-left-width:3px; }
+        .fd-crosslink{ font-size:.84rem; }
     }
     </style>
     <?php
