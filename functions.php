@@ -86,6 +86,7 @@ function medicare_prescription_categories() {
         'blood-pressure-medicine',                 // Antihypertensives
         'vaccins-and-immunization',                // Vaccines
         'diabetes',                                // Diabetes & Weightloss
+        'menopause-hrt',                           // Menopause & HRT (sub of Hormones & Corticosteroids)
 
         // ── Old categories: keep until their products are merged into the 4 above,
         //    then delete everything below this line ──
