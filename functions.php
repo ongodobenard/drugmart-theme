@@ -88,6 +88,8 @@ function medicare_prescription_categories() {
         'diabetes',                                // Diabetes & Weightloss
         'menopause-hrt',                           // Menopause & HRT (sub of Hormones & Corticosteroids)
         'prescription-eye-drops',                  // Prescription Eye Drops
+        'erectile-dysfunction-medicine',           // Men's Sexual Health (Rx)
+        
 
         // ── Old categories: keep until their products are merged into the ones above,
         //    then delete everything below this line ──
