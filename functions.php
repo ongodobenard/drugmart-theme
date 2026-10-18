@@ -83,10 +83,11 @@ function medicare_prescription_categories() {
     return array(
         // ── Final Rx categories (client's new structure) ──
         'prescription',                            // Prescriptions & Specialised Care
-        'blood-pressure-medicine',                 // Antihypertensives
+        'blood-pressure-medicine',                // Antihypertensives
         'vaccins-and-immunization',                // Vaccines
         'diabetes',                                // Diabetes & Weightloss
         'menopause-hrt',                           // Menopause & HRT (sub of Hormones & Corticosteroids)
+        'prescription-eye-drops',                  // Prescription Eye Drops
 
         // ── Old categories: keep until their products are merged into the 4 above,
         //    then delete everything below this line ──
