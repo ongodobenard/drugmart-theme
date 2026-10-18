@@ -83,13 +83,13 @@ function medicare_prescription_categories() {
     return array(
         // ── Final Rx categories (client's new structure) ──
         'prescription',                            // Prescriptions & Specialised Care
-        'blood-pressure-medicine',                // Antihypertensives
+        'blood-pressure-medicine',                 // Antihypertensives
         'vaccins-and-immunization',                // Vaccines
         'diabetes',                                // Diabetes & Weightloss
         'menopause-hrt',                           // Menopause & HRT (sub of Hormones & Corticosteroids)
         'prescription-eye-drops',                  // Prescription Eye Drops
 
-        // ── Old categories: keep until their products are merged into the 4 above,
+        // ── Old categories: keep until their products are merged into the ones above,
         //    then delete everything below this line ──
         'oncology',
         'anti-infective',
@@ -1499,3 +1499,71 @@ add_filter( 'woocommerce_add_to_cart_fragments', function ( $fragments ) {
     return $fragments;
 
 }, 10, 1 );
+
+// ════════════════════════════════════════════════════════════════════════════
+// ─── CROSS-LINKS: EYE DROPS <-> ALLERGY, COLD, FLU & COUGH ───────────────
+// ════════════════════════════════════════════════════════════════════════════
+// Called from single-product.php, right after the short description.
+function fd_crosslink_html( $product_id ) {
+    $eye_slug     = 'dry-eye-allergy-eye-drops';
+    $allergy_slug = 'allergy-cold-and-flu';
+    $out          = '';
+
+    if ( has_term( $eye_slug, 'product_cat', $product_id ) ) {
+        $link = get_term_link( $allergy_slug, 'product_cat' );
+        if ( ! is_wp_error( $link ) ) {
+            $out .= '<div class="fd-crosslink"><span class="fd-crosslink-label">Also see:</span> <a href="' . esc_url( $link ) . '">Allergy, Cold, Flu &amp; Cough medicines &rarr;</a></div>';
+        }
+    }
+
+    if ( has_term( $allergy_slug, 'product_cat', $product_id ) ) {
+        $link = get_term_link( $eye_slug, 'product_cat' );
+        if ( ! is_wp_error( $link ) ) {
+            $out .= '<div class="fd-crosslink"><span class="fd-crosslink-label">Also see:</span> <a href="' . esc_url( $link ) . '">Dry Eye &amp; Allergy Eye Drops &rarr;</a></div>';
+        }
+    }
+
+    return $out;
+}
+
+// ─── CROSS-LINK STYLING (stands out + responsive) ─────────────────────────
+add_action( 'wp_head', function () {
+    if ( is_admin() ) return;
+    ?>
+    <style>
+    .fd-crosslink{
+        display:flex;
+        flex-wrap:wrap;
+        align-items:center;
+        gap:4px 8px;
+        margin:0 !important;
+        padding:10px 16px;
+        background:#eef1f8;
+        border:1.5px solid #c7d2e8;
+        border-left:4px solid #f5a623;
+        border-radius:8px;
+        font-size:.95rem;
+        line-height:1.45;
+        color:#1b2230;
+        box-sizing:border-box;
+        width:100%;
+    }
+    .fd-crosslink .fd-crosslink-label{ font-weight:700; color:#6b7280; white-space:nowrap; }
+    .fd-crosslink a,
+    .term-description a{
+        color:#1d3f8f !important;
+        font-weight:800 !important;
+        text-decoration:underline !important;
+        text-underline-offset:3px;
+    }
+    .fd-crosslink a:hover,
+    .term-description a:hover{ color:#f5a623 !important; }
+    @media (max-width:700px){
+        .fd-crosslink{ padding:9px 12px; font-size:.88rem; }
+    }
+    @media (max-width:400px){
+        .fd-crosslink{ padding:8px 10px; font-size:.82rem; border-left-width:3px; }
+    }
+    </style>
+    <?php
+} );

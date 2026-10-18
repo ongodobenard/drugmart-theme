@@ -399,6 +399,8 @@ while (have_posts()): the_post();
       <div class="sp-desc"><?php echo wp_kses_post(wp_trim_words($short_desc, 40)); ?></div>
       <?php endif; ?>
 
+      <?php echo function_exists('fd_crosslink_html') ? fd_crosslink_html($pid) : ''; ?>
+
       <div class="sp-meta-card">
         <?php if ($cat_n): ?>
         <div class="sp-meta-badge sp-meta-cat">
