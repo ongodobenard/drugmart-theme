@@ -95,13 +95,15 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   padding: 0;
   max-width: 780px;
 }
-.footer-scan-list li {
+.footer-scan-list li { list-style: none; margin: 0; padding: 0; }
+.footer-scan-list li a {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 12.5px;
   font-weight: 700;
   color: #fff;
+  text-decoration: none;
   background: rgba(10,18,40,.55);
   border: 1px solid rgba(0,229,255,.55);
   border-radius: 6px;
@@ -109,13 +111,21 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   font-family: var(--font-body);
   white-space: nowrap;
   backdrop-filter: blur(4px);
+  transition: background .2s, border-color .2s, color .2s, transform .15s;
 }
-.footer-scan-list li::before {
+.footer-scan-list li a::before {
   content: '';
   width: 5px; height: 5px;
   border-radius: 50%;
   background: var(--teal-bright);
   flex-shrink: 0;
+}
+.footer-scan-list li a:hover,
+.footer-scan-list li a:focus-visible {
+  background: rgba(0,229,255,.18);
+  border-color: var(--teal-bright);
+  color: var(--teal-bright);
+  transform: translateY(-2px);
 }
 
 .footer-about-license {
@@ -664,7 +674,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
   .footer-about-eyebrow { font-size: 11px; }
   .footer-about-inner p { font-size: 14px; }
   .footer-scan-list { gap: 8px; margin: 10px 0 18px; }
-  .footer-scan-list li { font-size: 12px; padding: 6px 11px; }
+  .footer-scan-list li a { font-size: 12px; padding: 6px 11px; }
   .footer-about-license { padding: 10px 14px; flex-wrap: wrap; text-align: center; }
   .footer-about-license span { font-size: 12px; }
 
@@ -804,15 +814,12 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
     <p>For added convenience, we also provide professional home-visit ultrasound scan services across Nairobi and its environs, performed at your doorstep by qualified specialists.</p>
 
     <ul class="footer-scan-list">
-      <li>Thyroid Scan</li>
-      <li>Obs Scan</li>
-      <li>Breast Ultrasound</li>
-      <li>Abdominal Scan</li>
-      <li>Pelvic Scan</li>
-      <li>Testicular Scan</li>
-      <li>Scrotal Scan</li>
-      <li>Home Visit Scans</li>
-      <li>Mobile Ultrasound</li>
+      <?php
+      $us_url = home_url('/ultra-sound-service/');
+      foreach (['Thyroid Scan','Obs Scan','Breast Ultrasound','Abdominal Scan','Pelvic Scan','Testicular Scan','Scrotal Scan','Home Visit Scans','Mobile Ultrasound'] as $scan) {
+        echo '<li><a href="' . esc_url($us_url) . '">' . esc_html($scan) . '</a></li>';
+      }
+      ?>
     </ul>
 
     <div class="footer-about-license">
@@ -922,7 +929,7 @@ $addr  = 'High Point Plaza, along Ruaka-Banana Raini Road';
       <a href="<?php echo esc_url(function_exists('wc_get_page_id') ? get_permalink(wc_get_page_id('shop')) : home_url('/shop')); ?>">Shop</a>
       <a href="<?php echo esc_url(home_url('/about-us')); ?>">About Us</a>
       <a href="<?php echo esc_url(home_url('/submit-prescription')); ?>">Submit Prescription</a>
-      <a href="<?php echo esc_url(home_url('/ultrasound-services')); ?>">Ultrasound Services</a>
+      <a href="<?php echo esc_url(home_url('/ultra-sound-service/')); ?>">Ultrasound Services</a>
       <a href="<?php echo esc_url(home_url('/blog')); ?>">Blog</a>
       <a href="<?php echo esc_url(home_url('/contact')); ?>">Contact Us</a>
     </div>
