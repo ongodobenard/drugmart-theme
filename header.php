@@ -1515,7 +1515,7 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
 
           /* left section: main categories */
           echo '<div class="cat-main">';
-          foreach ([true, false] as $want_sub) {      /* true = LEFT column (has sub-categories), false = RIGHT column */
+          foreach ([false, true] as $want_sub) {      /* false = FIRST column (plain categories), true = SECOND column (has sub-categories, sits next to the sub-category section) */
             echo '<ul class="cat-col ' . ($want_sub ? 'cat-col-subs' : 'cat-col-plain') . '">';
             foreach ($fd_shop_cats as $i => [$cname, $cslug, $rx, $csubs]) {
               $has_sub = !empty($csubs);
@@ -1692,9 +1692,8 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
       li.addEventListener('mouseenter', function(){
         cancelHide();
         if(hasSub){ show(li); }
-        /* a plain category: close the sub-category section, but after a short delay so the pointer
-           can pass over this column on its way to the section at the right */
-        else if(dd.classList.contains('has-panel')){ hideT = setTimeout(reset, 450); }
+        /* a plain category: close the sub-category section straight away */
+        else { reset(); }
       });
       li.addEventListener('focusin', function(){ cancelHide(); show(li); });
     })(items[k]);
