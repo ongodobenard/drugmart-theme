@@ -8,21 +8,65 @@ $fd_csw_tz     = new DateTimeZone('Africa/Nairobi');
 $fd_csw_end    = new DateTime('2026-10-11 23:59:59', $fd_csw_tz);
 $fd_csw_active = (new DateTime('now', $fd_csw_tz)) <= $fd_csw_end;
 
-/* Shop by Category: the 13 categories to keep  [display name, EXACT WooCommerce slug, needs Submit Prescription] */
+/* Shop by Category.
+   Each main category: [display name, EXACT WooCommerce slug, needs Submit Prescription, sub-categories]
+   Each sub-category:  [display name, EXACT WooCommerce slug, (optional) its own sub-categories]
+   Categories with an empty sub-category list are plain links. */
 $fd_shop_cats = [
-  ['Wound Dressings',                  'wound-dressings',                 false],
-  ['Vitamins & Supplements',           'vitamins-and-health-supplements', false],
-  ['Medical Equipments',               'medical-equipment',               false],
-  ['Personal Care & Grooming',         'personal-care-and-grooming',      false],
-  ['Mother & Baby',                    'mother-and-baby',                 false],
-  ['Skin Care & Dermatology',          'skin-care-dermatology',           false],
-  ['Preventive Medicines',             'preventive-medicine',             false],
-  ['Smoke Cessation',                  'smoke-cessation',                 false],
-  ['Allergy, Cold, Flu & Coughs',      'alllergy-cold-and-flu',           false],
-  ['Antihypertensives',                'blood-pressure-medicine',         true],
-  ['Vaccines',                         'vaccins-and-immunization',        true],
-  ['Prescriptions & Specialised Care', 'prescription',                    true],
-  ['Diabetes & Weight Loss',            'diabetes',                        true],
+  ['Wound Dressings', 'wound-dressings', false, []],
+
+  ['Vitamins & Supplements', 'vitamins-and-health-supplements', false, [
+      ['Immune Boosters & IV Nutrients', 'immune-boosters-and-iv-nutrients'],
+  ]],
+
+  ['Medical Equipments', 'medical-equipment', false, [
+      ['Home Care & Hospital Care Equipments', 'home-care-and-hospital-care-equipments'],
+      ['Mobility Aids',                        'mobility-aids'],
+  ]],
+
+  ['Personal Care & Grooming', 'personal-care-and-grooming', false, [
+      ['Adult Diapers',                     'adult-diapers'],
+      ['Oral Care',                         'oral-care-personal-care-and-grooming'],
+      ['Sexual Wellness & Intimate Care',   'sexual-wellness-intimate-care'],
+      ['Skin Care Products & Sunscreens',   'skin-care-products-and-sunscreens'],
+  ]],
+
+  ['Mother & Baby', 'mother-and-baby', false, [
+      ['Infants Formula & Feeding Bottles', 'infants-formula-and-feeding-bottles'],
+      ['Prenatal & Antenatal',              'prenatal-and-antenatal'],
+  ]],
+
+  ['Skin Care & Dermatology', 'skin-care-dermatology', false, []],
+
+  ['Preventive Medicines', 'prophylaxis-preventive-medicines', false, []],
+
+  ['Smoke Cessation', 'smoke-cessation', false, []],
+
+  ['Allergy, Cold, Flu & Coughs', 'allergy-cold-and-flu', false, []],
+
+  ['Antihypertensives', 'blood-pressure-medicine', true, [
+      ['Cardiovascular & Cerebrovascular', 'cardiovascular-and-cerebrovascular'],
+      ['Hypertension',                     'hypertension'],
+  ]],
+
+  ['Vaccines', 'vaccins-and-immunization', true, []],
+
+  ['Prescriptions & Specialised Care', 'prescription', true, [
+      ['Anti-Infective', 'anti-infective'],
+      ['Antihypertensives', 'blood-pressure-medicine', [
+          ['Cardiovascular & Cerebrovascular', 'cardiovascular-and-cerebrovascular'],
+          ['Hypertension',                     'hypertension'],
+      ]],
+      ['Brain & Nervous System Disorder', 'brain-and-nervous-system-disorder'],
+      ['Digestive System',                'digestive-system'],
+      ['Men\'s Sexual Health (Rx)',       'erectile-dysfunction-medicine'],
+      ['Oncology',                        'oncology'],
+      ['Renal Wellbeing',                 'renal-wellbeing'],
+  ]],
+
+  ['Diabetes & Weight Loss', 'diabetes', true, [
+      ['Weight Loss', 'weight-loss'],
+  ]],
 ];
 
 /* Finds the WooCommerce category by slug and returns its link (falls back to ?product_cat=slug on the shop page) */
@@ -34,6 +78,32 @@ if (!function_exists('fd_cat_link')) {
       if (!is_wp_error($l)) return $l;
     }
     return add_query_arg('product_cat', $slug, $shop_url);
+  }
+}
+
+/* Desktop: prints a list of sub-category links (and any nested sub-categories) */
+if (!function_exists('fd_sub_list')) {
+  function fd_sub_list($subs, $shop_url, $level = 2) {
+    echo '<ul class="cat-sub-list cat-sub-lvl' . (int) $level . '">';
+    foreach ($subs as $s) {
+      $kids = isset($s[2]) ? $s[2] : [];
+      echo '<li><a href="' . esc_url(fd_cat_link($s[1], $shop_url)) . '">' . esc_html($s[0]) . '</a>';
+      if (!empty($kids)) fd_sub_list($kids, $shop_url, $level + 1);
+      echo '</li>';
+    }
+    echo '</ul>';
+  }
+}
+
+/* Mobile: prints sub-category links (nested ones are indented one more step) */
+if (!function_exists('fd_mob_sub_links')) {
+  function fd_mob_sub_links($subs, $shop_url, $level = 2) {
+    foreach ($subs as $s) {
+      $kids = isset($s[2]) ? $s[2] : [];
+      echo '<a class="mob-sub-link mob-lvl' . (int) $level . '" href="' . esc_url(fd_cat_link($s[1], $shop_url)) . '">'
+         . ($level > 2 ? '&ndash; ' : '') . esc_html($s[0]) . '</a>';
+      if (!empty($kids)) fd_mob_sub_links($kids, $shop_url, $level + 1);
+    }
   }
 }
 ?>
@@ -759,23 +829,23 @@ if (!function_exists('fd_cat_link')) {
 
 /* ============================================================
    SHOP BY CATEGORY DROPDOWN (desktop)
-   2 columns to keep the dropdown short, every category
-   sits in its own grey bordered, rounded box.
+   LEFT  : the main categories, each in its own grey bordered box.
+   RIGHT : a second section that appears when a category that has
+           sub-categories is hovered. It lists those sub-categories
+           as clickable links.
    ============================================================ */
 .navbar-list > li.has-dropdown { position: relative; }
 .navbar-list > li.has-dropdown > a .caret { font-size: 10px; opacity: .8; }
 
 .cat-dropdown {
   position: absolute; top: 100%; left: 0;
-  width: 580px; max-width: calc(100vw - 40px);
+  display: flex; align-items: stretch;
   box-sizing: border-box;
+  max-width: calc(100vw - 40px);
   background: #fff; border-radius: 0 0 var(--radius) var(--radius);
   border-top: 3px solid var(--gold);
   box-shadow: 0 14px 36px rgba(0,0,0,.2);
-  list-style: none; margin: 0; padding: 12px; z-index: 600;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 10px;
+  z-index: 600;
   opacity: 0; visibility: hidden; transform: translateY(8px);
   transition: opacity .2s ease, transform .2s ease, visibility .2s;
 }
@@ -783,26 +853,81 @@ if (!function_exists('fd_cat_link')) {
 .navbar-list > li.has-dropdown:focus-within .cat-dropdown {
   opacity: 1; visibility: visible; transform: translateY(0);
 }
-.cat-dropdown li { list-style: none; margin: 0; padding: 0; }
-.cat-dropdown li a {
+
+/* ── left section: main categories ── */
+.cat-main {
+  flex: 0 0 300px; width: 300px; box-sizing: border-box;
+  list-style: none; margin: 0; padding: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.cat-main li { list-style: none; margin: 0; padding: 0; }
+.cat-main li a {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  height: 100%; box-sizing: border-box;
-  padding: 10px 14px; font-size: 13px; font-weight: 700;
+  box-sizing: border-box;
+  padding: 9px 14px; font-size: 13px; font-weight: 700;
   font-family: var(--font-head); color: var(--navy); text-decoration: none;
   background: #fff;
   border: 1.5px solid #c9ced6;
   border-radius: 10px;
   transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-.cat-dropdown li a:hover {
+.cat-main li a:hover,
+.cat-main li.is-active > a {
   background: var(--blue-light); color: var(--blue);
   border-color: #9aa3b2;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
+.cat-main li.is-active > a { border-color: var(--blue); }
+.cat-tags { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.cat-arrow { font-size: 17px; line-height: 1; opacity: .65; font-weight: 800; }
 .cat-rx {
   background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 800;
   padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
 }
+
+/* ── right section: sub-categories (only shown while a category with sub-categories is hovered) ── */
+.cat-sub-wrap {
+  display: none;
+  flex: 0 0 340px; width: 340px; box-sizing: border-box;
+  padding: 14px 14px 16px;
+  background: #f7f9fc;
+  border-left: 1.5px solid #e3e7ef;
+  border-radius: 0 0 var(--radius) 0;
+}
+.cat-dropdown.has-panel .cat-sub-wrap { display: block; }
+.cat-sub { display: none; }
+.cat-sub.is-active { display: block; }
+
+.cat-sub-title {
+  font-family: var(--font-head); font-size: 14px; font-weight: 800;
+  color: var(--navy); margin: 0 0 3px; line-height: 1.3;
+}
+.cat-sub-all {
+  display: inline-block; margin-bottom: 11px;
+  font-family: var(--font-head); font-size: 12px; font-weight: 800;
+  color: var(--blue); text-decoration: none;
+}
+.cat-sub-all:hover { text-decoration: underline; }
+
+.cat-sub-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.cat-sub-list li { list-style: none; margin: 0; padding: 0; }
+.cat-sub-list li a {
+  display: block; box-sizing: border-box;
+  padding: 9px 12px; font-size: 13px; font-weight: 700;
+  font-family: var(--font-head); color: var(--navy); text-decoration: none;
+  background: #fff; border: 1.5px solid #c9ced6; border-radius: 10px;
+  transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
+}
+.cat-sub-list li a:hover {
+  background: var(--blue-light); color: var(--blue); border-color: #9aa3b2;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+/* third level (e.g. Prescription > Antihypertensives > Hypertension) */
+.cat-sub-list .cat-sub-list { margin: 6px 0 2px 16px; gap: 5px; }
+.cat-sub-list .cat-sub-list li a { font-size: 12.5px; font-weight: 600; padding: 7px 11px; }
 
 /* ============================================================
    MOBILE NAV DRAWER
@@ -837,6 +962,26 @@ if (!function_exists('fd_cat_link')) {
 }
 .mobile-nav details.mob-cats summary::-webkit-details-marker { display: none; }
 .mobile-nav details.mob-cats a { padding-left: 38px; font-size: 13px; font-weight: 600; }
+
+/* Mobile: categories that have sub-categories open as a drop-down when tapped */
+.mobile-nav details.mob-cats details.mob-sub > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 22px 12px 38px; font-size: 13px; font-weight: 700;
+  color: var(--navy); background: #fff;
+}
+.mobile-nav details.mob-cats details.mob-sub > summary::after {
+  content: '\25BE'; font-size: 12px; opacity: .7; flex-shrink: 0; transition: transform .2s;
+}
+.mobile-nav details.mob-cats details.mob-sub[open] > summary {
+  background: var(--blue-light); color: var(--blue);
+}
+.mobile-nav details.mob-cats details.mob-sub[open] > summary::after { transform: rotate(180deg); }
+.mobile-nav details.mob-cats details.mob-sub a { background: #fafbfd; }
+.mobile-nav details.mob-cats details.mob-sub a.mob-sub-all { padding-left: 54px; font-size: 12.5px; font-weight: 800; color: var(--blue); }
+.mobile-nav details.mob-cats details.mob-sub a.mob-lvl2 { padding-left: 54px; font-size: 12.5px; font-weight: 600; }
+.mobile-nav details.mob-cats details.mob-sub a.mob-lvl3 { padding-left: 70px; font-size: 12px; font-weight: 600; }
+.mobile-nav details.mob-cats details.mob-sub a:hover { padding-left: 60px; }
+.mobile-nav details.mob-cats details.mob-sub a.mob-lvl3:hover { padding-left: 76px; }
 
 /* ============================================================
    BREADCRUMB
@@ -1102,8 +1247,17 @@ if (!function_exists('fd_cat_link')) {
     if ($label === 'Shop') {
       echo '<a href="' . esc_url($url) . '"' . ($active ? ' class="active"' : '') . '>Shop (all products)</a>';
       echo '<details class="mob-cats"><summary>Shop by Category &#9662;</summary>';
-      foreach ($fd_shop_cats as [$cname, $cslug, $rx]) {
-        echo '<a href="' . esc_url(fd_cat_link($cslug, $url)) . '">' . esc_html($cname) . ($rx ? ' (Rx)' : '') . '</a>';
+      foreach ($fd_shop_cats as [$cname, $cslug, $rx, $csubs]) {
+        $clabel = esc_html($cname) . ($rx ? ' (Rx)' : '');
+        if (!empty($csubs)) {
+          /* category with sub-categories: tap to open a drop-down */
+          echo '<details class="mob-sub"><summary>' . $clabel . '</summary>';
+          echo '<a class="mob-sub-all" href="' . esc_url(fd_cat_link($cslug, $url)) . '">View all ' . esc_html($cname) . '</a>';
+          fd_mob_sub_links($csubs, $url, 2);
+          echo '</details>';
+        } else {
+          echo '<a href="' . esc_url(fd_cat_link($cslug, $url)) . '">' . $clabel . '</a>';
+        }
       }
       echo '</details>';
     } else {
@@ -1348,15 +1502,41 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
       ];
       foreach ($nav_links as [$href, $label, $active]) {
         if ($label === 'Shop') {
-          /* Shop by Category: click = shop page, hover = category dropdown (2 columns) */
+          /* Shop by Category: click = shop page.
+             Hover = category dropdown. LEFT: main categories. RIGHT: sub-categories of the hovered category. */
           echo '<li class="has-dropdown">';
           echo '<a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>Shop by Category <span class="caret">&#9662;</span></a>';
-          echo '<ul class="cat-dropdown">';
-          foreach ($fd_shop_cats as [$cname, $cslug, $rx]) {
-            echo '<li><a href="' . esc_url(fd_cat_link($cslug, $href)) . '"><span>' . esc_html($cname) . '</span>'
-               . ($rx ? '<span class="cat-rx">Rx</span>' : '') . '</a></li>';
+          echo '<div class="cat-dropdown" id="fdCatDropdown">';
+
+          /* left section: main categories */
+          echo '<ul class="cat-main">';
+          foreach ($fd_shop_cats as $i => [$cname, $cslug, $rx, $csubs]) {
+            $has_sub = !empty($csubs);
+            echo '<li data-cat="' . (int) $i . '"' . ($has_sub ? ' class="has-sub"' : '') . '>';
+            echo '<a href="' . esc_url(fd_cat_link($cslug, $href)) . '"><span>' . esc_html($cname) . '</span>';
+            if ($rx || $has_sub) {
+              echo '<span class="cat-tags">';
+              if ($rx)      echo '<span class="cat-rx">Rx</span>';
+              if ($has_sub) echo '<span class="cat-arrow" aria-hidden="true">&rsaquo;</span>';
+              echo '</span>';
+            }
+            echo '</a></li>';
           }
-          echo '</ul></li>';
+          echo '</ul>';
+
+          /* right section: one sub-category panel per category that has sub-categories */
+          echo '<div class="cat-sub-wrap">';
+          foreach ($fd_shop_cats as $i => [$cname, $cslug, $rx, $csubs]) {
+            if (empty($csubs)) continue;
+            echo '<div class="cat-sub" data-cat="' . (int) $i . '">';
+            echo '<h3 class="cat-sub-title">' . esc_html($cname) . '</h3>';
+            echo '<a class="cat-sub-all" href="' . esc_url(fd_cat_link($cslug, $href)) . '">View all &rarr;</a>';
+            fd_sub_list($csubs, $href, 2);
+            echo '</div>';
+          }
+          echo '</div>';
+
+          echo '</div></li>';
         } else {
           echo '<li><a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>' . esc_html($label) . '</a></li>';
         }
@@ -1464,6 +1644,44 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
       xhr.send('time='+Date.now());
     }, 800);
   });
+})();
+</script>
+
+<script>
+/* ── Shop by Category (desktop): show the sub-category section when a category with sub-categories is hovered ── */
+(function(){
+  var dd = document.getElementById('fdCatDropdown');
+  if(!dd) return;
+  var holder = dd.parentNode;                                   /* li.has-dropdown */
+  var items  = dd.querySelectorAll('.cat-main > li');
+  var panels = dd.querySelectorAll('.cat-sub');
+
+  function show(li){
+    var hasSub = li.classList.contains('has-sub');
+    var id = li.getAttribute('data-cat');
+    for(var i = 0; i < items.length; i++){
+      items[i].classList.toggle('is-active', hasSub && items[i] === li);
+    }
+    for(var j = 0; j < panels.length; j++){
+      panels[j].classList.toggle('is-active', hasSub && panels[j].getAttribute('data-cat') === id);
+    }
+    dd.classList.toggle('has-panel', hasSub);
+  }
+  function reset(){
+    for(var i = 0; i < items.length; i++){ items[i].classList.remove('is-active'); }
+    for(var j = 0; j < panels.length; j++){ panels[j].classList.remove('is-active'); }
+    dd.classList.remove('has-panel');
+  }
+
+  for(var k = 0; k < items.length; k++){
+    (function(li){
+      li.addEventListener('mouseenter', function(){ show(li); });
+      li.addEventListener('focusin',    function(){ show(li); });
+    })(items[k]);
+  }
+  /* The panel stays open while the pointer is anywhere inside the dropdown (so it can travel to the right section);
+     it resets when the pointer leaves the whole Shop by Category menu. */
+  holder.addEventListener('mouseleave', reset);
 })();
 </script>
 
