@@ -856,12 +856,17 @@ if (!function_exists('fd_mob_sub_links')) {
 
 /* ── left section: main categories ── */
 .cat-main {
-  flex: 0 0 300px; width: 300px; box-sizing: border-box;
-  list-style: none; margin: 0; padding: 12px;
+  flex: 0 0 auto; box-sizing: border-box;
+  display: flex; align-items: flex-start; gap: 10px; padding: 12px;
+}
+/* two columns: LEFT = categories that have sub-categories, RIGHT = plain categories */
+.cat-col {
+  width: 250px; box-sizing: border-box;
+  list-style: none; margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 6px;
 }
-.cat-main li { list-style: none; margin: 0; padding: 0; }
-.cat-main li a {
+.cat-col li { list-style: none; margin: 0; padding: 0; }
+.cat-col li a {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   box-sizing: border-box;
   padding: 9px 14px; font-size: 13px; font-weight: 700;
@@ -871,13 +876,13 @@ if (!function_exists('fd_mob_sub_links')) {
   border-radius: 10px;
   transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-.cat-main li a:hover,
-.cat-main li.is-active > a {
+.cat-col li a:hover,
+.cat-col li.is-active > a {
   background: var(--blue-light); color: var(--blue);
   border-color: #9aa3b2;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
-.cat-main li.is-active > a { border-color: var(--blue); }
+.cat-col li.is-active > a { border-color: var(--blue); }
 .cat-tags { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .cat-arrow { font-size: 17px; line-height: 1; opacity: .65; font-weight: 800; }
 .cat-rx {
@@ -1509,20 +1514,25 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
           echo '<div class="cat-dropdown" id="fdCatDropdown">';
 
           /* left section: main categories */
-          echo '<ul class="cat-main">';
-          foreach ($fd_shop_cats as $i => [$cname, $cslug, $rx, $csubs]) {
-            $has_sub = !empty($csubs);
-            echo '<li data-cat="' . (int) $i . '"' . ($has_sub ? ' class="has-sub"' : '') . '>';
-            echo '<a href="' . esc_url(fd_cat_link($cslug, $href)) . '"><span>' . esc_html($cname) . '</span>';
-            if ($rx || $has_sub) {
-              echo '<span class="cat-tags">';
-              if ($rx)      echo '<span class="cat-rx">Rx</span>';
-              if ($has_sub) echo '<span class="cat-arrow" aria-hidden="true">&rsaquo;</span>';
-              echo '</span>';
+          echo '<div class="cat-main">';
+          foreach ([true, false] as $want_sub) {      /* true = LEFT column (has sub-categories), false = RIGHT column */
+            echo '<ul class="cat-col ' . ($want_sub ? 'cat-col-subs' : 'cat-col-plain') . '">';
+            foreach ($fd_shop_cats as $i => [$cname, $cslug, $rx, $csubs]) {
+              $has_sub = !empty($csubs);
+              if ($has_sub !== $want_sub) continue;
+              echo '<li data-cat="' . (int) $i . '"' . ($has_sub ? ' class="has-sub"' : '') . '>';
+              echo '<a href="' . esc_url(fd_cat_link($cslug, $href)) . '"><span>' . esc_html($cname) . '</span>';
+              if ($rx || $has_sub) {
+                echo '<span class="cat-tags">';
+                if ($rx)      echo '<span class="cat-rx">Rx</span>';
+                if ($has_sub) echo '<span class="cat-arrow" aria-hidden="true">&rsaquo;</span>';
+                echo '</span>';
+              }
+              echo '</a></li>';
             }
-            echo '</a></li>';
+            echo '</ul>';
           }
-          echo '</ul>';
+          echo '</div>';
 
           /* right section: one sub-category panel per category that has sub-categories */
           echo '<div class="cat-sub-wrap">';
@@ -1530,7 +1540,7 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
             if (empty($csubs)) continue;
             echo '<div class="cat-sub" data-cat="' . (int) $i . '">';
             echo '<h3 class="cat-sub-title">' . esc_html($cname) . '</h3>';
-            echo '<a class="cat-sub-all" href="' . esc_url(fd_cat_link($cslug, $href)) . '">View all &rarr;</a>';
+            echo '<a class="cat-sub-all" href="' . esc_url(fd_cat_link($cslug, $href)) . '">View all</a>';
             fd_sub_list($csubs, $href, 2);
             echo '</div>';
           }
@@ -1653,7 +1663,7 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
   var dd = document.getElementById('fdCatDropdown');
   if(!dd) return;
   var holder = dd.parentNode;                                   /* li.has-dropdown */
-  var items  = dd.querySelectorAll('.cat-main > li');
+  var items  = dd.querySelectorAll('.cat-col > li');
   var panels = dd.querySelectorAll('.cat-sub');
 
   function show(li){
@@ -1673,15 +1683,29 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
     dd.classList.remove('has-panel');
   }
 
+  var hideT = null;
+  function cancelHide(){ if(hideT){ clearTimeout(hideT); hideT = null; } }
+
   for(var k = 0; k < items.length; k++){
     (function(li){
-      li.addEventListener('mouseenter', function(){ show(li); });
-      li.addEventListener('focusin',    function(){ show(li); });
+      var hasSub = li.classList.contains('has-sub');
+      li.addEventListener('mouseenter', function(){
+        cancelHide();
+        if(hasSub){ show(li); }
+        /* a plain category: close the sub-category section, but after a short delay so the pointer
+           can pass over this column on its way to the section at the right */
+        else if(dd.classList.contains('has-panel')){ hideT = setTimeout(reset, 450); }
+      });
+      li.addEventListener('focusin', function(){ cancelHide(); show(li); });
     })(items[k]);
   }
-  /* The panel stays open while the pointer is anywhere inside the dropdown (so it can travel to the right section);
-     it resets when the pointer leaves the whole Shop by Category menu. */
-  holder.addEventListener('mouseleave', reset);
+
+  /* reaching the sub-category section keeps it open */
+  var subWrap = dd.querySelector('.cat-sub-wrap');
+  if(subWrap) subWrap.addEventListener('mouseenter', cancelHide);
+
+  /* leaving the whole Shop by Category menu resets everything */
+  holder.addEventListener('mouseleave', function(){ cancelHide(); reset(); });
 })();
 </script>
 
