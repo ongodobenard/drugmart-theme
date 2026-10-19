@@ -1511,6 +1511,7 @@ $wishlist_count = function_exists('yith_wcwl_count_products_in_wishlist') ? yith
              Hover = category dropdown. LEFT: main categories. RIGHT: sub-categories of the hovered category. */
           echo '<li class="has-dropdown">';
           echo '<a href="' . esc_url($href) . '"' . ($active ? ' class="active"' : '') . '>Shop by Category <span class="caret">&#9662;</span></a>';
+          echo '<!-- fd-header-v3: plain categories first, categories with sub-categories second -->';
           echo '<div class="cat-dropdown" id="fdCatDropdown">';
 
           /* left section: main categories */
