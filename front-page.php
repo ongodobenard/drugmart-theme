@@ -775,6 +775,13 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
     .fp-seo-col-title { font-size:15px; }
 }
 
+/* FAQ: two columns on desktop (shorter page), single column on mobile */
+.fp-faq-split { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 36px; align-items:start; }
+.fp-faq-col { min-width:0; }
+@media (max-width:860px) {
+    .fp-faq-split { grid-template-columns:1fr; gap:0; }
+}
+
 .fp-faq-item  { border-bottom:1px solid var(--fd-border); padding:14px 0; }
 .fp-faq-item summary { font-weight:700; font-size:14px; cursor:pointer; color:var(--fd-text); font-family:var(--fd-font-body); }
 .fp-faq-item p { font-size:13.5px; line-height:1.7; color:var(--fd-text-light); margin:10px 0 0; }
@@ -1184,12 +1191,19 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         <div class="fp-card">
             <div class="fp-pad">
                 <h2 class="fp-seo-title">Online Pharmacy Kenya FAQs</h2>
-                <?php foreach ( $FD_FAQS as $f ) : ?>
-                    <details class="fp-faq-item">
-                        <summary><?php echo esc_html( $f['q'] ); ?></summary>
-                        <p><?php echo esc_html( $f['a'] ); ?></p>
-                    </details>
-                <?php endforeach; ?>
+                <?php $fd_faq_cols = array_chunk( $FD_FAQS, (int) ceil( count( $FD_FAQS ) / 2 ) ); ?>
+                <div class="fp-faq-split">
+                    <?php foreach ( $fd_faq_cols as $fd_col ) : ?>
+                    <div class="fp-faq-col">
+                        <?php foreach ( $fd_col as $f ) : ?>
+                            <details class="fp-faq-item">
+                                <summary><?php echo esc_html( $f['q'] ); ?></summary>
+                                <p><?php echo esc_html( $f['a'] ); ?></p>
+                            </details>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
 
