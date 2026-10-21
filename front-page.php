@@ -764,6 +764,17 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 /* ══ SEO TEXT ══ */
 .fp-seo-intro { font-size:14px; line-height:1.8; color:var(--fd-text-light); margin:0 0 20px; max-width:900px; }
 .fp-seo-title { font-family:var(--fd-font-head); font-size:20px; font-weight:900; color:var(--fd-text); margin:0 0 10px; padding-left:10px; border-left:3px solid var(--fd-gold); }
+/* Two-column SEO intro: side by side on desktop, stacked on mobile */
+.fp-seo-split { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin:0 0 22px; }
+.fp-seo-col { background:#fff; border:1.5px solid var(--fd-border); border-radius:14px; padding:20px 22px; min-width:0; }
+.fp-seo-col-title { font-family:var(--fd-font-head); font-size:17px; font-weight:800; line-height:1.3; color:var(--fd-blue); margin:0 0 10px; }
+.fp-seo-col .fp-seo-intro { margin:0; max-width:none; }
+@media (max-width:860px) {
+    .fp-seo-split { grid-template-columns:1fr; gap:12px; margin-bottom:16px; }
+    .fp-seo-col { padding:16px 14px; }
+    .fp-seo-col-title { font-size:15px; }
+}
+
 .fp-faq-item  { border-bottom:1px solid var(--fd-border); padding:14px 0; }
 .fp-faq-item summary { font-weight:700; font-size:14px; cursor:pointer; color:var(--fd-text); font-family:var(--fd-font-body); }
 .fp-faq-item p { font-size:13.5px; line-height:1.7; color:var(--fd-text-light); margin:10px 0 0; }
@@ -1108,12 +1119,20 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         <div class="fp-card gray">
             <div class="fp-pad">
                 <h2 class="fp-seo-title">Family Drugmart: Trusted Pharmacy in Kenya and Best Pharmacy in Nairobi</h2>
-                <p class="fp-seo-intro">
-                    Family Drugmart Kenya is a trusted, affordable and PPB licensed pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Whether you are looking for the best pharmacy in Nairobi or a top pharmacy near you, we stock genuine, quality medicines at fair prices. Buy medicine online in Kenya, order prescribed drugs, and get reliable pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacy professional on WhatsApp.
-                </p>
-                <p class="fp-seo-intro">
-                    As a top pharmacy in Nairobi, we offer the best baby formula, top vitamins and supplements such as Jamieson, the best skin care products in Kenya, affordable diabetic care, trusted prescription medicines and professional ultrasound scans, in-store or at home. Our friendly pharmacy professionals are here to help you choose safe, genuine products at affordable prices.
-                </p>
+                <div class="fp-seo-split">
+                    <div class="fp-seo-col">
+                        <h3 class="fp-seo-col-title">Trusted, Affordable &amp; PPB Licensed Pharmacy in Kenya</h3>
+                        <p class="fp-seo-intro">
+                            Family Drugmart Kenya is a trusted, affordable and PPB licensed pharmacy in Kenya, based at <?php echo esc_html( rtrim( medicare_address(), ". \t\n\r" ) ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Buy medicine online in Kenya, order prescribed drugs, and get reliable pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacy professional on WhatsApp.
+                        </p>
+                    </div>
+                    <div class="fp-seo-col">
+                        <h3 class="fp-seo-col-title">Best Pharmacy in Nairobi: Top Medicines, Baby Care, Skin Care &amp; Scans</h3>
+                        <p class="fp-seo-intro">
+                            Whether you are looking for the best pharmacy in Nairobi or a top pharmacy near you, we stock genuine, quality medicines at fair prices. As a top pharmacy in Nairobi, we offer the best baby formula, top vitamins and supplements such as Jamieson, the best skin care products in Kenya, affordable diabetic care, trusted prescription medicines and professional ultrasound scans, in-store or at home. Our friendly pharmacy professionals help you choose safe, genuine products at affordable prices.
+                        </p>
+                    </div>
+                </div>
 
                 <!-- Info boxes: ONE row, 3 visible, the rest move slowly to the left -->
                 <div class="fp-marq fp-marq-boxes" aria-label="What we offer">
