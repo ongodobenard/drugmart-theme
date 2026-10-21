@@ -12,7 +12,8 @@ if ( ! defined('ABSPATH') ) { die(); }
    (title, description, canonical, schema) and set them in the plugin.
    ══════════════════════════════════════════════════════════════ */
 $FD_SEO_TITLE = 'Family Drugmart | Affordable Online Pharmacy Kenya';
-$FD_SEO_DESC  = 'Affordable online pharmacy Kenya in Ruaka, Nairobi. PPB licensed. Prescribed drugs, baby formula, vitamins, skin care and ultrasound scans. Pay on delivery.';
+$FD_SEO_DESC  = 'Trusted, affordable online pharmacy Kenya in Ruaka, Nairobi. Best prices on prescribed drugs, baby formula, vitamins, skin care and scans. PPB licensed.';
+$FD_SEO_KEYWORDS = 'trusted pharmacy in Kenya, best pharmacy in Nairobi, top pharmacy in Nairobi, affordable online pharmacy Kenya, licensed pharmacy Kenya, PPB licensed pharmacy, genuine medicines Kenya, reliable pharmacy Nairobi, cheap pharmacy Nairobi, pharmacy near me Ruaka, prescribed drugs Kenya, baby formula Kenya, best skin care products in Kenya, top vitamins and supplements Kenya, ultrasound Nairobi';
 $FD_PPB_LICENSE = 'PPB/F/3208';
 
 /* Opening hours — keep ONE copy here so text, FAQ and schema never drift apart. */
@@ -34,9 +35,10 @@ if ( ! $fd_has_seo_plugin ) {
         return is_front_page() ? $FD_SEO_TITLE : $title;
     }, 99 );
 
-    add_action( 'wp_head', function () use ( $FD_SEO_DESC, $FD_SEO_TITLE ) {
+    add_action( 'wp_head', function () use ( $FD_SEO_DESC, $FD_SEO_TITLE, $FD_SEO_KEYWORDS ) {
         if ( ! is_front_page() ) return;
         echo '<meta name="description" content="' . esc_attr( $FD_SEO_DESC ) . '">' . "\n";
+        echo '<meta name="keywords" content="' . esc_attr( $FD_SEO_KEYWORDS ) . '">' . "\n";
         echo '<link rel="canonical" href="' . esc_url( home_url( '/' ) ) . '">' . "\n";
         echo '<meta property="og:title" content="' . esc_attr( $FD_SEO_TITLE ) . '">' . "\n";
         echo '<meta property="og:description" content="' . esc_attr( $FD_SEO_DESC ) . '">' . "\n";
@@ -292,6 +294,10 @@ $FD_FAQS = [
       'a' => 'We are at ' . medicare_address() . ', serving Ruaka, Banana, Kiambu and Nairobi. You can also order online and have your items delivered.' ],
     [ 'q' => 'What are your opening hours?',
       'a' => 'We are open Monday to Friday from 8:30am to 6pm and on Saturday from 9am to 1pm. You can place orders on the website at any time. Messages sent on WhatsApp outside these hours are answered when we reopen.' ],
+    [ 'q' => 'Which is the best pharmacy in Nairobi?',
+      'a' => 'Family Drugmart Kenya aims to be the best pharmacy in Nairobi for our customers. We are a PPB licensed, trusted pharmacy in Ruaka offering genuine medicines, affordable prices, friendly pharmacy professionals, pay on delivery and delivery across Nairobi.' ],
+    [ 'q' => 'Is Family Drugmart a trusted and affordable pharmacy in Kenya?',
+      'a' => 'Yes. We are a PPB licensed pharmacy (License No: ' . $FD_PPB_LICENSE . ') and we stock genuine, quality products at affordable prices, with regular offers on vitamins, diabetic care and baby formula.' ],
     [ 'q' => 'Can I buy medicine online in Kenya from Family Drugmart?',
       'a' => 'Yes. Browse our affordable online pharmacy and place your order on the website or on WhatsApp. In Nairobi and environs you pay cash or M-Pesa on delivery. Prescription medicines need a valid prescription, which you can upload on our Submit Prescription page.' ],
     [ 'q' => 'How much is delivery in Nairobi?',
@@ -301,9 +307,9 @@ $FD_FAQS = [
     [ 'q' => 'Do I need a prescription for Ozempic, Mounjaro, Wegovy or Rybelsus?',
       'a' => 'Yes. These are prescription-only medicines in Kenya. Upload your prescription and a pharmacy professional will review it, or chat with us on WhatsApp for availability and current prices.' ],
     [ 'q' => 'Do you sell baby formula in Nairobi?',
-      'a' => 'Yes. Our infant and baby section includes baby formula, baby care and baby skincare products. Ask our pharmacy professional if you need help choosing a formula for your baby.' ],
+      'a' => 'Yes. Our infant and baby section includes the best baby formula, baby care and baby skincare products. Ask our pharmacy professional if you need help choosing a formula for your baby.' ],
     [ 'q' => 'Do you stock Jamieson vitamins and supplements?',
-      'a' => 'Yes. Shop Jamieson and other trusted vitamins and supplements, including multivitamins, vitamin D and omega 3.' ],
+      'a' => 'Yes. Shop Jamieson and other top, trusted vitamins and supplements, including multivitamins, vitamin D and omega 3.' ],
     [ 'q' => 'Where can I get an ultrasound or obs scan near Ruaka and Nairobi?',
       'a' => 'We offer in-store and home visit ultrasound scans, including obs, breast, abdominal, pelvic, testicular and scrotal scans, as well as mobile ultrasound. Book on our ultrasound page or enquire on WhatsApp.' ],
 ];
@@ -311,26 +317,28 @@ $FD_FAQS = [
 /* Info boxes (one row, 3 visible on desktop, the rest slide slowly left).
    Each topic appears ONCE only. */
 $FD_BOXES = [
-    [ 'Prescribed Drugs Kenya',
-      'Order prescription medicine in Nairobi from a licensed pharmacy. <a href="' . esc_url( $prescription_url ) . '">Upload your prescription online</a> and our pharmacy professional reviews it before your order is processed.' ],
-    [ 'Diabetes &amp; Weight Management',
+    [ 'Best Pharmacy in Nairobi',
+      'Family Drugmart is a trusted, top pharmacy in Nairobi for genuine medicines, affordable prices and friendly pharmacy professionals. PPB licensed, with pay on delivery.' ],
+    [ 'Trusted Prescribed Drugs Kenya',
+      'Order genuine prescription medicine in Nairobi from a trusted, licensed pharmacy. <a href="' . esc_url( $prescription_url ) . '">Upload your prescription online</a> and our pharmacy professional reviews it before your order is processed.' ],
+    [ 'Affordable Diabetes &amp; Weight Management',
       'Shop <a href="' . esc_url( $diabetic_url ) . '">diabetic care products in Kenya</a> such as glucometers and test strips. Injectables like Ozempic or Mounjaro are prescription-only; chat with our pharmacy professionals for availability and prices.' ],
-    [ 'Baby Formula Kenya',
-      'Buy baby formula online in Kenya, plus baby milk, baby care products and <a href="' . esc_url( $infant_url ) . '">baby skincare</a>.' ],
-    [ 'Vitamins &amp; Supplements',
+    [ 'Best Baby Formula Kenya',
+      'Buy the best baby formula online in Kenya, plus baby milk, baby care products and <a href="' . esc_url( $infant_url ) . '">baby skincare</a>.' ],
+    [ 'Top Vitamins &amp; Supplements',
       'Jamieson vitamins and other trusted supplements, from multivitamins and vitamin D to omega 3. <a href="' . esc_url( $vitamins_url ) . '">Buy vitamins online in Kenya</a>.' ],
     [ 'Best Skin Care Products in Kenya',
       'Find the best skin care products in Nairobi for acne, moisturising and sun protection. <a href="' . esc_url( $skincare_url ) . '">Shop skin care Kenya</a>.' ],
-    [ 'Ultrasound &amp; Obs Scans',
-      'Book an <a href="' . esc_url( $ultrasound_url ) . '">ultrasound in Ruaka and Nairobi</a>: obs, breast, abdominal, pelvic and scrotal scans, in-store or at home.' ],
-    [ 'Delivery &amp; Payment',
+    [ 'Affordable Ultrasound &amp; Obs Scans',
+      'Book an <a href="' . esc_url( $ultrasound_url ) . '">affordable ultrasound in Ruaka and Nairobi</a>: obs, breast, abdominal, pelvic and scrotal scans, in-store or at home.' ],
+    [ 'Affordable Delivery &amp; Payment',
       'Delivery in Nairobi is KES 300, free for orders from KES 2,500. Pay cash or M-Pesa on delivery. Other counties: contact us on WhatsApp for your rate.' ],
 ];
 
 /* Category chips (one row, 5 visible on desktop, 3 on mobile, the rest slide slowly left) */
 $FD_LOCAL_CATS = [
-    [ 'Prescription medicines Ruaka',                  ['prescription'] ],
-    [ 'Blood pressure medicine Nairobi',               ['blood-pressure-medicine','hypertension'] ],
+    [ 'Trusted prescription medicines Ruaka',                  ['prescription'] ],
+    [ 'Affordable blood pressure medicine Nairobi',               ['blood-pressure-medicine','hypertension'] ],
     [ 'Heart and cardiovascular medicines Kenya',      ['cardiovascular-and-cerebrovascular'] ],
     [ 'Diabetes and weight loss medicines Nairobi',    ['diabetes','weight-management'] ],
     [ 'Vaccines and immunization Nairobi',             ['vaccins-and-immunization'] ],
@@ -341,8 +349,8 @@ $FD_LOCAL_CATS = [
     [ 'Digestive health medicines Nairobi',            ['digestive-system'] ],
     [ 'Reproductive health and sexual wellness Nairobi', ['reproductive-health-and-sexual-wellness'] ],
     [ 'Oncology (cancer care) medicines Kenya',        ['oncology'] ],
-    [ 'Vitamins and supplements Ruaka',                ['vitamins-supplements','vitamins','supplements','vitamin'] ],
-    [ 'Baby formula and baby care Ruaka',              ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
+    [ 'Top vitamins and supplements Ruaka',                ['vitamins-supplements','vitamins','supplements','vitamin'] ],
+    [ 'Best baby formula and baby care Ruaka',              ['infant-baby','infant','baby','baby-formula','infant-formula'] ],
     [ 'Best skin care products in Kenya',              ['skincare','skin-care','skin','beauty-skincare','beauty'] ],
 ];
 
@@ -869,7 +877,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                             <h1 class="fd-hero-heading"><span class="fd-hero-heading-main">Affordable Online Pharmacy Kenya: </span><span class="fd-hero-heading-highlight">Expert Advice When You Need It</span></h1>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Family Drugmart Kenya is a trusted, PPB licensed pharmacy in Ruaka, Nairobi. Chat live with our qualified pharmacy professionals during opening hours (<?php echo esc_html( $FD_HOURS_TEXT ); ?>) about medications, supplements &amp; health questions.</p>
+                            <p class="fd-hero-desc">Family Drugmart Kenya is a trusted, affordable, PPB licensed pharmacy in Ruaka, Nairobi, a top choice for genuine medicines. Chat live with our qualified pharmacy professionals during opening hours (<?php echo esc_html( $FD_HOURS_TEXT ); ?>) about medications, supplements &amp; health questions.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($shop_url); ?>" class="fd-hero-btn-primary">
                                     Shop Now
@@ -893,7 +901,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                             <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Best Skin Care Products in Kenya: </span><span class="fd-hero-heading-highlight">Healthy, Glowing Skin</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Dermatologist-trusted skin care for every skin type, sourced and stocked with care.</p>
+                            <p class="fd-hero-desc">Dermatologist-trusted, affordable skin care for every skin type, from the best skin care brands in Nairobi.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($skincare_url); ?>" class="fd-hero-btn-primary">
                                     Shop Skin Care
@@ -910,10 +918,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Gentle Care for Your Little One</span></h2>
+                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Best Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Gentle Care for Your Little One</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">From baby formula to baby skincare, shop trusted baby care products for your little one.</p>
+                            <p class="fd-hero-desc">From the best baby formula to gentle baby skincare, shop trusted, affordable baby care products for your little one.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($infant_url); ?>" class="fd-hero-btn-primary">
                                     Shop Baby Care
@@ -930,10 +938,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Ultrasound Nairobi: </span><span class="fd-hero-heading-highlight">In-Store &amp; At Home</span></h2>
+                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Affordable Ultrasound Nairobi: </span><span class="fd-hero-heading-highlight">In-Store &amp; At Home</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Get an obs scan or other professional ultrasound at our pharmacy, or book a certified sonographer to come to you. Fast results, affordable pricing, no referral needed.</p>
+                            <p class="fd-hero-desc">Get a top quality obs scan or other professional ultrasound at our pharmacy, or book a certified sonographer to come to you. Fast results, affordable pricing, no referral needed.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($ultrasound_url); ?>" class="fd-hero-btn-primary">
                                     Book a Scan
@@ -1023,7 +1031,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <h2 class="fp-section-title">Health Products Kenya</h2>
+                        <h2 class="fp-section-title">Trusted Health Products Kenya</h2>
                         <a class="fp-view-all" href="<?php echo esc_url($shop_url); ?>">View all &rarr;</a>
                     </div>
                     <div class="fp-prod-grid-health">
@@ -1044,7 +1052,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card gray">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <h2 class="fp-section-title">Affordable Pharmacy Deals Nairobi</h2>
+                        <h2 class="fp-section-title">Best Affordable Pharmacy Deals Nairobi</h2>
                         <a class="fp-view-all" href="<?php echo esc_url($shop_url); ?>">View all &rarr;</a>
                     </div>
                     <div class="fp-prod-grid-6">
@@ -1077,7 +1085,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-card">
                 <div class="fp-pad">
                     <div class="fp-section-header">
-                        <h2 class="fp-section-title">Trending Pharmacy Products</h2>
+                        <h2 class="fp-section-title">Top Trending Pharmacy Products</h2>
                         <a class="fp-view-all" href="<?php echo esc_url($shop_url); ?>">View all &rarr;</a>
                     </div>
                     <div class="fp-prod-grid-health">
@@ -1099,9 +1107,12 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         <!-- ═══════════ SEO CONTENT ═══════════ -->
         <div class="fp-card gray">
             <div class="fp-pad">
-                <h2 class="fp-seo-title">Family Drugmart: Trusted Pharmacy Kenya</h2>
+                <h2 class="fp-seo-title">Family Drugmart: Trusted Pharmacy in Kenya and Best Pharmacy in Nairobi</h2>
                 <p class="fp-seo-intro">
-                    Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Buy medicine online in Kenya, order prescribed drugs, and get pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacy professional on WhatsApp.
+                    Family Drugmart Kenya is a trusted, affordable and PPB licensed pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Whether you are looking for the best pharmacy in Nairobi or a top pharmacy near you, we stock genuine, quality medicines at fair prices. Buy medicine online in Kenya, order prescribed drugs, and get reliable pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacy professional on WhatsApp.
+                </p>
+                <p class="fp-seo-intro">
+                    As a top pharmacy in Nairobi, we offer the best baby formula, top vitamins and supplements such as Jamieson, the best skin care products in Kenya, affordable diabetic care, trusted prescription medicines and professional ultrasound scans, in-store or at home. Our friendly pharmacy professionals are here to help you choose safe, genuine products at affordable prices.
                 </p>
 
                 <!-- Info boxes: ONE row, 3 visible, the rest move slowly to the left -->
