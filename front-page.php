@@ -15,6 +15,9 @@ $FD_SEO_TITLE = 'Family Drugmart | Affordable Online Pharmacy Kenya';
 $FD_SEO_DESC  = 'Affordable online pharmacy Kenya in Ruaka, Nairobi. PPB licensed. Prescribed drugs, baby formula, vitamins, skin care and ultrasound scans. Pay on delivery.';
 $FD_PPB_LICENSE = 'PPB/F/3208';
 
+/* Opening hours — keep ONE copy here so text, FAQ and schema never drift apart. */
+$FD_HOURS_TEXT = 'Mon to Fri 8:30am to 6pm, Sat 9am to 1pm';
+
 /* functions.php already prints a Pharmacy schema on every page (medicare_schema).
    This page prints its own fuller one below, so remove the duplicate here. */
 remove_action( 'wp_head', 'medicare_schema' );
@@ -287,14 +290,18 @@ $FD_FAQS = [
       'a' => 'Yes. Family Drugmart Kenya is a Pharmacy and Poisons Board (PPB) licensed pharmacy in Kenya, License No: ' . $FD_PPB_LICENSE . '.' ],
     [ 'q' => 'Where is Family Drugmart Kenya located?',
       'a' => 'We are at ' . medicare_address() . ', serving Ruaka, Banana, Kiambu and Nairobi. You can also order online and have your items delivered.' ],
+    [ 'q' => 'What are your opening hours?',
+      'a' => 'We are open Monday to Friday from 8:30am to 6pm and on Saturday from 9am to 1pm. You can place orders on the website at any time. Messages sent on WhatsApp outside these hours are answered when we reopen.' ],
     [ 'q' => 'Can I buy medicine online in Kenya from Family Drugmart?',
       'a' => 'Yes. Browse our affordable online pharmacy and place your order on the website or on WhatsApp. In Nairobi and environs you pay cash or M-Pesa on delivery. Prescription medicines need a valid prescription, which you can upload on our Submit Prescription page.' ],
     [ 'q' => 'How much is delivery in Nairobi?',
       'a' => 'Delivery in Nairobi is KES 300, and it is free for orders of KES 2,500 and above. For other counties, contact us on WhatsApp for your county rate; full payment is made before dispatch.' ],
+    [ 'q' => 'Do you deliver temperature-sensitive medicines?',
+      'a' => 'Yes. Temperature-sensitive medicines, such as insulin, are packed in insulated packaging with ice packs to keep them cool during delivery. Chat with us on WhatsApp to confirm availability and delivery for your area.' ],
     [ 'q' => 'Do I need a prescription for Ozempic, Mounjaro, Wegovy or Rybelsus?',
-      'a' => 'Yes. These are prescription-only medicines in Kenya. Upload your prescription and our pharmacist will review it, or chat with us on WhatsApp for availability and current prices.' ],
+      'a' => 'Yes. These are prescription-only medicines in Kenya. Upload your prescription and a pharmacy professional will review it, or chat with us on WhatsApp for availability and current prices.' ],
     [ 'q' => 'Do you sell baby formula in Nairobi?',
-      'a' => 'Yes. Our infant and baby section includes baby formula, baby care and baby skincare products. Ask our pharmacist if you need help choosing a formula for your baby.' ],
+      'a' => 'Yes. Our infant and baby section includes baby formula, baby care and baby skincare products. Ask our pharmacy professional if you need help choosing a formula for your baby.' ],
     [ 'q' => 'Do you stock Jamieson vitamins and supplements?',
       'a' => 'Yes. Shop Jamieson and other trusted vitamins and supplements, including multivitamins, vitamin D and omega 3.' ],
     [ 'q' => 'Where can I get an ultrasound or obs scan near Ruaka and Nairobi?',
@@ -305,9 +312,9 @@ $FD_FAQS = [
    Each topic appears ONCE only. */
 $FD_BOXES = [
     [ 'Prescribed Drugs Kenya',
-      'Order prescription medicine in Nairobi from a licensed pharmacy. <a href="' . esc_url( $prescription_url ) . '">Upload your prescription online</a> and our pharmacist reviews it before your order is processed.' ],
+      'Order prescription medicine in Nairobi from a licensed pharmacy. <a href="' . esc_url( $prescription_url ) . '">Upload your prescription online</a> and our pharmacy professional reviews it before your order is processed.' ],
     [ 'Diabetes &amp; Weight Management',
-      'Shop <a href="' . esc_url( $diabetic_url ) . '">diabetic care products in Kenya</a> such as glucometers and test strips. Injectables like Ozempic or Mounjaro are prescription-only; chat with our pharmacist for availability and prices.' ],
+      'Shop <a href="' . esc_url( $diabetic_url ) . '">diabetic care products in Kenya</a> such as glucometers and test strips. Injectables like Ozempic or Mounjaro are prescription-only; chat with our pharmacy professionals for availability and prices.' ],
     [ 'Baby Formula Kenya',
       'Buy baby formula online in Kenya, plus baby milk, baby care products and <a href="' . esc_url( $infant_url ) . '">baby skincare</a>.' ],
     [ 'Vitamins &amp; Supplements',
@@ -367,6 +374,16 @@ $fd_pharmacy_schema = [
     ],
     'identifier'   => [ '@type' => 'PropertyValue', 'name' => 'Pharmacy and Poisons Board (PPB) Kenya License No', 'value' => $FD_PPB_LICENSE ],
     'paymentAccepted' => 'Cash on delivery, M-Pesa on delivery',
+    'openingHoursSpecification' => [
+        [ '@type'     => 'OpeningHoursSpecification',
+          'dayOfWeek' => ['Monday','Tuesday','Wednesday','Thursday','Friday'],
+          'opens'     => '08:30',
+          'closes'    => '18:00' ],
+        [ '@type'     => 'OpeningHoursSpecification',
+          'dayOfWeek' => 'Saturday',
+          'opens'     => '09:00',
+          'closes'    => '13:00' ],
+    ],
 ];
 $fd_faq_schema = [
     '@context'   => 'https://schema.org',
@@ -476,24 +493,13 @@ if ( ! $fd_has_yoast_local ) : ?>
 .fd-hero-content-top { display: flex; flex-direction: column; align-items: center; }
 .fd-hero-content-bottom { display: flex; flex-direction: column; align-items: center; width: 100%; }
 
-.fd-hero-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(245,166,35,.18); border: 1px solid rgba(245,166,35,.50);
-    color: var(--fd-gold); font-size: 11px; font-weight: 800;
-    padding: 7px 18px; border-radius: 50px; margin-bottom: 18px;
-    font-family: var(--fd-font-body); letter-spacing: 1.3px; text-transform: uppercase;
-    backdrop-filter: blur(6px);
-    opacity: 0; animation: fd-fade-up .55s ease forwards; animation-delay: .1s;
-}
+/* Headings are plain static text: no typing effect, no cursor, visible immediately. */
 .fd-hero-heading {
     font-family: var(--fd-font-head); font-weight: 900;
     font-size: clamp(28px, 3.6vw, 48px); color: #fff; line-height: 1.18; margin: 0;
     text-shadow: 0 2px 12px rgba(0,0,0,.55); max-width: 780px;
-    opacity: 0; animation: fd-fade-up .6s ease forwards; animation-delay: .22s;
 }
 .fd-hero-heading-highlight { color: var(--fd-gold); }
-.fd-hero-cursor { display: inline-block; color: var(--fd-gold); margin-left: 2px; animation: fd-blink 1s steps(1) infinite; }
-@keyframes fd-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
 .fd-hero-desc {
     font-family: var(--fd-font-body); font-size: 15px; line-height: 1.75;
@@ -553,7 +559,6 @@ if ( ! $fd_has_yoast_local ) : ?>
     .fd-hero { height: 360px !important; border-radius: 14px; }
     .fd-hero-slide { background-position: center 12% !important; }
     .fd-hero-content { padding: 20px 18px !important; }
-    .fd-hero-tag { font-size: 9px !important; margin-bottom: 12px !important; }
     .fd-hero-heading { font-size: clamp(22px, 5.5vw, 30px) !important; }
     .fd-hero-desc { display: none !important; }
     .fd-hero-btn-blue { display: none; }
@@ -695,10 +700,10 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
 @keyframes cvCountdown { from { transform:scaleX(1); } to { transform:scaleX(0); } }
 @media(max-width:600px) { #carevee-toast { bottom:80px; right:12px; left:12px; min-width:unset; max-width:unset; } }
 
-/* ══ SLOW MOVING ROWS (info boxes + category chips) ══
+/* ══ SLOW MOVING ROWS (info boxes + category chips)
    One row only. The track holds two identical groups and slides left by
    exactly one group width, so the loop is seamless.
-   --n = how many items are visible at once. */
+   --n = how many items are visible at once. ══ */
 @keyframes fp-marq-scroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
 
 .fp-marq {
@@ -861,18 +866,17 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h1 class="fd-hero-heading" data-main="Affordable Online Pharmacy Kenya: " data-highlight="Expert Advice When You Need It"><span class="fd-hero-heading-main">Affordable Online Pharmacy Kenya: </span><span class="fd-hero-heading-highlight">Expert Advice When You Need It</span><span class="fd-hero-cursor">|</span></h1>
+                            <h1 class="fd-hero-heading"><span class="fd-hero-heading-main">Affordable Online Pharmacy Kenya: </span><span class="fd-hero-heading-highlight">Expert Advice When You Need It</span></h1>
                         </div>
                         <div class="fd-hero-content-bottom">
-                            <p class="fd-hero-desc">Family Drugmart Kenya is a trusted, PPB licensed pharmacy in Ruaka, Nairobi. Chat live with our qualified pharmacists every day about medications, supplements &amp; health questions.</p>
+                            <p class="fd-hero-desc">Family Drugmart Kenya is a trusted, PPB licensed pharmacy in Ruaka, Nairobi. Chat live with our qualified pharmacy professionals during opening hours (<?php echo esc_html( $FD_HOURS_TEXT ); ?>) about medications, supplements &amp; health questions.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($shop_url); ?>" class="fd-hero-btn-primary">
                                     Shop Now
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </a>
-                                <a href="https://wa.me/<?php echo esc_attr( $fd_wa_number ); ?>?text=<?php echo rawurlencode("Hi! I'd like to speak with a pharmacist."); ?>"
+                                <a href="https://wa.me/<?php echo esc_attr( $fd_wa_number ); ?>?text=<?php echo rawurlencode("Hi! I'd like to speak with a pharmacy professional."); ?>"
                                    class="fd-hero-btn-blue" target="_blank" rel="noopener noreferrer">
-                                    Talk to a Pharmacist &rarr;
+                                    Talk to a Pharmacy Professional
                                 </a>
                             </div>
                         </div>
@@ -886,14 +890,13 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h2 class="fd-hero-heading" data-main="Best Skin Care Products in Kenya: " data-highlight="Healthy, Glowing Skin"><span class="fd-hero-heading-main">Best Skin Care Products in Kenya: </span><span class="fd-hero-heading-highlight">Healthy, Glowing Skin</span><span class="fd-hero-cursor">|</span></h2>
+                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Best Skin Care Products in Kenya: </span><span class="fd-hero-heading-highlight">Healthy, Glowing Skin</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
                             <p class="fd-hero-desc">Dermatologist-trusted skin care for every skin type, sourced and stocked with care.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($skincare_url); ?>" class="fd-hero-btn-primary">
                                     Shop Skin Care
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -907,14 +910,13 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <h2 class="fd-hero-heading" data-main="Baby Formula Kenya: " data-highlight="Gentle Care for Your Little One"><span class="fd-hero-heading-main">Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Gentle Care for Your Little One</span><span class="fd-hero-cursor">|</span></h2>
+                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Baby Formula Kenya: </span><span class="fd-hero-heading-highlight">Gentle Care for Your Little One</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
                             <p class="fd-hero-desc">From baby formula to baby skincare, shop trusted baby care products for your little one.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($infant_url); ?>" class="fd-hero-btn-primary">
                                     Shop Baby Care
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -928,19 +930,17 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                     <div class="fd-hero-frame-border" aria-hidden="true"></div>
                     <div class="fd-hero-content">
                         <div class="fd-hero-content-top">
-                            <span class="fd-hero-tag">In-Store &amp; Home Visit Scans</span>
-                            <h2 class="fd-hero-heading" data-main="Ultrasound Nairobi: " data-highlight="In-Store &amp; At Home"><span class="fd-hero-heading-main">Ultrasound Nairobi: </span><span class="fd-hero-heading-highlight">In-Store &amp; At Home</span><span class="fd-hero-cursor">|</span></h2>
+                            <h2 class="fd-hero-heading"><span class="fd-hero-heading-main">Ultrasound Nairobi: </span><span class="fd-hero-heading-highlight">In-Store &amp; At Home</span></h2>
                         </div>
                         <div class="fd-hero-content-bottom">
                             <p class="fd-hero-desc">Get an obs scan or other professional ultrasound at our pharmacy, or book a certified sonographer to come to you. Fast results, affordable pricing, no referral needed.</p>
                             <div class="fd-hero-actions">
                                 <a href="<?php echo esc_url($ultrasound_url); ?>" class="fd-hero-btn-primary">
                                     Book a Scan
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </a>
                                 <a href="https://wa.me/<?php echo esc_attr( $fd_wa_number ); ?>?text=<?php echo rawurlencode("Hi! I'd like to book an ultrasound scan."); ?>"
                                    class="fd-hero-btn-blue" target="_blank" rel="noopener noreferrer">
-                                    Enquire on WhatsApp &rarr;
+                                    Enquire on WhatsApp
                                 </a>
                             </div>
                         </div>
@@ -1101,7 +1101,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             <div class="fp-pad">
                 <h2 class="fp-seo-title">Family Drugmart: Trusted Pharmacy Kenya</h2>
                 <p class="fp-seo-intro">
-                    Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Buy medicine online in Kenya, order prescribed drugs, and get pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacist on WhatsApp.
+                    Family Drugmart Kenya is a trusted pharmacy in Kenya, based at <?php echo esc_html( medicare_address() ); ?>, serving Ruaka, Banana, Kiambu and Nairobi. Buy medicine online in Kenya, order prescribed drugs, and get pharmacy delivery in Nairobi. Pay cash or M-Pesa on delivery, upload your prescription, or chat with a pharmacy professional on WhatsApp.
                 </p>
 
                 <!-- Info boxes: ONE row, 3 visible, the rest move slowly to the left -->
@@ -1145,6 +1145,7 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
                 <div class="fp-info-strip">
                     <span><strong>Address:</strong> <?php echo esc_html( medicare_address() ); ?></span>
                     <span><strong>PPB License No:</strong> <?php echo esc_html( $FD_PPB_LICENSE ); ?></span>
+                    <span><strong>Opening hours:</strong> <?php echo esc_html( $FD_HOURS_TEXT ); ?></span>
                 </div>
             </div>
         </div>
@@ -1216,40 +1217,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         var current     = 0;
         var autoTimer   = null;
         var AUTOPLAY_MS = 6000;
-        var TYPE_SPEED  = 35;
-
-        function decodeEntities(str) {
-            var t = document.createElement('textarea');
-            t.innerHTML = str;
-            return t.value;
-        }
-
-        function typeHeading(slideEl) {
-            var heading = slideEl.querySelector('.fd-hero-heading');
-            if (!heading) return;
-            var main = decodeEntities(heading.getAttribute('data-main') || '');
-            var hi   = decodeEntities(heading.getAttribute('data-highlight') || '');
-            var full = main + hi;
-            var mainSpan = heading.querySelector('.fd-hero-heading-main');
-            var hiSpan   = heading.querySelector('.fd-hero-heading-highlight');
-            if (!mainSpan || !hiSpan) return;
-            clearInterval(heading._typeTimer);
-            mainSpan.textContent = '';
-            hiSpan.textContent   = '';
-            var i = 0;
-            heading._typeTimer = setInterval(function () {
-                i++;
-                var typed = full.slice(0, i);
-                if (typed.length <= main.length) {
-                    mainSpan.textContent = typed;
-                    hiSpan.textContent   = '';
-                } else {
-                    mainSpan.textContent = main;
-                    hiSpan.textContent   = typed.slice(main.length);
-                }
-                if (i >= full.length) clearInterval(heading._typeTimer);
-            }, TYPE_SPEED);
-        }
 
         function goTo(index) {
             index = ((index % total) + total) % total;
@@ -1260,7 +1227,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
             current = index;
             slides[current].classList.add('active');
             if (dots[current]) dots[current].classList.add('active');
-            setTimeout(function () { typeHeading(slides[current]); }, 260);
         }
 
         function next() { goTo(current + 1); }
@@ -1277,7 +1243,6 @@ ul.woocommerce-error, .wc-forward { display:none !important; }
         hero.addEventListener('mouseenter', stopAuto);
         hero.addEventListener('mouseleave', startAuto);
 
-        setTimeout(function () { typeHeading(slides[0]); }, 450);
         startAuto();
     }
 
