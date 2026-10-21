@@ -38,7 +38,7 @@ $fd_shop_cats = [
 
   ['Skin Care & Dermatology', 'skin-care-dermatology', false, []],
 
-  ['Preventive Medicines', 'prophylaxis-preventive-medicines', false, []],
+  ['Prophylaxis & Preventive Medicines.', 'prophylaxis-preventive-medicines', false, []],
 
   ['Smoke Cessation', 'smoke-cessation', false, []],
 
