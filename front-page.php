@@ -507,11 +507,7 @@ if ( ! $fd_has_yoast_local ) : ?>
     font-size: clamp(28px, 3.6vw, 48px); color: #fff; line-height: 1.18; margin: 0;
     text-shadow: 0 2px 12px rgba(0,0,0,.55); max-width: 780px;
 }
-.fd-hero-heading-highlight {
-    color: var(--fd-blue);
-    /* white halo keeps the blue readable over the dark hero photos */
-    text-shadow: 0 0 2px #fff, 0 0 6px rgba(255,255,255,.9), 0 0 16px rgba(255,255,255,.55);
-}
+.fd-hero-heading-highlight { color: var(--fd-blue); text-shadow: none; }
 
 .fd-hero-desc {
     font-family: var(--fd-font-body); font-size: 15px; line-height: 1.75;
