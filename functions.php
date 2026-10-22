@@ -78,18 +78,23 @@ function medicare_get_wa_url( $product_id ) {
 // ════════════════════════════════════════════════════════════════════════════
 // ─── PRESCRIPTION-ONLY CATEGORIES ────────────────────────────────────────
 // ════════════════════════════════════════════════════════════════════════════
-// NOTE: has_term() does NOT count parent categories, so every Rx slug must be listed.
+// Every category listed here is restricted, AND so is every subcategory under it
+// (see medicare_prescription_term_ids below), so anything you add later under
+// "Prescriptions & Specialised Care" or "Hormones, Fertility & Women's Health"
+// is restricted automatically.
 function medicare_prescription_categories() {
     return array(
-        // ── Final Rx categories (client's new structure) ──
+        // ── Parent categories: all subcategories below them are covered automatically ──
         'prescription',                            // Prescriptions & Specialised Care
+        'hormone-fertility-medicine',              // Hormones, Fertility & Women's Health
+
+        // ── Other Rx categories ──
         'blood-pressure-medicine',                 // Antihypertensives
         'vaccins-and-immunization',                // Vaccines
         'diabetes',                                // Diabetes & Weightloss
-        'menopause-hrt',                           // Menopause & HRT (sub of Hormones & Corticosteroids)
+        'menopause-hrt',                           // Menopause & HRT
         'prescription-eye-drops',                  // Prescription Eye Drops
         'erectile-dysfunction-medicine',           // Men's Sexual Health (Rx)
-        
 
         // ── Old categories: keep until their products are merged into the ones above,
         //    then delete everything below this line ──
@@ -106,8 +111,39 @@ function medicare_prescription_categories() {
     );
 }
 
+// Term IDs of every restricted category PLUS all of their child categories.
+// (has_term() does not count parent categories, so children are added here.)
+function medicare_prescription_term_ids() {
+    static $ids = null;
+    if ( $ids !== null ) return $ids;
+
+    $ids = array();
+    foreach ( medicare_prescription_categories() as $slug ) {
+        $term = get_term_by( 'slug', $slug, 'product_cat' );
+        if ( ! $term || is_wp_error( $term ) ) continue;
+
+        $ids[] = (int) $term->term_id;
+
+        $children = get_term_children( $term->term_id, 'product_cat' );
+        if ( ! is_wp_error( $children ) ) {
+            foreach ( $children as $child_id ) {
+                $ids[] = (int) $child_id;
+            }
+        }
+    }
+    $ids = array_values( array_unique( $ids ) );
+    return $ids;
+}
+
 function medicare_is_prescription_product( $product_id ) {
-    return has_term( medicare_prescription_categories(), 'product_cat', $product_id );
+    // Variations inherit the restriction from their parent product
+    $parent = wp_get_post_parent_id( $product_id );
+    if ( $parent ) $product_id = $parent;
+
+    $ids = medicare_prescription_term_ids();
+    if ( empty( $ids ) ) return false;
+
+    return has_term( $ids, 'product_cat', $product_id );
 }
 
 function medicare_prescription_url( $product_id = 0 ) {
@@ -144,6 +180,26 @@ add_filter('woocommerce_add_to_cart_validation', function( $passed, $product_id 
     }
     return $passed;
 }, 10, 2);
+
+// Safety net: if a restricted product is already sitting in a cart
+// (added before the restriction), remove it when the cart or checkout loads.
+add_action( 'woocommerce_check_cart_items', function () {
+    if ( ! function_exists( 'WC' ) || ! WC()->cart ) return;
+
+    foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
+        $pid = (int) $item['product_id'];
+        if ( medicare_is_prescription_product( $pid ) ) {
+            WC()->cart->remove_cart_item( $cart_key );
+            wc_add_notice(
+                sprintf(
+                    '"%s" requires a valid prescription, so it was removed from your cart. Please submit your prescription to order it.',
+                    get_the_title( $pid )
+                ),
+                'error'
+            );
+        }
+    }
+} );
 
 // ── Rx add-to-cart loop link checks stock and returns a disabled/greyed span
 //    (reuses .atc-outofstock, styled per-page) when out of stock, instead of
